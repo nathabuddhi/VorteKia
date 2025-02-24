@@ -1,0 +1,10 @@
+List Use Case VorteKia - NB
+
+1. Edit Restaurant Details
+2. Allocate Restaurant Staff
+3. Send Broadcast Message
+4. Submit Maintenance Reports
+5. Edit Menu Detail
+6. Edit Ride Queue
+7. Assign Maintenance Tasks
+8. Allocate Ride Staff
