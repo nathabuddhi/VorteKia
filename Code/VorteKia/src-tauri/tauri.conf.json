@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "vortekia-frontend",
+  "productName": "vortekia",
   "version": "0.1.0",
-  "identifier": "com.vortekia-frontend.app",
+  "identifier": "com.vortekia.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "vortekia-frontend",
+        "title": "vortekia",
         "width": 800,
         "height": 600
       }

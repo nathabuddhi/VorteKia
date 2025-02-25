@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    vortekia_frontend_lib::run()
+    vortekia_lib::run()
 }
