@@ -1,24 +1,24 @@
 # Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+Code/VorteKia/logs
+Code/VorteKia/*.log
+Code/VorteKia/npm-debug.log*
+Code/VorteKia/yarn-debug.log*
+Code/VorteKia/yarn-error.log*
+Code/VorteKia/pnpm-debug.log*
+Code/VorteKia/lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+Code/VorteKia/node_modules
+Code/VorteKia/dist
+Code/VorteKia/dist-ssr
+Code/VorteKia/*.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Code/VorteKia/.vscode/*
+Code/VorteKia/!.vscode/extensions.json
+Code/VorteKia/.idea
+Code/VorteKia/.DS_Store
+Code/VorteKia/*.suo
+Code/VorteKia/*.ntvs*
+Code/VorteKia/*.njsproj
+Code/VorteKia/*.sln
+Code/VorteKia/*.sw?
