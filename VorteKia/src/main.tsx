@@ -1,14 +1,20 @@
 import ReactDOM from "react-dom/client";
-import Home from "./Home";
-import { Route, BrowserRouter, Navigate, Routes } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router";
+import RootLayout from "./layouts/root-layout";
+import "./App.css";
+import HomePage from "./pages/home";
+import AboutPage from "./pages/about";
+import LoginPage from "./pages/login";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
         <Routes>
-            <Route path="/" element={<Home />} />
-            {/* <Route path="/login" element={<LoginHome />} /> */}
-            {/* <Route path="/unknown" element={<NotFound />} /> */}
-            <Route path="*" element={<Navigate to="/unknown" />} />
+            <Route path="/" element={<RootLayout />}>
+                <Route index element={<HomePage />} />
+                <Route path="about" element={<AboutPage />} />
+                <Route path="login" element={<LoginPage />} />
+            </Route>
         </Routes>
     </BrowserRouter>
 );
+
