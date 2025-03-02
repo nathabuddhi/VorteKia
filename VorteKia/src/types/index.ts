@@ -12,7 +12,9 @@ export interface User {
 }
 
 export interface UserLoggedIn {
+    name: string;
     user_id: string;
     role: string;
     division: string;
 }
+

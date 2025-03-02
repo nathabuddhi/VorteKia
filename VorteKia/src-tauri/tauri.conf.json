@@ -13,8 +13,8 @@
         "windows": [
             {
                 "title": "VorteKia",
-                "width": 1920,
-                "height": 1080,
+                "width": 1080,
+                "height": 780,
                 "center": true
             }
         ],

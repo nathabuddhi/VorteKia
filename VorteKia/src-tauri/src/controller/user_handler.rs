@@ -100,6 +100,7 @@ async fn get_user_role(
 
 #[derive(Serialize)]
 pub struct UserDetail {
+    name: String,
     user_id: String,
     role: String,
     division: String
@@ -128,6 +129,7 @@ pub async fn login(
                     let division_name = get_user_division(&db, user.user_id.clone()).await?;
 
                     let user_detail: UserDetail = UserDetail {
+                        name: user.name.clone(),
                         user_id: user.user_id.clone(),
                         role: role_name,
                         division: division_name,
