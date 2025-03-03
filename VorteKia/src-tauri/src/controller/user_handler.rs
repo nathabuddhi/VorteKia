@@ -1,7 +1,7 @@
 use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
-use entity::user::{Model as UserInstance, ActiveModel as UserActiveModel, Entity as UserEntities};
-use entity::customer::Entity as CustomerEntities;
-use entity::staff::Entity as StaffEntities;
+use entity::user::{ActiveModel as UserActiveModel, Entity as UserEntities};
+use entity::customer::{ActiveModel as CustomerActiveModel, Entity as CustomerEntities};
+use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities};
 use entity::division::Entity as DivisionEntities;
 use tauri::{command, State};
 use crate::{AppState, ApiResponse};
@@ -153,17 +153,58 @@ pub async fn login(
     }
 }
 
+
+#[derive(Deserialize)]
+pub struct LoginUIDRequest {
+    user_id: String,
+}
+#[command]
+pub async fn login_uid(
+    state: State<'_, AppState>,
+    payload: LoginUIDRequest
+) -> Result<ApiResponse<UserDetail>, String> {
+    let db = state.get_db().await.map_err(|e| e)?;
+
+    match UserEntities::find()
+        .filter(<UserEntities as EntityTrait>::Column::UserId.eq(payload.user_id))
+        .one(&db)
+        .await
+    {
+        Ok(Some(user)) => {
+                let role_name = get_user_role(&db, user.user_id.clone()).await?;
+                let division_name = get_user_division(&db, user.user_id.clone()).await?;
+
+                let user_detail: UserDetail = UserDetail {
+                    name: user.name.clone(),
+                    user_id: user.user_id.clone(),
+                    role: role_name.clone(),
+                    division: division_name,
+                };
+                if role_name == "customer" {
+                    Ok(ApiResponse::success(user_detail, "Login as Customer Successful!".to_string()))
+                } else {
+                    Ok(ApiResponse::error(None, "Detected as Staff. Please login using the staff login page.".to_string()))
+                }
+            }
+        Ok(None) => {
+            Ok(ApiResponse::error(None, "UID not found!".to_string()))
+        }
+        Err(err) => {
+            Err(format!("Database error: {}", err))
+        }
+    }
+}
+
 #[derive(Deserialize)]
 pub struct CreateUserRequest {
     email: String,
     password: String,
     name: String,
 }
-#[command]
-pub async fn create_user(
+async fn create_user(
     state: State<'_, AppState>,
     payload: CreateUserRequest,
-) -> Result<ApiResponse<UserInstance>, String> {
+) -> Result<String, String> {
     let generated_id = Uuid::new_v4();
 
     let hashed_password = hash_password(&payload.password)
@@ -179,7 +220,82 @@ pub async fn create_user(
     let db = state.get_db().await.map_err(|e| e.to_string())?;
 
     match new_user.insert(&db).await {
-        Ok(inserted_user) => Ok(ApiResponse::success(inserted_user, "User created successfully.".to_string())),
+        Ok(inserted_user) => Ok(inserted_user.user_id),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+
+#[derive(Deserialize)]
+pub struct CreateCustomerRequest {
+    email: String,
+    password: String,
+    name: String,
+    balance: f32,
+}
+#[command]
+pub async fn create_customer_account(
+    state: State<'_, AppState>,
+    payload: CreateCustomerRequest,
+) -> Result<ApiResponse<String>, String> {
+    let response = create_user(
+        state.clone(),
+        CreateUserRequest {
+            email: payload.email.clone(),
+            password: payload.password.clone(),
+            name: payload.name.clone(),
+        },
+    )
+    .await
+    .map_err(|err| format!("Failed to create user: {}", err))?;
+
+    let db = state.get_db().await.map_err(|e| e)?;
+
+    let new_customer = CustomerActiveModel {
+        user_id: Set(response),
+        balance: Set(payload.balance),
+    };
+
+    match new_customer.insert(&db).await {
+        Ok(inserted_customer) => Ok(ApiResponse::Success { success: (true), data: (inserted_customer.user_id), message: ("Success created customer!".to_string()) }),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[derive(Deserialize)]
+pub struct CreatStaffRequest {
+    email: String,
+    password: String,
+    name: String,
+    division_id: String,
+    role: String
+}
+#[command]
+pub async fn create_staff_account(
+    state: State<'_, AppState>,
+    payload: CreatStaffRequest,
+) -> Result<ApiResponse<String>, String> {
+    let response = create_user(
+        state.clone(),
+        CreateUserRequest {
+            email: payload.email.clone(),
+            password: payload.password.clone(),
+            name: payload.name.clone(),
+        },
+    )
+    .await
+    .map_err(|err| format!("Failed to create user: {}", err))?;
+
+    let db = state.get_db().await.map_err(|e| e)?;
+
+    let new_staff = StaffActiveModel {
+        user_id: Set(response),
+        division_id: Set(payload.division_id),
+        role: Set(payload.role),
+    };
+
+    match new_staff.insert(&db).await {
+        Ok(inserted_staff) => Ok(ApiResponse::Success { success: (true), data: (inserted_staff.user_id), message: ("Success created staff!".to_string()) }),
         Err(e) => Err(e.to_string()),
     }
 }

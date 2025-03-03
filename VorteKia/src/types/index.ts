@@ -18,3 +18,8 @@ export interface UserLoggedIn {
     division: string;
 }
 
+export interface Division {
+    division_id: string;
+    division_name: string;
+}
+

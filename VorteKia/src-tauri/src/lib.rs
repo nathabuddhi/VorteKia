@@ -91,7 +91,10 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             controller::user_handler::login,
-            controller::user_handler::create_user
+            controller::user_handler::login_uid,
+            controller::user_handler::create_customer_account,
+            controller::user_handler::create_staff_account,
+            controller::division_handler::get_all_divisions,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
