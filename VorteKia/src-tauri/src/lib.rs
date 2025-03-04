@@ -90,6 +90,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            controller::app_handler::get_all_apps,            
             controller::user_handler::login,
             controller::user_handler::login_uid,
             controller::user_handler::create_customer_account,

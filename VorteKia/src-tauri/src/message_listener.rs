@@ -6,7 +6,7 @@ use sqlx::postgres::PgListener;
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let mut listener2 = PgListener::connect(database_url.as_str()).await.unwrap();
+    let mut listener: PgListener = PgListener::connect(database_url.as_str()).await.unwrap();
     let (client, connection) =
         tokio_postgres::connect(database_url.as_str(), NoTls).await?;
     

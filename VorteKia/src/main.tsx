@@ -5,7 +5,6 @@ import "./App.css";
 import HomePage from "./pages/home";
 import StaffLogin from "./pages/staff-login";
 import CustomerLogin from "./pages/cust-login";
-import RegisterPage from "./pages/register";
 import RideHomePage from "./pages/ride/ride-home";
 import RideStaffPage from "./pages/ride/ride-staff";
 import RideManagerPage from "./pages/ride/ride-manager";
@@ -24,75 +23,94 @@ import MaintenanceManagerPage from "./pages/maintenance/maintenance-manager";
 import CSLostAndFoundPage from "./pages/customerservice/cs-lnf";
 import CSManagerPage from "./pages/customerservice/cs-manager";
 import CSStaffPage from "./pages/customerservice/cs-staff";
+import MainPage from "./pages/main-page";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
         <Routes>
             <Route path="/" element={<RootLayout />}>
-                <Route index element={<Navigate to="/home" />} />
-                <Route path="home" element={<HomePage />} />
-                <Route path="login" element={<CustomerLogin />} />
-                <Route path="loginstaff" element={<StaffLogin />} />
-                <Route path="register" element={<RegisterPage />} />
-                <Route path="restaurant">
-                    <Route index element={<RestaurantHomePage />} />
-                    <Route path="chef" element={<RestaurantChefPage />} />
-                    <Route path="waiter" element={<RestaurantWaiterPage />} />
-                    <Route
-                        path="supervisor"
-                        element={<RestaurantSupervisorPage />}
-                    />
-                    {/* <Route
-                        path="manage/:restaurantID"
-                        element={<ManageRestaurantPage />}
-                    /> */}
-                    <Route path="*" element={<Navigate to="/restaurant" />} />
+                <Route index element={<Navigate to="/main/home" />} />
+                <Route path="main">
+                    <Route path="home" element={<MainPage />} />
+                    <Route path="*" element={<Navigate to="/main/home" />} />
                 </Route>
-                <Route path="ride">
-                    <Route index element={<RideHomePage />} />
-                    <Route path="staff" element={<RideStaffPage />} />
-                    <Route path="manager" element={<RideManagerPage />} />
-                    {/* <Route path="manage/:rideID" element={<ManageRidePage />} /> */}
-                    <Route path="*" element={<Navigate to="/ride" />} />
-                </Route>
-                <Route path="store">
-                    <Route index element={<StoreHomePage />} />
-                    <Route path="staff" element={<StoreStaffPage />} />
-                    <Route path="manager" element={<StoreManagerPage />} />
-                    {/* <Route path="manage/:rideID" element={<ManageStorePage />} /> */}
-                    <Route path="*" element={<Navigate to="/store" />} />
-                </Route>
-                <Route path="ceo" element={<CEOPage />} />
-                <Route path="coo" element={<COOPage />} />
-                <Route path="cfo" element={<CFOPage />} />
-                <Route path="maintenance">
-                    <Route index element={<Navigate to="/home" />} />
-                    <Route path="staff" element={<MaintenanceStaffPage />} />
-                    <Route
-                        path="manager"
-                        element={<MaintenanceManagerPage />}
-                    />
-                    <Route path="*" element={<Navigate to="/maintenance" />} />
-                </Route>
-                <Route path="customerservice">
-                    <Route index element={<Navigate to="/home" />} />
-                    <Route path="staff" element={<CSStaffPage />} />
-                    <Route path="manager" element={<CSManagerPage />} />
-                    <Route
-                        path="lostandfound"
-                        element={<CSLostAndFoundPage />}
-                    />
+                <Route path={"customer"}>
+                    <Route path="home" element={<HomePage />} />
+                    <Route path="login" element={<CustomerLogin />} />
                     <Route
                         path="*"
-                        element={<Navigate to="/customerservice" />}
+                        element={<Navigate to="/customer/home" />}
                     />
                 </Route>
-                <Route path="*" element={<Navigate to="/home" />} />
+                <Route path={"staff"}>
+                    <Route path="login" element={<StaffLogin />} />
+                    <Route path="ride">
+                        <Route path="staff" element={<RideStaffPage />} />
+                        <Route path="manager" element={<RideManagerPage />} />
+                    </Route>
+                    <Route path="restaurant">
+                        <Route index element={<RestaurantHomePage />} />
+                        <Route path="chef" element={<RestaurantChefPage />} />
+                        <Route
+                            path="waiter"
+                            element={<RestaurantWaiterPage />}
+                        />
+                        <Route
+                            path="supervisor"
+                            element={<RestaurantSupervisorPage />}
+                        />
+                    </Route>
+                    <Route path="ceo" element={<CEOPage />} />
+                    <Route path="coo" element={<COOPage />} />
+                    <Route path="cfo" element={<CFOPage />} />
+                    <Route path="maintenance">
+                        <Route
+                            path="staff"
+                            element={<MaintenanceStaffPage />}
+                        />
+                        <Route
+                            path="manager"
+                            element={<MaintenanceManagerPage />}
+                        />
+                        <Route
+                            path="*"
+                            element={<Navigate to="/main/home" />}
+                        />
+                    </Route>
+                    <Route path="customerservice">
+                        <Route index element={<Navigate to="/home" />} />
+                        <Route path="staff" element={<CSStaffPage />} />
+                        <Route path="manager" element={<CSManagerPage />} />
+                        <Route
+                            path="lostandfound"
+                            element={<CSLostAndFoundPage />}
+                        />
+                        <Route
+                            path="*"
+                            element={<Navigate to="/customerservice" />}
+                        />
+                    </Route>
+                    <Route path="retail">
+                        <Route path="staff" element={<StoreStaffPage />} />
+                        <Route path="manager" element={<StoreManagerPage />} />
+                    </Route>
+                    <Route path="*" element={<Navigate to="/main/home" />} />
+                </Route>
+                <Route path={"restaurant"}>
+                    <Route index element={<RestaurantHomePage />} />
+                    {/* <Route path="*" element={<RestaurantDetailPage />} /> */}
+                </Route>
+                <Route path={"ride"}>
+                    <Route index element={<RideHomePage />} />
+                    {/* <Route path="*" element={<RideDetailPage />} /> */}
+                </Route>
+                <Route path={"store"}>
+                    <Route index element={<StoreHomePage />} />
+                    {/* <Route path="*" element={<StoreDetailPage />} /> */}
+                </Route>
+                <Route path="*" element={<Navigate to="/main/home" />} />
             </Route>
         </Routes>
     </BrowserRouter>
 );
-
-
-
 

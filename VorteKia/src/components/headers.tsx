@@ -17,14 +17,8 @@ export function getCurrentApp() {
     return location.pathname.split("/");
 }
 
-export function CustomerHeader() {
+export function MainHeader() {
     const navigate = useNavigate();
-    const [division, setDivision] = useState("INITIAL");
-
-    useEffect(() => {
-        const userDivision = getUserRole();
-        setDivision(userDivision);
-    }, []);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
@@ -33,54 +27,122 @@ export function CustomerHeader() {
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                {getCurrentApp()[1] === "login" && getUserRole() === "" && (
-                    <RequestUID />
-                )}
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
-                {getCurrentApp()[1] === "ride" &&
-                    getUserRole() === "customer" && (
-                        <Button variant={"ghost"}>My Queue</Button>
-                    )}
-                {getCurrentApp()[1] === "restaurant" &&
-                    getUserRole() === "customer" && (
-                        <Button variant={"ghost"}>My Orders</Button>
-                    )}
-                {getCurrentApp()[1] === "store" &&
-                    getUserRole() === "customer" && (
-                        <Button variant={"ghost"}>My Transactions</Button>
-                    )}
-                {division === "executive" && (
-                    <Button variant={"ghost"}>Executive</Button>
-                )}
-                <Button onClick={() => navigate("/ride")} variant={"ghost"}>
-                    Browse Rides
+                <Button
+                    onClick={() => navigate("/customer/home")}
+                    variant={"ghost"}>
+                    Customer Application
                 </Button>
                 <Button
-                    onClick={() => navigate("/restaurant")}
+                    onClick={() => navigate("/staff/login")}
                     variant={"ghost"}>
-                    Browse Restaurants
+                    Staff Application
                 </Button>
-                <Button onClick={() => navigate("/store")} variant={"ghost"}>
-                    Browse Stores
+            </nav>
+        </header>
+    );
+}
+
+export function StaffHeader() {
+    const navigate = useNavigate();
+
+    return (
+        <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
+            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+                <House className="h-10 w-10 p-2" />
+            </Link>
+            <HelloLabel username={getUserName()} />
+            <nav className="ml-auto flex gap-6">
+                <Button
+                    onClick={() => navigate("/main/home")}
+                    variant={"ghost"}>
+                    Back To Main
                 </Button>
-                {getUserRole() === "" ? (
+            </nav>
+        </header>
+    );
+}
+
+export function CustomerHeader() {
+    const navigate = useNavigate();
+
+    const isLoggedIn = () => {
+        return getUserRole() !== "";
+    };
+
+    return (
+        <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
+            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+                <House className="h-10 w-10 p-2" />
+            </Link>
+            <HelloLabel username={getUserName()} />
+            <nav className="ml-auto flex gap-6">
+                {getCurrentApp()[2] === "login" && <RequestUID />}
+                {getCurrentApp()[2] === "home" ? (
                     <Button
-                        onClick={() => navigate("/login")}
+                        onClick={() => {
+                            logout();
+                            navigate("/main/home");
+                        }}
                         variant={"ghost"}>
-                        Login
+                        Back to Main Page
                     </Button>
                 ) : (
                     <Button
                         onClick={() => {
                             logout();
-                            navigate("/home");
+                            navigate("/customer/home");
                         }}
                         variant={"ghost"}>
-                        Logout
+                        Back to Customer Page{" "}
                     </Button>
                 )}
+                {getCurrentApp()[1] === "ride" && isLoggedIn() && (
+                    <Button variant={"ghost"}>My Queue</Button>
+                )}
+                {getCurrentApp()[1] === "store" && isLoggedIn() && (
+                    <Button variant={"ghost"}>My Transactions</Button>
+                )}
+                {getCurrentApp()[1] === "restaurant" && isLoggedIn() && (
+                    <Button variant={"ghost"}>My Orders</Button>
+                )}
+                {getCurrentApp()[1] === "customer" &&
+                    (getCurrentApp()[2] === "home" ||
+                        getCurrentApp()[2] === "login") && (
+                        <>
+                            <Button
+                                onClick={() => navigate("/ride")}
+                                variant={"ghost"}>
+                                Browse Rides
+                            </Button>
+                            <Button
+                                onClick={() => navigate("/restaurant")}
+                                variant={"ghost"}>
+                                Browse Restaurants
+                            </Button>
+                            <Button
+                                onClick={() => navigate("/store")}
+                                variant={"ghost"}>
+                                Browse Stores
+                            </Button>
+                        </>
+                    )}
+                {getCurrentApp()[2] !== "login" &&
+                    (getUserRole() === "" ? (
+                        <Button
+                            onClick={() => navigate("/customer/login")}
+                            variant={"ghost"}>
+                            Login
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => {
+                                logout();
+                                navigate(location.pathname);
+                            }}
+                            variant={"ghost"}>
+                            Logout
+                        </Button>
+                    ))}
             </nav>
         </header>
     );
@@ -101,31 +163,25 @@ export function RideHeader() {
 
     useEffect(() => {
         if (role === "INITIAL" || division === "INITIAL") return;
-        if (
-            (role !== "staff" && role !== "manager") ||
-            division !== "operational"
-        ) {
-            navigate("/home");
+        if (division !== "operational") {
+            logout();
+            navigate("/main/home");
         }
     }, [role, navigate]);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/staff/login"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
                 {role === "manager" && (
                     <Button onClick={() => navigate("/ride")} variant={"ghost"}>
                         Manage Rides
                     </Button>
-                )}
-                {role === "customer" && (
-                    <Button variant={"ghost"}>My Queue</Button>
                 )}
                 {role === "staff" && (
                     <Button variant={"ghost"}>My Assignment</Button>
@@ -133,7 +189,7 @@ export function RideHeader() {
                 <Button
                     onClick={() => {
                         logout();
-                        navigate("/home");
+                        navigate("/main/home");
                     }}
                     variant={"ghost"}>
                     Logout
@@ -157,24 +213,21 @@ export function RestaurantHeader() {
 
     useEffect(() => {
         if (role === "INITIAL" || division === "INITIAL") return;
-        if (
-            (role !== "chef" && role !== "supervisor" && role !== "waiter") ||
-            division !== "consumption"
-        ) {
-            navigate("/home");
+        if (division !== "consumption") {
+            logout();
+            navigate("/main/home");
         }
     }, [role, navigate]);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/staff/login"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
                 {role === "supervisor" && (
                     <Button
                         onClick={() => navigate("/restaurant")}
@@ -182,16 +235,13 @@ export function RestaurantHeader() {
                         Manage Restaurants
                     </Button>
                 )}
-                {role === "customer" && (
-                    <Button variant={"ghost"}>My Orders</Button>
-                )}
                 {(role === "chef" || role === "waiter") && (
                     <Button variant={"ghost"}>My Assignment</Button>
                 )}
                 <Button
                     onClick={() => {
                         logout();
-                        navigate("/home");
+                        navigate("/main/home");
                     }}
                     variant={"ghost"}>
                     Logout
@@ -215,21 +265,21 @@ export function StoreHeader() {
 
     useEffect(() => {
         if (role === "INITIAL" || division === "INITIAL") return;
-        if ((role !== "staff" && role !== "manager") || division !== "retail") {
+        if (division !== "retail") {
+            logout();
             navigate("/home");
         }
     }, [role, navigate]);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/staff/login"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
                 {role === "supervisor" && (
                     <Button
                         onClick={() => navigate("/store")}
@@ -268,13 +318,16 @@ export function ExecutiveHeader() {
     useEffect(() => {
         if (role === "INITIAL") return;
         if (role !== "coo" && role !== "ceo" && role !== "cfo") {
-            navigate("/home");
+            logout();
+            navigate("/main/home");
         }
     }, [role, navigate]);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/staff/login"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
@@ -310,17 +363,17 @@ export function MaintenanceHeader() {
 
     useEffect(() => {
         if (role === "INITIAL") return;
-        if (
-            (role !== "staff" && role !== "manager") ||
-            division !== "maintenance"
-        ) {
+        if (division !== "maintenance") {
+            logout();
             navigate("/home");
         }
     }, [role, navigate]);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/staff/login"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
@@ -361,19 +414,17 @@ export function CustomerServiceHeader() {
 
     useEffect(() => {
         if (role === "INITIAL") return;
-        if (
-            (role !== "staff" &&
-                role !== "manager" &&
-                role !== "lostandfound") ||
-            division !== "customerservice"
-        ) {
-            navigate("/home");
+        if (division !== "customerservice") {
+            logout();
+            navigate("/main/home");
         }
     }, [role, navigate]);
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/staff/login"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
@@ -399,4 +450,3 @@ export function CustomerServiceHeader() {
         </header>
     );
 }
-

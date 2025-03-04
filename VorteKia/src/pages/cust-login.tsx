@@ -135,10 +135,10 @@ export default function CustomerLogin() {
                             </Form>
                         </CardContent>
                         <CardFooter className="flex justify-center flex-col">
-                            <Button variant={"link"}>
-                                <Link to="/register">
-                                    Don't have an account? Apply here!
-                                </Link>
+                            <Button variant={"link"} className="italic mb-8">
+                                Don't have an account? <br />
+                                Head to the Customer Service <br />
+                                Counter to create one now!
                             </Button>
                             <Button variant={"link"} size={"sm"}>
                                 <Link

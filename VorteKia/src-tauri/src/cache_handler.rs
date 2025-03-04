@@ -20,11 +20,11 @@ impl CacheHandler {
         }
     }
 
-    pub async fn cache_set<T: Serialize>(&self, key: &str, value: &T, ttl: usize) {
+    pub async fn set_cache<T: Serialize>(&self, key: &str, value: &T, ttl: usize) {
         let mut conn = match self.redis_pool.lock().await.get().await {
             Ok(conn) => conn,
             Err(err) => {
-                eprintln!("Redis error (cache_set - get connection): {}", err);
+                eprintln!("Redis Connection Error: {}", err);
                 return;
             }
         };
@@ -32,7 +32,7 @@ impl CacheHandler {
         let json_value = match serde_json::to_string(&CachedData { data: value }) {
             Ok(json) => json,
             Err(err) => {
-                eprintln!("Redis error (cache_set - serialization): {}", err);
+                eprintln!("Cache Serialization Error: {}", err);
                 return;
             }
         };
@@ -42,15 +42,15 @@ impl CacheHandler {
             .query_async::<()>(&mut conn)
             .await
         {
-            eprintln!("Redis error (cache_set - SETEX): {}", err);
+            eprintln!("Redis Set Cache Error: {}", err);
         }
     }
 
-    pub async fn cache_get<T: for<'de> Deserialize<'de>>(&self, key: &str) -> Option<T> {
+    pub async fn get_cache<T: for<'de> Deserialize<'de>>(&self, key: &str) -> Option<T> {
         let mut conn = match self.redis_pool.lock().await.get().await {
             Ok(conn) => conn,
             Err(err) => {
-                eprintln!("Redis error (cache_get - get connection): {}", err);
+                eprintln!("Redis Connection Error: {}", err);
                 return None;
             }
         };
@@ -58,7 +58,7 @@ impl CacheHandler {
         let cached_data: Option<String> = match cmd("GET").arg(&[key]).query_async(&mut conn).await {
             Ok(value) => value,
             Err(err) => {
-                eprintln!("Redis error (cache_get - GET): {}", err);
+                eprintln!("Redis Get Cache Error: {}", err);
                 return None;
             }
         };
@@ -67,7 +67,7 @@ impl CacheHandler {
             match serde_json::from_str::<CachedData<T>>(&json_str) {
                 Ok(wrapper) => Some(wrapper.data),
                 Err(err) => {
-                    eprintln!("Redis error (cache_get - deserialization): {}", err);
+                    eprintln!("Cache Deserialization Error: {}", err);
                     None
                 }
             }
@@ -76,17 +76,17 @@ impl CacheHandler {
         }
     }
 
-    pub async fn cache_delete(&self, key: &str) {
+    pub async fn delete_cache(&self, key: &str) {
         let mut conn = match self.redis_pool.lock().await.get().await {
             Ok(conn) => conn,
             Err(err) => {
-                eprintln!("Redis error (cache_delete - get connection): {}", err);
+                eprintln!("Redis Connection Error: {}", err);
                 return;
             }
         };
 
         if let Err(err) = cmd("DEL").arg(&[key]).query_async::<()>(&mut conn).await {
-            eprintln!("Redis error (cache_delete - DEL): {}", err);
+            eprintln!("Redis Delete Cache Error: {}", err);
         }
     }
 }

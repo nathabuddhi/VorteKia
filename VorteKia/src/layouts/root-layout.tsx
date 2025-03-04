@@ -2,12 +2,15 @@ import {
     CustomerHeader,
     CustomerServiceHeader,
     ExecutiveHeader,
+    MainHeader,
     MaintenanceHeader,
     RestaurantHeader,
     RideHeader,
+    StaffHeader,
     StoreHeader,
 } from "@/components/headers";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserLoggedIn } from "@/types";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
@@ -20,6 +23,9 @@ export default function RootLayout() {
     const navigate = useNavigate();
 
     let curr_app = location.pathname.split("/")[1];
+    let curr_page_app = location.pathname.split("/")[2]
+        ? location.pathname.split("/")[2]
+        : "";
 
     useEffect(() => {
         if (parsedUser == null) {
@@ -28,25 +34,24 @@ export default function RootLayout() {
     }, []);
 
     const getHeaderComponent = () => {
-        if (
-            (parsedUser != null &&
-                parsedUser.role == "customer" &&
-                parsedUser.division == "customer") ||
-            parsedUser == null ||
-            curr_app === "home" ||
-            curr_app === "register" ||
-            curr_app === "login" ||
-            curr_app === ""
-        )
-            return <CustomerHeader />;
-        else if (curr_app === "ride") return <RideHeader />;
-        else if (curr_app === "restaurant") return <RestaurantHeader />;
-        else if (curr_app === "store") return <StoreHeader />;
-        else if (curr_app === "maintenance") return <MaintenanceHeader />;
-        else if (curr_app === "ceo" || curr_app === "coo" || curr_app === "cfo")
-            return <ExecutiveHeader />;
-        else if (curr_app === "customerservice")
-            return <CustomerServiceHeader />;
+        if (curr_app === "main") return <MainHeader />;
+        else if (curr_app === "staff") {
+            if (curr_page_app === "maintenance") return <MaintenanceHeader />;
+            else if (
+                curr_page_app === "ceo" ||
+                curr_page_app === "coo" ||
+                curr_page_app === "cfo"
+            )
+                return <ExecutiveHeader />;
+            else if (curr_page_app === "customerservice")
+                return <CustomerServiceHeader />;
+            else if (curr_page_app === "operational") return <RideHeader />;
+            else if (curr_page_app === "consumption")
+                return <RestaurantHeader />;
+            else if (curr_page_app === "retail") return <StoreHeader />;
+            else if (curr_page_app === "login") return <StaffHeader />;
+            else navigate("/main/home");
+        } else return <CustomerHeader />;
     };
 
     return (

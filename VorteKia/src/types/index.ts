@@ -23,3 +23,11 @@ export interface Division {
     division_name: string;
 }
 
+export interface Ride {
+    ride_id: string;
+    ride_name: string;
+    ride_description: string;
+    ride_pictures: string[];
+    ride_status: string;
+    ride_queue: number;
+}
