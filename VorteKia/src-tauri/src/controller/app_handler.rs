@@ -1,8 +1,6 @@
-use entity::division::{Model as DivisionModel, Entity as DivisionEntities};
-use sea_orm::EntityTrait;
 use serde::Serialize;
-use tauri::{command, State};
-use crate::{AppState, ApiResponse};
+use tauri::command;
+use crate:: ApiResponse;
 use std::env;
 
 #[derive(Serialize)]

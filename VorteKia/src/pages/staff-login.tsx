@@ -52,7 +52,6 @@ export default function StaffLogin() {
                 loading: "Logging in...",
                 success: (response) => {
                     if (response.success) {
-                        console.log("Staff Login: " + response.message);
                         localStorage.setItem(
                             "user",
                             JSON.stringify(response.data)

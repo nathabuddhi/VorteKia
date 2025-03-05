@@ -51,7 +51,7 @@ async fn get_user_division(
                                 }
                         }
                         Ok(None) => {
-                            Ok("NO ROLE".to_string())
+                            Err("An Error Occured: User is detected as having no division.".to_string())
                         }
                         Err(err) => {
                             Err(format!("Database error: {}", err))
@@ -84,7 +84,7 @@ async fn get_user_role(
                             Ok(staff.role)
                         }
                         Ok(None) => {
-                            Ok("NO ROLE".to_string())
+                            Err("An Error Occured: User is detected as having no role.".to_string())
                         }
                         Err(err) => {
                             Err(format!("Database error: {}", err))
@@ -298,4 +298,44 @@ pub async fn create_staff_account(
         Ok(inserted_staff) => Ok(ApiResponse::Success { success: (true), data: (inserted_staff.user_id), message: ("Success created staff!".to_string()) }),
         Err(e) => Err(e.to_string()),
     }
+}
+
+#[derive(Serialize)]
+pub struct ChangeUserBalanceRequest {
+    user_id: String,
+    mutation: f32
+}
+pub async fn change_user_balance(
+    state: State<'_, AppState>,
+    payload: ChangeUserBalanceRequest
+) -> Result<ApiResponse<f32>, String> {
+
+    let db = state.get_db().await.map_err(|e| e)?;
+
+    match CustomerEntities::find()
+        .filter(<CustomerEntities as EntityTrait>::Column::UserId.eq(payload.user_id))
+        .one(&db)
+        .await {
+            Ok(Some(user)) => {
+                if user.balance + payload.mutation < 0.0 {
+                    Ok(ApiResponse::error(Some(user.balance), "Insufficient balance".to_string()))
+                } else {
+                    let new_balance = user.balance + payload.mutation;
+                    let updated_user = CustomerActiveModel {
+                        user_id: Set(user.user_id.clone()),
+                        balance: Set(new_balance.clone()),
+                    };
+                    match updated_user.update(&db).await {
+                        Ok(_) => Ok(ApiResponse::success(new_balance, "Balance Updated!".to_string())),
+                        Err(e) => Err(e.to_string())
+                    }
+                }
+            }
+            Ok(None) => {
+                Ok(ApiResponse::error(None, "User not found".to_string()))
+            }
+            Err(err) => {
+                Err(format!("Database error: {}", err))
+            }
+        }
 }

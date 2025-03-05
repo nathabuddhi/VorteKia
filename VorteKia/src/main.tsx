@@ -102,7 +102,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                 </Route>
                 <Route path={"ride"}>
                     <Route index element={<RideHomePage />} />
-                    {/* <Route path="*" element={<RideDetailPage />} /> */}
+                    <Route path="*" element={<Navigate to="/ride" />} />
                 </Route>
                 <Route path={"store"}>
                     <Route index element={<StoreHomePage />} />

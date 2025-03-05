@@ -29,5 +29,7 @@ export interface Ride {
     ride_description: string;
     ride_pictures: string[];
     ride_status: string;
-    ride_queue: number;
+    queue_count: number;
+    queue_list: string[];
 }
+

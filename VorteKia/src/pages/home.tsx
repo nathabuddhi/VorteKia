@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
@@ -10,8 +10,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { MagicCard } from "@/components/magicui/magic-card";
 import {
     Carousel,
@@ -20,8 +18,6 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Lens } from "@/components/magicui/lens";
-import { invoke } from "@tauri-apps/api/core";
-import { ApiResponse, UserLoggedIn } from "@/types";
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -35,13 +31,6 @@ export default function HomePage() {
         };
 
         window.addEventListener("scroll", handleScroll);
-
-        invoke<ApiResponse<UserLoggedIn>>("login", {
-            payload: {
-                email: "",
-                password: "",
-            },
-        });
 
         return () => {
             window.removeEventListener("scroll", handleScroll);

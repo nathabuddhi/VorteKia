@@ -8,22 +8,21 @@ interface HelloLabelProps {
 export default function HelloLabel({ username }: HelloLabelProps) {
     return (
         <Label>
-            Hello {username},
             <TypeAnimation
                 sequence={[
-                    " Welcome to VorteKia!",
+                    `Hello ${username}, Welcome to VorteKia!`,
                     1000,
-                    " Willkommen bei VorteKia!",
+                    `Hello ${username}, Willkommen bei VorteKia!`,
                     1000,
-                    " Selamat datang di VorteKia!",
+                    `Hello ${username}, Selamat datang di VorteKia!`,
                     1000,
-                    " VorteKiaへようこそ!",
+                    `Hello ${username}, VorteKiaへようこそ!`,
                     1000,
-                    " 欢迎来到VorteKia!",
+                    `Hello ${username}, 欢迎来到VorteKia!`,
                     1000,
-                    " Benvenuto a VorteKia!",
+                    `Hello ${username}, Benvenuto a VorteKia!`,
                     1000,
-                    " ¡Bienvenido a VorteKia!",
+                    `Hello ${username}, ¡Bienvenido a VorteKia!`,
                     1000,
                 ]}
                 wrapper="span"

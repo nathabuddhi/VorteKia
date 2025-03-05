@@ -11,15 +11,10 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { MagicCard } from "@/components/magicui/magic-card";
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import { Lens } from "@/components/magicui/lens";
 import { invoke } from "@tauri-apps/api/core";
 import { ApiResponse, UserLoggedIn } from "@/types";
+import { Meteors } from "@/components/magicui/meteors";
+import { User, UserPen } from "lucide-react";
 
 export default function MainPage() {
     const navigate = useNavigate();
@@ -34,6 +29,7 @@ export default function MainPage() {
 
         window.addEventListener("scroll", handleScroll);
 
+        // this is a simple fix to "initialize" the connection to the backend database
         invoke<ApiResponse<UserLoggedIn>>("login", {
             payload: {
                 email: "",
@@ -47,7 +43,7 @@ export default function MainPage() {
     }, []);
 
     const fireworks = () => {
-        const duration = 5 * 1000;
+        const duration = 3 * 1000;
         const animationEnd = Date.now() + duration;
         const defaults = {
             startVelocity: 30,
@@ -83,45 +79,48 @@ export default function MainPage() {
     return (
         <div className="flex flex-col items-center justify-center bg-muted p-0 h-[calc(100vh-3.5rem)] pt-20">
             <div className="m-0 w-screen flex flex-col items-center justify-center">
-                <h1 className="text-6xl font-bold text-black bg-opacity-60 rounded-lg p-1 mb-2">
+                <h1 className="text-4xl font-bold text-black bg-opacity-60 rounded-lg p-1 my-2">
                     Welcome to VorteKia!
                 </h1>
                 <p className="text-xl text-center text-black bg-opacity-60 rounded-lg p-1">
                     Please confirm your role below.
                 </p>
             </div>
-
             <div className="flex flex-col items-center justify-center gap-2">
                 <h3 className="text-2xl font-bold mb-4">
                     Are you a Customer or a Staff?
                 </h3>
+                <Meteors
+                    number={15}
+                    minDuration={7.5}
+                    maxDuration={10}
+                    angle={215}
+                />
                 <div className="flex gap-4 mb-32">
-                    {/* Customer Card */}
                     <Card className="w-96 h-max">
                         <MagicCard gradientColor={"#D9D9D955"}>
                             <CardHeader className="pb-0">
-                                <CardTitle className="text-2xl pl-1 text-center">
+                                <CardTitle className="text-2xl pl-1 text-center flex items-center justify-center gap-x-1.5">
                                     Customer
+                                    <User size={32} />
                                 </CardTitle>
                                 <CardDescription className="pl-1 text-justify w-80">
-                                    Lorem, ipsum dolor sit amet consectetur
-                                    adipisicing elit. Totam minus aliquam
-                                    repellat iste id cum! Culpa illum, debitis
-                                    maiores aut dolor natus. Totam labore
-                                    asperiores corporis dolor voluptates debitis
-                                    voluptas?
+                                    Explore the futuristic world of VorteKia,
+                                    enjoy thrilling rides, dine at immersive
+                                    restaurants, and shop for exclusive
+                                    souvenirs. Plan ahead with real-time ride
+                                    queues. Need help? Our Customer Service team
+                                    is just a chat away, ensuring you have the
+                                    best experience in this next-generation
+                                    amusement park!
                                     <br /> &nbsp;
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="pb-2">
-                                <Card>
-                                    <CardContent className="flex aspect-square items-center justify-center p-2">
-                                        <img
-                                            src="/images/store/svc3.png"
-                                            className="object-cover rounded-lg"
-                                        />
-                                    </CardContent>
-                                </Card>
+                            <CardContent className="pb-2 scale-90">
+                                <img
+                                    src="/images/customer.png"
+                                    className="object-cover rounded-lg"
+                                />
                             </CardContent>
                             <CardFooter>
                                 <Button
@@ -133,32 +132,30 @@ export default function MainPage() {
                             </CardFooter>
                         </MagicCard>
                     </Card>
-                    {/* Staff Card */}
                     <Card className="w-96 h-max">
                         <MagicCard gradientColor={"#D9D9D955"}>
                             <CardHeader className="pb-0">
-                                <CardTitle className="text-2xl pl-1 text-center">
+                                <CardTitle className="text-2xl pl-1 text-center flex items-center justify-center gap-x-2">
                                     Staff
+                                    <UserPen size={32} />
                                 </CardTitle>
                                 <CardDescription className="pl-1 text-justify w-80">
-                                    Lorem, ipsum dolor sit amet consectetur
-                                    adipisicing elit. Totam minus aliquam
-                                    repellat iste id cum! Culpa illum, debitis
-                                    maiores aut dolor natus. Totam labore
-                                    asperiores corporis dolor voluptates debitis
-                                    voluptas?
+                                    Step into the heart of VorteKia as a staff
+                                    member and be part of the team that brings
+                                    this high-tech amusement park to life!
+                                    Operate cutting-edge rides, serve delicious
+                                    meals, manage park maintenance, assist
+                                    customers, and keep the park running
+                                    smoothly. Join us and shape the future of
+                                    entertainment at VorteKia!
                                     <br /> &nbsp;
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="pb-2">
-                                <Card>
-                                    <CardContent className="flex aspect-square items-center justify-center p-2">
-                                        <img
-                                            src="/images/store/svc3.png"
-                                            className="object-cover rounded-lg"
-                                        />
-                                    </CardContent>
-                                </Card>
+                            <CardContent className="pb-2 scale-90">
+                                <img
+                                    src="/images/staff.png"
+                                    className="object-cover rounded-lg"
+                                />
                             </CardContent>
                             <CardFooter>
                                 <Button
