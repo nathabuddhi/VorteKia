@@ -65,7 +65,6 @@ impl<T: Serialize> ApiResponse<T> {
     }
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -96,6 +95,10 @@ pub fn run() {
             controller::user_handler::create_customer_account,
             controller::user_handler::create_staff_account,
             controller::division_handler::get_all_divisions,
+            controller::ride_handler::get_all_rides,
+            controller::ride_handler::add_ride_queue,
+            controller::ride_handler::leave_ride_queue,
+            controller::ride_handler::is_user_in_queue,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

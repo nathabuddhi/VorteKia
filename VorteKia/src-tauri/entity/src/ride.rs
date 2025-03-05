@@ -3,7 +3,7 @@
 use sea_orm::entity::prelude::*;
 use serde::Serialize;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize)]
 #[sea_orm(table_name = "Ride")]
 pub struct Model {
     #[sea_orm(column_name = "rideID", primary_key, auto_increment = false)]
@@ -13,8 +13,9 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
     pub opening: Time,
-    pub closing: Option<Time>,
+    pub closing: Time,
     pub pictures: Option<Vec<String>>,
+    pub price: f32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
