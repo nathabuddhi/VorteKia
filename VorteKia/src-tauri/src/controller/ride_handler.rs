@@ -13,6 +13,7 @@ use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
 use chrono::{Duration, NaiveDateTime, Utc, NaiveTime};
 
+use super::notification_handler::add_notification;
 use super::staff_handler::AllocateStaffRequest;
 use super::user_handler::{change_user_balance, get_user_by_id, ChangeUserBalanceRequest, LoginUIDRequest};
 
@@ -464,7 +465,9 @@ pub async fn process_next_queue(
 
     match next_queue {
         Some(queue_item) => {
+            let cust_id = queue_item.customer_id.clone();
             queue_item.delete(&db).await.map_err(|err| format!("Database error: {}", err))?;
+            add_notification(state.clone(), cust_id, "Your turn is next!".to_string()).await?;
             Ok(ApiResponse::success(true, "Successfully processed next customer!".to_string()))
         }
         None => Ok(ApiResponse::error(Some(false), "No customer in queue.".to_string())),

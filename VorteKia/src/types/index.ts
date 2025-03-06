@@ -48,3 +48,10 @@ export interface MaintenanceJob {
     deadline: string;
 }
 
+export interface Notification {
+    notification_id: string;
+    user_id: string;
+    content: string;
+    time: string;
+}
+

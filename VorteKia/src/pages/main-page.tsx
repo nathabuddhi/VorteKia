@@ -42,7 +42,10 @@ export default function MainPage() {
         if (parsedUser) {
             if (parsedUser.role === "customer") {
                 navigate("/customer/home");
-            } else if (parsedUser.role === "staff") {
+            } else if (
+                parsedUser.role !== "customer" &&
+                parsedUser.role !== ""
+            ) {
                 navigate("/staff/login");
             }
         }

@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use sea_orm::ActiveValue::Set;
 use bcrypt::{hash, verify, DEFAULT_COST};
 
+use super::notification_handler::add_notification;
 use super::ride_handler::SingleUidRequest;
 
 fn hash_password(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
@@ -313,12 +314,24 @@ pub async fn create_customer_account(
     let db = state.get_db().await.map_err(|e| e)?;
 
     let new_customer = CustomerActiveModel {
-        user_id: Set(response),
-        balance: Set(payload.balance),
+        user_id: Set(response.clone()),
+        balance: Set(payload.balance.clone()),
     };
 
     match new_customer.insert(&db).await {
-        Ok(inserted_customer) => Ok(ApiResponse::Success { success: (true), data: (inserted_customer.user_id), message: ("Success created customer!".to_string()) }),
+        Ok(inserted_customer) => {
+            add_notification(
+                state.clone(),
+                response,
+                format!("Successfully topped up ${}", payload.balance),
+            )
+            .await?;
+            Ok(ApiResponse::Success {
+                success: true,
+                data: inserted_customer.user_id,
+                message: "Success created customer!".to_string(),
+            })
+        }
         Err(e) => Err(e.to_string()),
     }
 }
@@ -388,7 +401,16 @@ pub async fn change_user_balance(
                         balance: Set(new_balance.clone()),
                     };
                     match updated_user.update(&db).await {
-                        Ok(_) => Ok(ApiResponse::success(new_balance, "Balance Updated!".to_string())),
+                        Ok(_) => Ok(
+                            {
+                                add_notification(
+                                    state.clone(),
+                                    user.user_id.clone(),
+                                    format!("Successfully topped up ${}", payload.mutation),
+                                )
+                                .await?;
+                                ApiResponse::success(new_balance, "Balance Updated!".to_string())
+                            }),
                         Err(e) => Err(e.to_string())
                     }
                 }

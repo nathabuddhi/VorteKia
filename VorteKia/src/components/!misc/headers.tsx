@@ -1,7 +1,7 @@
 import { Button } from "@/components/!!ui/button";
 import { Link, useLocation, useNavigate } from "react-router";
 import { House } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import HelloLabel from "@/components/!misc/hello-label";
 import CreateStaff from "../generalstaff/create-staff";
 import {
@@ -14,6 +14,7 @@ import RequestUID from "../customer/request-uid";
 import CreateCustomer from "../generalstaff/create-customer";
 import TopUpBalance from "../customer/top-up-balance";
 import CreateRide from "../ride/create-ride";
+import NotificationList from "./notification-list";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -25,7 +26,9 @@ export function MainHeader() {
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/main/home"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
@@ -54,6 +57,7 @@ export function StaffHeader() {
                 <House className="h-10 w-10 p-2" />
             </Link>
             <HelloLabel username={getUserName()} />
+
             <nav className="ml-auto flex gap-6">
                 <Button
                     onClick={() => navigate("/main/home")}
@@ -66,6 +70,7 @@ export function StaffHeader() {
 }
 
 export function CustomerHeader() {
+    const [, forceUpdate] = useReducer((x) => x + 1, 0);
     const navigate = useNavigate();
 
     const isLoggedIn = () => {
@@ -74,9 +79,12 @@ export function CustomerHeader() {
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
-            <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
+            <Link
+                to="/customer/home"
+                className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
+            <NotificationList />
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
                 {getCurrentApp()[2] === "login" && <RequestUID />}
