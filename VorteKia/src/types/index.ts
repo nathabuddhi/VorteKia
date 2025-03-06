@@ -31,7 +31,20 @@ export interface Ride {
     ride_pictures: string[];
     ride_status: string;
     ride_price: number;
+    ride_type: string;
+    opening: string;
+    closing: string;
     queue_count: number;
     queue_list: string[];
+}
+
+export interface MaintenanceJob {
+    job_id: string;
+    location: string;
+    description: string;
+    notes: string;
+    status: string;
+    report: string;
+    deadline: string;
 }
 

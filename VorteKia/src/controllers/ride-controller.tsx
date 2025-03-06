@@ -10,7 +10,6 @@ export const getRides = async () => {
     }
 };
 
-
 export const queuePromise = async (ride_id: string) => {
     try {
         const user = localStorage.getItem("user");
@@ -34,6 +33,34 @@ export const queuePromise = async (ride_id: string) => {
     }
 };
 
+export const enqueueCustomerPromise = async (
+    ride_id: string,
+    user_id: string
+) => {
+    try {
+        return await invoke<ApiResponse<boolean>>("add_ride_queue", {
+            payload: {
+                user_id: user_id,
+                ride_id: ride_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, message: error };
+    }
+};
+
+export const processNextCustomerPromise = async (ride_id: string) => {
+    try {
+        return await invoke<ApiResponse<boolean>>("process_next_queue", {
+            payload: {
+                id: ride_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, message: error };
+    }
+};
+
 export const dequeuePromise = async (ride_id: string) => {
     try {
         const user = localStorage.getItem("user");
@@ -49,6 +76,19 @@ export const dequeuePromise = async (ride_id: string) => {
         return await invoke<ApiResponse<boolean>>("leave_ride_queue", {
             payload: {
                 user_id: parsedUser.user_id,
+                ride_id: ride_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, message: error };
+    }
+};
+
+export const forceDequeuePromise = async (ride_id: string, user_id: string) => {
+    try {
+        return await invoke<ApiResponse<boolean>>("leave_ride_queue", {
+            payload: {
+                user_id: user_id,
                 ride_id: ride_id,
             },
         });
@@ -105,6 +145,9 @@ export const getRideById = async (ride_id: string) => {
 };
 
 export const DeleteRideSchema = z.object({
+    id: z.string().length(36, {
+        message: "Invalid ride ID",
+    }),
     reason: z.string().min(50, {
         message: "At least 50 characters.",
     }),
@@ -123,8 +166,47 @@ export const UpdateRideSchema = z.object({
     type: z.string().min(3, {
         message: "At least 3 characters.",
     }),
-    pictures: z.array(z.string()).min(1, {
-        message: "At least 1 picture.",
+    // pictures: z.array(z.string()).min(1, {
+    //     message: "At least 1 picture.",
+    // }),
+    price: z.number().min(0.99, {
+        message: "Minimum price is $0.99.",
+    }),
+    opening: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/, {
+        message: "Time format must be HH:MM:SS",
+    }),
+    closing: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/, {
+        message: "Time format must be HH:MM:SS",
+    }),
+});
+
+export const CreateRideSchema = z.object({
+    id: z
+        .string()
+        .length(36, {
+            message: "Invalid ride ID",
+        })
+        .optional(),
+    name: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    description: z.string().min(10, {
+        message: "At least 10 characters.",
+    }),
+    type: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    // pictures: z.array(z.string()).min(1, {
+    //     message: "At least 1 picture.",
+    // }),
+    price: z.number().min(0.99, {
+        message: "Minimum price is $0.99.",
+    }),
+    opening: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/, {
+        message: "Time format must be HH:MM:SS",
+    }),
+    closing: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/, {
+        message: "Time format must be HH:MM:SS",
     }),
 });
 
@@ -156,5 +238,47 @@ export async function clearRideStaff(ride_id: string) {
         );
     } catch (error) {
         return { success: false, data: null, message: error };
+    }
+}
+
+export async function createRidePromise(
+    data: z.infer<typeof CreateRideSchema>
+): Promise<ApiResponse<String>> {
+    try {
+        return await invoke<ApiResponse<String>>("create_ride", {
+            payload: {
+                id: "",
+                name: data.name,
+                description: data.description,
+                opening: data.opening,
+                closing: data.closing,
+                pictures: [""],
+                ride_type: data.type,
+                price: data.price,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: String(error) };
+    }
+}
+
+export async function editRidePromise(
+    data: z.infer<typeof UpdateRideSchema>
+): Promise<ApiResponse<String>> {
+    try {
+        return await invoke<ApiResponse<String>>("edit_ride", {
+            payload: {
+                id: data.id,
+                name: data.name,
+                description: data.description,
+                opening: data.opening,
+                closing: data.closing,
+                pictures: [""],
+                ride_type: data.type,
+                price: data.price,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: String(error) };
     }
 }

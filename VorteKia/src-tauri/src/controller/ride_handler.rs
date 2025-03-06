@@ -1,4 +1,4 @@
-use entity::ride::{ActiveModel as RideActiveModel, Model as RideInstance, Entity as RideEntities};
+use entity::ride::{self, ActiveModel as RideActiveModel, Model as RideInstance, Entity as RideEntities};
 use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities, Model as MaintenanceInstance};
 use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities, Model as StaffInstance};
 use entity::division::{self, Entity as DivisionEntities};
@@ -29,6 +29,9 @@ pub struct RideReturn {
     pub ride_pictures: Option<Vec<String>>,
     pub ride_status: String,
     pub ride_price: f32,
+    pub ride_type: String,
+    pub opening: String,
+    pub closing: String,
     pub queue_count: usize,
     pub queue_list: Option<Vec<String>>,
 }
@@ -101,6 +104,9 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             ride_description: ride.description.clone(),
             ride_pictures: ride.pictures.clone(),
             ride_status,
+            ride_type: ride.r#type.clone(),
+            opening: ride.opening.to_string(),
+            closing: ride.closing.to_string(),
             ride_price: ride.price.clone(),
             queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
             queue_list: ride_queue,
@@ -136,6 +142,9 @@ pub async fn get_ride_by_id(
         ride_description: ride.description.clone(),
         ride_pictures: ride.pictures.clone(),
         ride_status,
+        ride_type: ride.r#type.clone(),
+        opening: ride.opening.to_string(),
+        closing: ride.closing.to_string(),
         ride_price: ride.price.clone(),
         queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
         queue_list: ride_queue,
@@ -146,10 +155,11 @@ pub async fn get_ride_by_id(
 
 #[derive(Deserialize)]
 pub struct CreateRideRequest {
+    id: String,
     name: String,
     description: Option<String>,
-    opening: NaiveTime,
-    closing: NaiveTime,
+    opening: String,
+    closing: String,
     pictures: Vec<String>,
     ride_type: String,
     price: f32,
@@ -163,15 +173,18 @@ pub async fn create_ride(
 
     let generated_id = Uuid::new_v4();
 
-    let opening = payload.opening;
-    let closing = payload.closing;
+    let opening_time = NaiveTime::parse_from_str(&payload.opening, "%H:%M:%S")
+        .map_err(|e| format!("Invalid opening time: {}", e))?;
+
+    let closing_time = NaiveTime::parse_from_str(&payload.closing, "%H:%M:%S")
+        .map_err(|e| format!("Invalid closing time: {}", e))?;
 
     let new_ride = RideActiveModel {
         ride_id: Set(generated_id.to_string()),
         name: Set(payload.name),
         description: Set(payload.description),
-        opening: Set(opening),
-        closing: Set(closing),
+        opening: Set(opening_time),
+        closing: Set(closing_time),
         pictures: Set(Some(payload.pictures)),
         r#type: Set(payload.ride_type),
         price: Set(payload.price)
@@ -182,6 +195,49 @@ pub async fn create_ride(
         Err(e) => Ok(ApiResponse::error(None, format!("Error adding ride: {}", e))),
     }
 }
+
+#[command]
+pub async fn edit_ride(
+    state: State<'_, AppState>,
+    payload: CreateRideRequest,
+) -> Result<ApiResponse<String>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let opening_time = NaiveTime::parse_from_str(&payload.opening, "%H:%M:%S")
+        .map_err(|e| format!("Invalid opening time: {}", e))?;
+
+    let closing_time = NaiveTime::parse_from_str(&payload.closing, "%H:%M:%S")
+        .map_err(|e| format!("Invalid closing time: {}", e))?;
+
+    let existing_ride = RideEntities::find()
+    .filter(<RideEntities as EntityTrait>::Column::RideId.eq(payload.id))
+    .one(&db)
+    .await.map_err(|err| format!("Database error: {}", err))?;
+
+    let found_ride = match existing_ride {
+        Some(ride) => ride,
+        None => return Ok(ApiResponse::error(None, "Ride not found.".to_string())),
+    };
+
+    let old_pictures = found_ride.pictures.clone();
+
+    let updated_ride = RideActiveModel {
+        ride_id: Set(found_ride.ride_id.clone()),
+        name: Set(payload.name),
+        description: Set(payload.description),
+        opening: Set(opening_time),
+        closing: Set(closing_time),
+        pictures: Set(old_pictures),
+        r#type: Set(payload.ride_type),
+        price: Set(payload.price),
+    };
+
+    match updated_ride.update(&db).await {
+        Ok(_) => Ok(ApiResponse::success(found_ride.ride_id, "Successfully updated ride!".to_string())),
+        Err(e) => Ok(ApiResponse::error(None, format!("Error updating ride: {}", e))),
+    }
+}
+
 
 pub async fn get_ride_price(
     state: State<'_, AppState>,
@@ -348,7 +404,7 @@ pub async fn allocate_ride_staff(
 
     let new_allocation = RideStaffActiveModel {
         staff_id: Set(payload.staff_id.clone()),
-        ride_id: Set(payload.ride_id.clone()),
+        ride_id: Set(payload.loc_id.clone()),
     };
     
     match new_allocation.insert(&db).await {
@@ -392,3 +448,25 @@ pub async fn get_allocated_ride_staff(
     Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
 }
 
+#[command]
+pub async fn process_next_queue(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let next_queue = QueueEntities::find()
+        .filter(<QueueEntities as EntityTrait>::Column::RideId.eq(payload.id))
+        .order_by_asc(<QueueEntities as EntityTrait>::Column::Time)
+        .one(&db)
+        .await
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    match next_queue {
+        Some(queue_item) => {
+            queue_item.delete(&db).await.map_err(|err| format!("Database error: {}", err))?;
+            Ok(ApiResponse::success(true, "Successfully processed next customer!".to_string()))
+        }
+        None => Ok(ApiResponse::error(Some(false), "No customer in queue.".to_string())),
+    }
+}

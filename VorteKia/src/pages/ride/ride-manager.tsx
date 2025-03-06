@@ -1,4 +1,4 @@
-import { ManageRideCard } from "@/components/ride-card";
+import { ManageRideCard } from "@/components/ride/ride-card";
 import { getRides } from "@/controllers/ride-controller";
 import { Ride } from "@/types";
 import { useEffect, useState } from "react";
@@ -44,7 +44,7 @@ export default function RideManagerPage() {
         <div className="p-4">
             <Toaster position="bottom-right" richColors />
             <h1 className="text-4xl font-bold mb-4 text-center">
-                Ride Home Page
+                Ride Manager Page
             </h1>
             <div
                 className={`justify-center grid gap-6 ${

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/!!ui/button";
 import { useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import {
@@ -8,8 +8,8 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from "@/components/!!ui/card";
+import { Input } from "@/components/!!ui/input";
 import { z } from "zod";
 import {
     Form,
@@ -18,8 +18,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/ui/form";
-import { MagicCard } from "@/components/magicui/magic-card";
+} from "@/components/!!ui/form";
+import { MagicCard } from "@/components/!magicui/magic-card";
 import { Link, useNavigate } from "react-router";
 import {
     getUserSession,
@@ -29,7 +29,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getRedirectOnLogin } from "@/controllers/app-controller";
-import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import { ShimmerButton } from "@/components/!magicui/shimmer-button";
 
 export default function CustomerLogin() {
     const navigate = useNavigate();

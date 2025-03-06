@@ -16,7 +16,7 @@ use super::user_handler::{get_user_by_id, LoginUIDRequest};
 #[derive(Deserialize)]
 pub struct AllocateStaffRequest {
     pub staff_id: String,
-    pub ride_id: String,
+    pub loc_id: String,
 }
 #[command]
 pub async fn get_all_ride_staff(
@@ -67,7 +67,7 @@ pub async fn get_assigned_ride(
         None => return Ok(ApiResponse::error(None, "No ride assigned to this staff.".to_string())),
     };
 
-    let ride = get_ride_by_id(state.clone(), SingleUidRequest { id: payload.id.clone() }).await;
+    let ride = get_ride_by_id(state.clone(), SingleUidRequest { id: ride_staff.ride_id.clone() }).await;
     let ride = match ride {
         Ok(ApiResponse::Success { data, .. }) => data,
         _ => return Err("Failed to fetch ride details.".to_string()),

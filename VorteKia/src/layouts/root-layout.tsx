@@ -8,9 +8,9 @@ import {
     RideHeader,
     StaffHeader,
     StoreHeader,
-} from "@/components/headers";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/components/!misc/headers";
+import { ThemeProvider } from "@/components/!misc/theme-provider";
+import { ScrollArea } from "@/components/!!ui/scroll-area";
 import { UserLoggedIn } from "@/types";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
@@ -56,10 +56,12 @@ export default function RootLayout() {
 
     return (
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-            {getHeaderComponent()}
-            <div className="relative flex h-[100vh-3.5rem] flex-col bg-background overflow-hidden mt-14">
-                <Outlet />
-            </div>
+            <ScrollArea className="h-screen w-full overflow-auto [&>*::-webkit-scrollbar]:w-2 [&>*::-webkit-scrollbar-thumb]:bg-gray-300 [&>*::-webkit-scrollbar-thumb]:rounded-lg">
+                {getHeaderComponent()}
+                <div className="relative flex h-[100vh-3.5rem] flex-col bg-background overflow-hidden mt-14">
+                    <Outlet />
+                </div>
+            </ScrollArea>
         </ThemeProvider>
     );
 }

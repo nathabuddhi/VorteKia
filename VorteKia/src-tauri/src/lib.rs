@@ -95,9 +95,14 @@ pub fn run() {
             controller::user_handler::create_customer_account,
             controller::user_handler::create_staff_account,
             controller::user_handler::change_user_balance,
+            controller::division_handler::get_all_divisions,
             controller::staff_handler::get_all_ride_staff,
             controller::staff_handler::get_assigned_ride,
-            controller::division_handler::get_all_divisions,
+            controller::maintenance_handler::get_all_jobs,
+            controller::maintenance_handler::get_all_jobs_by_location,
+            controller::maintenance_handler::get_job_by_id,
+            controller::maintenance_handler::create_maintenance_job,
+            controller::maintenance_handler::update_job_status,
             controller::ride_handler::get_all_rides,
             controller::ride_handler::get_ride_by_id,
             controller::ride_handler::add_ride_queue,
@@ -106,7 +111,10 @@ pub fn run() {
             controller::ride_handler::allocate_ride_staff,
             controller::ride_handler::get_allocated_ride_staff,
             controller::ride_handler::clear_ride_staff_allocation,
-        ])
+            controller::ride_handler::create_ride,
+            controller::ride_handler::edit_ride,
+            controller::ride_handler::process_next_queue,
+            ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

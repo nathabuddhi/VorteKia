@@ -1,21 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/!!ui/button";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/ui/carousel";
-import { Label } from "@/components/ui/label";
-import {
-    AlertDialog,
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogCancel,
-    AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+} from "@/components/!!ui/carousel";
+import { Label } from "@/components/!!ui/label";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
 import { Ride, User } from "@/types";
@@ -32,8 +21,8 @@ import {
     checkIsInQueue,
     queuePromise,
 } from "@/controllers/ride-controller";
-import { NeonGradientCard } from "@/components/magicui/neon-gradient-card";
-import { MagicCard } from "@/components/magicui/magic-card";
+import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
+import { MagicCard } from "@/components/!magicui/magic-card";
 import {
     Dialog,
     DialogContent,
@@ -42,89 +31,22 @@ import {
     DialogDescription,
     DialogTitle,
     DialogHeader,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/components/!!ui/dialog";
+import { ScrollArea } from "@/components/!!ui/scroll-area";
 import {
     getAllRideStaff,
     getAssignedRideStaffByRide,
 } from "@/controllers/staff-controller";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/!!ui/separator";
+import { Checkbox } from "@/components/!!ui/checkbox";
+import { Textarea } from "@/components/!!ui/textarea";
+import AllocateRideStaff from "../../components/ride/allocate-ride-staff";
+import EditRide from "@/components/ride/edit-ride";
+import RideMaintenanceCard from "@/components/ride/ride-maintenance-card";
 
 export default function ManageRidePage() {
     const [ride, setRide] = useState<Ride | null>(null);
-    const [staff, setStaff] = useState<User[] | null>(null);
-    const [allocatedStaff, setAllocatedStaff] = useState<string[]>([]);
-    const [tempAllocatedStaff, setTempAllocatedStaff] = useState<string[]>([]);
     const navigate = useNavigate();
-
-    const handleCheckboxChange = (userId: string) => {
-        setTempAllocatedStaff((prev) =>
-            prev.includes(userId)
-                ? prev.filter((id) => id !== userId)
-                : [...prev, userId]
-        );
-    };
-
-    const handleAllocateStaffSubmit = async () => {
-        toast.promise(clearRideStaff(ride!.ride_id), {
-            loading: "Clearing ride allocation...",
-            success: (response) => {
-                if (response.success) {
-                    return "Cleared ride staff allocation. Allocating staff now...";
-                } else {
-                    throw new Error(
-                        typeof response.message === "string"
-                            ? response.message
-                            : "Unknown error."
-                    );
-                }
-            },
-            error: (error) =>
-                `Failed clearing staff allocati: ${error.message || error}`,
-        });
-
-        for (const staff_id of tempAllocatedStaff) {
-            try {
-                toast.promise(
-                    allocateRideStaffPromise(ride!.ride_id, staff_id),
-                    {
-                        loading: "Allocating staff ->" + staff_id,
-                        success: (response) => {
-                            if (response.success) {
-                                return (
-                                    "Successfully allocated staff -> " +
-                                    staff_id
-                                );
-                            } else {
-                                throw new Error(
-                                    "Unknown error allocating staff -> " +
-                                        staff_id
-                                );
-                            }
-                        },
-                        error: (error) =>
-                            `Failed logging in: ${error.message || error}`,
-                    }
-                );
-            } catch (error) {
-                toast.error("Failed logging In!", {
-                    description: "An error occured: " + error,
-                    action: {
-                        label: "Close",
-                        onClick: () => {},
-                    },
-                });
-            }
-        }
-        toast.success("Successfully allocated all staff!", {
-            description: "This page will reload in 2 seconds.",
-        });
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    };
 
     useEffect(() => {
         const url = new URL(window.location.href);
@@ -145,26 +67,7 @@ export default function ManageRidePage() {
             setRide(response.data);
         };
 
-        const fetchAllocatedStaff = async () => {
-            const response = await getAssignedRideStaffByRide(rideId);
-            if (response && response.success && response.data) {
-                const allocatedIds = response.data.map((s) => s.user_id);
-                setAllocatedStaff(allocatedIds);
-                setTempAllocatedStaff(allocatedIds);
-            } else {
-                setAllocatedStaff([]);
-                setTempAllocatedStaff([]);
-            }
-        };
-
-        const fetchAllStaff = async () => {
-            const response = await getAllRideStaff();
-            setStaff(response.data);
-        };
-
         fetchRideDetails();
-        fetchAllStaff();
-        fetchAllocatedStaff();
     }, [navigate]);
 
     return (
@@ -202,106 +105,10 @@ export default function ManageRidePage() {
                             ))}
                         </CarouselContent>
                     </Carousel>
-
-                    <div className="mt-6 flex justify-between">
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="outline">
-                                    Maintenance History
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="">
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Maintenance History
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        The full history of this ride's
-                                        maintenance.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">erm</div>
-                                <DialogFooter>
-                                    <Button type="submit">
-                                        New Maintenance Request
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="outline">
-                                    Allocate Staff
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Staff Allocation</DialogTitle>
-                                    <DialogDescription>
-                                        Allocate staff to this location.
-                                        Allocating already allocated staff will
-                                        override the previous allocation.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <ScrollArea className="max-h-96">
-                                    {staff?.map((s) => (
-                                        <div
-                                            key={s.user_id}
-                                            className="flex flex-col gap-y-2">
-                                            <div className="flex items-center gap-3">
-                                                <Checkbox
-                                                    id={s.user_id}
-                                                    checked={tempAllocatedStaff.includes(
-                                                        s.user_id
-                                                    )}
-                                                    onCheckedChange={() =>
-                                                        handleCheckboxChange(
-                                                            s.user_id
-                                                        )
-                                                    }
-                                                />
-                                                <Label htmlFor={s.user_id}>
-                                                    {s.name}
-                                                </Label>
-                                            </div>
-                                            <Separator />
-                                        </div>
-                                    ))}
-                                </ScrollArea>
-                                <DialogFooter>
-                                    <Button
-                                        type="button"
-                                        onClick={handleAllocateStaffSubmit}>
-                                        Save Staff Allocation
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="outline">
-                                    Edit Ride Details
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Editing Ride Details
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        Update the details of this ride.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    form here ig
-                                </div>
-                                <DialogFooter>
-                                    <Button type="submit">
-                                        Save Ride Details
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                    <div className="mt-6 flex justify-evenly">
+                        {ride && <RideMaintenanceCard rideId={ride.ride_id} />}
+                        {ride && <AllocateRideStaff rideId={ride.ride_id} />}
+                        {ride && <EditRide ride={ride} />}
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="destructive">

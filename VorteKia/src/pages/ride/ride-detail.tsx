@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/!!ui/button";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/ui/carousel";
-import { Label } from "@/components/ui/label";
+} from "@/components/!!ui/carousel";
+import { Label } from "@/components/!!ui/label";
 import {
     AlertDialog,
     AlertDialogTrigger,
@@ -15,7 +15,7 @@ import {
     AlertDialogFooter,
     AlertDialogCancel,
     AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+} from "@/components/!!ui/alert-dialog";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
 import { Ride } from "@/types";
@@ -29,8 +29,8 @@ import {
     checkIsInQueue,
     queuePromise,
 } from "@/controllers/ride-controller";
-import { NeonGradientCard } from "@/components/magicui/neon-gradient-card";
-import { MagicCard } from "@/components/magicui/magic-card";
+import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
+import { MagicCard } from "@/components/!magicui/magic-card";
 
 export default function RideDetailPage() {
     const [ride, setRide] = useState<Ride | null>(null);

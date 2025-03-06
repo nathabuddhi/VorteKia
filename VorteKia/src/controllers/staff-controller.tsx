@@ -1,23 +1,26 @@
 import { ApiResponse, Ride, User } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
+import { getUserSession } from "./user-controller";
 
-export async function getAssignedRide(): Promise<ApiResponse<Ride>> {
-    const user = localStorage.getItem("user");
-    if (!user) {
-        return { success: false, message: "User not logged in", data: null };
-    }
-    const parsedUser = JSON.parse(user);
-    if (parsedUser.role !== "staff" || parsedUser.division !== "operational")
+export async function getAssignedRide() {
+    const user = getUserSession();
+    if (user === null)
+        return { success: false, message: "User not found", data: null };
+    if (user.role !== "staff" || user.division !== "operational")
         return {
             success: false,
             message: "Only ride staff can view assigned rides",
             data: null,
         };
-    return await invoke<ApiResponse<Ride>>("get_assigned_ride", {
-        payload: {
-            id: parsedUser.user_id,
-        },
-    });
+    try {
+        return await invoke<ApiResponse<Ride>>("get_assigned_ride", {
+            payload: {
+                id: user.user_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, error, data: null };
+    }
 }
 
 export async function getAllRideStaff(): Promise<ApiResponse<User[]>> {

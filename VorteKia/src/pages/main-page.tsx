@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/!!ui/button";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
 import {
@@ -9,11 +9,11 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { MagicCard } from "@/components/magicui/magic-card";
+} from "@/components/!!ui/card";
+import { MagicCard } from "@/components/!magicui/magic-card";
 import { invoke } from "@tauri-apps/api/core";
 import { ApiResponse, UserLoggedIn } from "@/types";
-import { Meteors } from "@/components/magicui/meteors";
+import { Meteors } from "@/components/!magicui/meteors";
 import { User, UserPen } from "lucide-react";
 
 export default function MainPage() {
@@ -87,7 +87,7 @@ export default function MainPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center bg-muted p-0 h-[calc(100vh-3.5rem)] pt-20">
+        <div className="flex flex-col items-center justify-center bg-muted p-0 pt-20">
             <div className="m-0 w-screen flex flex-col items-center justify-center">
                 <h1 className="text-4xl font-bold text-black bg-opacity-60 rounded-lg p-1 my-2">
                     Welcome to VorteKia!
@@ -137,7 +137,7 @@ export default function MainPage() {
                                     className="w-full"
                                     onClick={() => navigate("/customer/home")}
                                     variant={"default"}>
-                                    Customer Application
+                                    I'm a Customer!
                                 </Button>
                             </CardFooter>
                         </MagicCard>
@@ -172,7 +172,7 @@ export default function MainPage() {
                                     className="w-full"
                                     onClick={() => navigate("/staff/login")}
                                     variant={"default"}>
-                                    Staff Application
+                                    I work here!
                                 </Button>
                             </CardFooter>
                         </MagicCard>

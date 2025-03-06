@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/!!ui/button";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
 import {
@@ -9,15 +9,15 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { MagicCard } from "@/components/magicui/magic-card";
+} from "@/components/!!ui/card";
+import { MagicCard } from "@/components/!magicui/magic-card";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/ui/carousel";
+} from "@/components/!!ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { Lens } from "@/components/magicui/lens";
+import { Lens } from "@/components/!magicui/lens";
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -77,8 +77,17 @@ export default function HomePage() {
                 <div
                     className="m-0 h-screen py-56 w-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat overflow-y-hidden z-index-1"
                     style={{
-                        backgroundImage: "url('/images/home.png')",
+                        backgroundImage: "url('/images/home.mp4')",
                     }}>
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="absolute top-0 left-0 w-full h-full object-cover z-[-1]">
+                        <source src="/images/home.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                     <h1 className="text-6xl font-bold text-white bg-neutral-700 bg-opacity-60 rounded-lg p-1 mb-2">
                         Welcome to VorteKia!
                     </h1>

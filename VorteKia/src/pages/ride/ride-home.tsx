@@ -1,4 +1,4 @@
-import RideCard from "@/components/ride-card";
+import RideCard from "@/components/ride/ride-card";
 import { getRides } from "@/controllers/ride-controller";
 import { Ride } from "@/types";
 import { useEffect, useState } from "react";
