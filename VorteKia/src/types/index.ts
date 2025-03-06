@@ -16,6 +16,7 @@ export interface UserLoggedIn {
     user_id: string;
     role: string;
     division: string;
+    balance: number;
 }
 
 export interface Division {
@@ -29,6 +30,7 @@ export interface Ride {
     ride_description: string;
     ride_pictures: string[];
     ride_status: string;
+    ride_price: number;
     queue_count: number;
     queue_list: string[];
 }

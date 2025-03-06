@@ -40,6 +40,7 @@ import {
 
 export default function CreateStaff() {
     const [divisions, setDivisions] = useState<Division[] | null>();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     async function fetchDivisions() {
         const response = await getDivisions();
@@ -61,8 +62,8 @@ export default function CreateStaff() {
 
     async function createStaffAccount(data: z.infer<typeof StaffFormSchema>) {
         try {
+            setIsDialogOpen(false);
             const response = createStaffPromise(data);
-
             toast.promise(response, {
                 loading: "Creating account...",
                 success: () => {
@@ -84,7 +85,9 @@ export default function CreateStaff() {
 
     return (
         <>
-            <Dialog>
+            <Dialog
+                open={isDialogOpen}
+                onOpenChange={() => setIsDialogOpen(!isDialogOpen)}>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
                     <Button variant="ghost">Create Staff Account</Button>
@@ -218,6 +221,11 @@ export default function CreateStaff() {
                                                         Staff
                                                     </SelectItem>
                                                     <SelectItem
+                                                        key="staff"
+                                                        value="staff">
+                                                        Lost And Found Staff
+                                                    </SelectItem>
+                                                    <SelectItem
                                                         key="chef"
                                                         value="chef">
                                                         Chef
@@ -231,6 +239,17 @@ export default function CreateStaff() {
                                                         key="supervisor"
                                                         value="supervisor">
                                                         Supervisor
+                                                    </SelectItem>
+                                                    <SelectItem
+                                                        key="cfo"
+                                                        value="cfo">
+                                                        Chief Financial Officer
+                                                    </SelectItem>
+                                                    <SelectItem
+                                                        key="coo"
+                                                        value="coo">
+                                                        Chief Operational
+                                                        Officer
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>

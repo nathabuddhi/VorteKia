@@ -2,13 +2,15 @@ use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use entity::user::{ActiveModel as UserActiveModel, Entity as UserEntities};
 use entity::customer::{ActiveModel as CustomerActiveModel, Entity as CustomerEntities};
 use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities};
-use entity::division::Entity as DivisionEntities;
+use entity::division::{self, Entity as DivisionEntities};
 use tauri::{command, State};
 use crate::{AppState, ApiResponse};
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use sea_orm::ActiveValue::Set;
 use bcrypt::{hash, verify, DEFAULT_COST};
+
+use super::ride_handler::SingleUidRequest;
 
 fn hash_password(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
     hash(plain_password, DEFAULT_COST)
@@ -97,13 +99,13 @@ async fn get_user_role(
         }
 }
 
-
 #[derive(Serialize)]
 pub struct UserDetail {
-    name: String,
-    user_id: String,
-    role: String,
-    division: String
+    pub name: String,
+    pub user_id: String,
+    pub role: String,
+    pub division: String,
+    pub balance: f32
 }
 #[derive(Deserialize)]
 pub struct LoginRequest {
@@ -127,12 +129,20 @@ pub async fn login(
                 Ok(true) => {
                     let role_name = get_user_role(&db, user.user_id.clone()).await?;
                     let division_name = get_user_division(&db, user.user_id.clone()).await?;
+                    let user_balance = change_user_balance(state.clone(), ChangeUserBalanceRequest { user_id: user.user_id.clone(), mutation: 0.0 }).await?;
 
+                    let user_balance = match user_balance {
+                        ApiResponse::Success { data, .. } => data,  
+                        ApiResponse::Error { data: Some(value), .. } => value,  
+                        _ => 0.0, 
+                    };
+                    
                     let user_detail: UserDetail = UserDetail {
                         name: user.name.clone(),
                         user_id: user.user_id.clone(),
                         role: role_name,
                         division: division_name,
+                        balance: 0.0
                     };
                     Ok(ApiResponse::success(user_detail, "Login successful!".to_string()))
                 },
@@ -156,7 +166,7 @@ pub async fn login(
 
 #[derive(Deserialize)]
 pub struct LoginUIDRequest {
-    user_id: String,
+    pub user_id: String,
 }
 #[command]
 pub async fn login_uid(
@@ -174,17 +184,68 @@ pub async fn login_uid(
                 let role_name = get_user_role(&db, user.user_id.clone()).await?;
                 let division_name = get_user_division(&db, user.user_id.clone()).await?;
 
+                let user_balance = change_user_balance(state.clone(), ChangeUserBalanceRequest { user_id: user.user_id.clone(), mutation: 0.0 }).await?;
+
+                let user_balance = match user_balance {
+                    ApiResponse::Success { data, .. } => data,  
+                    ApiResponse::Error { data: Some(value), .. } => value,  
+                    _ => 0.0, 
+                };
+
                 let user_detail: UserDetail = UserDetail {
                     name: user.name.clone(),
                     user_id: user.user_id.clone(),
                     role: role_name.clone(),
                     division: division_name,
+                    balance: user_balance.clone()
                 };
                 if role_name == "customer" {
                     Ok(ApiResponse::success(user_detail, "Login as Customer Successful!".to_string()))
                 } else {
                     Ok(ApiResponse::error(None, "Detected as Staff. Please login using the staff login page.".to_string()))
                 }
+            }
+        Ok(None) => {
+            Ok(ApiResponse::error(None, "UID not found!".to_string()))
+        }
+        Err(err) => {
+            Err(format!("Database error: {}", err))
+        }
+    }
+}
+
+#[command]
+pub async fn get_user_by_id(
+    state: State<'_, AppState>,
+    payload: LoginUIDRequest
+) -> Result<ApiResponse<UserDetail>, String> {
+    let db = state.get_db().await.map_err(|e| e)?;
+
+    match UserEntities::find()
+        .filter(<UserEntities as EntityTrait>::Column::UserId.eq(payload.user_id))
+        .one(&db)
+        .await
+    {
+        Ok(Some(user)) => {
+                let role_name = get_user_role(&db, user.user_id.clone()).await?;
+                let division_name = get_user_division(&db, user.user_id.clone()).await?;
+                
+                let user_balance = change_user_balance(state.clone(), ChangeUserBalanceRequest { user_id: user.user_id.clone(), mutation: 0.0 }).await?;
+
+                let user_balance = match user_balance {
+                    ApiResponse::Success { data, .. } => data,  
+                    ApiResponse::Error { data: Some(value), .. } => value,  
+                    _ => 0.0, 
+                };
+                
+                let user_detail: UserDetail = UserDetail {
+                    name: user.name.clone(),
+                    user_id: user.user_id.clone(),
+                    role: role_name,
+                    division: division_name,
+                    balance: user_balance.clone()
+                };
+                Ok(ApiResponse::success(user_detail, "Obtained User Successfully.".to_string()))
             }
         Ok(None) => {
             Ok(ApiResponse::error(None, "UID not found!".to_string()))
@@ -300,11 +361,12 @@ pub async fn create_staff_account(
     }
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize)]
 pub struct ChangeUserBalanceRequest {
-    user_id: String,
-    mutation: f32
+    pub user_id: String,
+    pub mutation: f32
 }
+#[command]
 pub async fn change_user_balance(
     state: State<'_, AppState>,
     payload: ChangeUserBalanceRequest
@@ -339,3 +401,4 @@ pub async fn change_user_balance(
             }
         }
 }
+

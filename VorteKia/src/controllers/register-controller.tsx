@@ -25,6 +25,23 @@ export const StaffFormSchema = z.object({
     }),
 });
 
+export const CreateCustomerFormSchema = z.object({
+    email: z
+        .string()
+        .min(1, {
+            message: "Required",
+        })
+        .email({
+            message: "Email must be a valid email address.",
+        }),
+    password: z.string().min(8, {
+        message: "At least 8 characters long.",
+    }),
+    name: z.string().min(5, {
+        message: "At least 8 characters long.",
+    }),
+});
+
 export async function createStaffPromise(
     data: z.infer<typeof StaffFormSchema>
 ) {
@@ -44,7 +61,7 @@ export async function createStaffPromise(
 }
 
 export async function createCustomerPromise(
-    data: z.infer<typeof StaffFormSchema>
+    data: z.infer<typeof CreateCustomerFormSchema>
 ) {
     try {
         return await invoke<ApiResponse<string>>("create_customer_account", {

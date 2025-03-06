@@ -24,6 +24,8 @@ import CSLostAndFoundPage from "./pages/customerservice/cs-lnf";
 import CSManagerPage from "./pages/customerservice/cs-manager";
 import CSStaffPage from "./pages/customerservice/cs-staff";
 import MainPage from "./pages/main-page";
+import RideDetailPage from "./pages/ride/ride-detail";
+import ManageRidePage from "./pages/ride/manage-ride";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -47,6 +49,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                     <Route path="ride">
                         <Route path="staff" element={<RideStaffPage />} />
                         <Route path="manager" element={<RideManagerPage />} />
+                        <Route path="manage-ride/*" element={<ManageRidePage />} />
                     </Route>
                     <Route path="restaurant">
                         <Route index element={<RestaurantHomePage />} />
@@ -102,7 +105,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                 </Route>
                 <Route path={"ride"}>
                     <Route index element={<RideHomePage />} />
-                    <Route path="*" element={<Navigate to="/ride" />} />
+                    <Route path="*" element={<RideDetailPage />} />
                 </Route>
                 <Route path={"store"}>
                     <Route index element={<StoreHomePage />} />

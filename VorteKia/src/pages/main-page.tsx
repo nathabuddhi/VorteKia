@@ -37,6 +37,16 @@ export default function MainPage() {
             },
         });
 
+        const user = localStorage.getItem("user");
+        const parsedUser = user ? JSON.parse(user) : null;
+        if (parsedUser) {
+            if (parsedUser.role === "customer") {
+                navigate("/customer/home");
+            } else if (parsedUser.role === "staff") {
+                navigate("/staff/login");
+            }
+        }
+
         return () => {
             window.removeEventListener("scroll", handleScroll);
         };

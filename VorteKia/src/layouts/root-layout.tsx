@@ -45,10 +45,10 @@ export default function RootLayout() {
                 return <ExecutiveHeader />;
             else if (curr_page_app === "customerservice")
                 return <CustomerServiceHeader />;
-            else if (curr_page_app === "operational") return <RideHeader />;
-            else if (curr_page_app === "consumption")
+            else if (curr_page_app === "ride") return <RideHeader />;
+            else if (curr_page_app === "restaurant")
                 return <RestaurantHeader />;
-            else if (curr_page_app === "retail") return <StoreHeader />;
+            else if (curr_page_app === "store") return <StoreHeader />;
             else if (curr_page_app === "login") return <StaffHeader />;
             else navigate("/main/home");
         } else return <CustomerHeader />;

@@ -22,6 +22,12 @@ export const UIDLoginFormSchema = z.object({
     }),
 });
 
+export const TopUpFormSchema = z.object({
+    amount: z.number().min(10.0, {
+        message: "Minimum top-up amount is $10.00.",
+    }),
+});
+
 export async function loginUIDPromise(
     data: z.infer<typeof UIDLoginFormSchema>
 ) {
@@ -30,6 +36,21 @@ export async function loginUIDPromise(
             user_id: data.uid,
         },
     });
+}
+
+export async function topUpBalancePromise(
+    data: z.infer<typeof TopUpFormSchema>
+) {
+    try {
+        return await invoke<ApiResponse<UserLoggedIn>>("change_user_balance", {
+            payload: {
+                user_id: getUserSession()?.user_id,
+                mutation: data.amount,
+            },
+        });
+    } catch (error) {
+        throw new Error("Failed to top up balance: " + error);
+    }
 }
 
 export async function loginPromise(data: z.infer<typeof LoginFormSchema>) {
@@ -81,4 +102,27 @@ export function getUserRole() {
     if (parsedUser == null) return "";
 
     return parsedUser?.role;
+}
+
+export function getUserBalance() {
+    const parsedUser = getUserSession();
+
+    if (parsedUser == null) return 0;
+
+    return parsedUser?.balance;
+}
+
+export async function refreshUserSession(): Promise<void> {
+    const currUser = getUserSession();
+    if (currUser == null) return;
+    const user = await invoke<ApiResponse<UserLoggedIn>>("login_uid", {
+        payload: {
+            user_id: currUser?.user_id,
+        },
+    });
+
+    if (user.success) {
+        localStorage.removeItem("user");
+        localStorage.setItem("user", JSON.stringify(user.data));
+    }
 }

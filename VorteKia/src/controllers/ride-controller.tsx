@@ -1,5 +1,6 @@
 import { ApiResponse, Ride } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
+import { z } from "zod";
 
 export const getRides = async () => {
     try {
@@ -8,6 +9,7 @@ export const getRides = async () => {
         return { success: false, data: [], message: error };
     }
 };
+
 
 export const queuePromise = async (ride_id: string) => {
     try {
@@ -89,3 +91,70 @@ export const getQueuePos = (ride_queue: string[]): number => {
     }
     return 0;
 };
+
+export const getRideById = async (ride_id: string) => {
+    try {
+        return await invoke<ApiResponse<Ride>>("get_ride_by_id", {
+            payload: {
+                id: ride_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+};
+
+export const DeleteRideSchema = z.object({
+    reason: z.string().min(50, {
+        message: "At least 50 characters.",
+    }),
+});
+
+export const UpdateRideSchema = z.object({
+    id: z.string().length(36, {
+        message: "Invalid ride ID",
+    }),
+    name: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    description: z.string().min(10, {
+        message: "At least 10 characters.",
+    }),
+    type: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    pictures: z.array(z.string()).min(1, {
+        message: "At least 1 picture.",
+    }),
+});
+
+export async function allocateRideStaffPromise(
+    ride_id: string,
+    staff_id: string
+) {
+    try {
+        return await invoke<ApiResponse<string>>("allocate_ride_staff", {
+            payload: {
+                staff_id: staff_id,
+                ride_id: ride_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}
+
+export async function clearRideStaff(ride_id: string) {
+    try {
+        return await invoke<ApiResponse<string>>(
+            "clear_ride_staff_allocation",
+            {
+                payload: {
+                    id: ride_id,
+                },
+            }
+        );
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}

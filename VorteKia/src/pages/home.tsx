@@ -75,8 +75,10 @@ export default function HomePage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-0 overflow-hidden">
             <Lens>
                 <div
-                    className="m-0 h-screen py-56 w-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat overflow-y-hidden"
-                    style={{ backgroundImage: "url('/images/home.png')" }}>
+                    className="m-0 h-screen py-56 w-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat overflow-y-hidden z-index-1"
+                    style={{
+                        backgroundImage: "url('/images/home.png')",
+                    }}>
                     <h1 className="text-6xl font-bold text-white bg-neutral-700 bg-opacity-60 rounded-lg p-1 mb-2">
                         Welcome to VorteKia!
                     </h1>

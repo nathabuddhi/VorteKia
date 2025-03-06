@@ -29,6 +29,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getRedirectOnLogin } from "@/controllers/app-controller";
+import { ShimmerButton } from "@/components/magicui/shimmer-button";
 
 export default function CustomerLogin() {
     const navigate = useNavigate();
@@ -124,12 +125,11 @@ export default function CustomerLogin() {
                                             </FormItem>
                                         )}
                                     />
-                                    <Button
+                                    <ShimmerButton
                                         type="submit"
-                                        className="w-full"
-                                        variant="default">
+                                        className="w-full">
                                         Login
-                                    </Button>
+                                    </ShimmerButton>
                                 </form>
                             </Form>
                         </CardContent>
@@ -141,7 +141,7 @@ export default function CustomerLogin() {
                             </Button>
                             <Button variant={"link"} size={"sm"}>
                                 <Link
-                                    to="/loginstaff"
+                                    to="/staff/login"
                                     className="text-xs italic">
                                     Or Login as a Staff instead? 😈
                                 </Link>

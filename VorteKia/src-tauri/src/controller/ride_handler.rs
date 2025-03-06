@@ -1,13 +1,25 @@
 use entity::ride::{ActiveModel as RideActiveModel, Model as RideInstance, Entity as RideEntities};
 use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities, Model as MaintenanceInstance};
+use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities, Model as StaffInstance};
+use entity::division::{self, Entity as DivisionEntities};
 use entity::ride_staff_allocation::{ActiveModel as RideStaffActiveModel, Entity as RideStaffEntities, Model as RideStaffInstance};
 use entity::queue::{ActiveModel as QueueActiveModel, Entity as QueueEntities, Model as QueueInstance};
+use futures::stream::ForEach;
 use sea_orm::{QueryOrder, Set};
 use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*,ActiveValue};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
+use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
 use chrono::{Duration, NaiveDateTime, Utc, NaiveTime};
+
+use super::staff_handler::AllocateStaffRequest;
+use super::user_handler::{change_user_balance, get_user_by_id, ChangeUserBalanceRequest, LoginUIDRequest};
+
+#[derive(Deserialize)]
+pub struct SingleUidRequest {
+    pub id: String
+}
 
 #[derive(Serialize)]
 pub struct RideReturn {
@@ -16,6 +28,7 @@ pub struct RideReturn {
     pub ride_description: Option<String>,
     pub ride_pictures: Option<Vec<String>>,
     pub ride_status: String,
+    pub ride_price: f32,
     pub queue_count: usize,
     pub queue_list: Option<Vec<String>>,
 }
@@ -57,10 +70,10 @@ async fn get_ride_status(ride: &RideInstance, db: &sea_orm::DatabaseConnection) 
         Ok(maintenance_jobs) if !maintenance_jobs.is_empty() => Ok("Under maintenance.".to_string()),
         Ok(_) => match check_ride_staffed(ride.ride_id.as_ref(), db).await {
             Ok(true) => Ok(
-                if ride.opening >= Utc::now().naive_utc().time() + Duration::hours(7) && ride.closing <= Utc::now().naive_utc().time() + Duration::hours(7) {
+                if Utc::now().naive_utc().time() + Duration::hours(7) >= ride.opening && Utc::now().naive_utc().time() + Duration::hours(7) <= ride.closing {
                     "Operational.".to_string()
                 } else {
-                    "Closed.".to_string()
+                    "Closed -> ".to_string()
                 }
             ),
             Ok(false) => Ok("Non Operational.".to_string()),
@@ -88,6 +101,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             ride_description: ride.description.clone(),
             ride_pictures: ride.pictures.clone(),
             ride_status,
+            ride_price: ride.price.clone(),
             queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
             queue_list: ride_queue,
         });
@@ -96,6 +110,39 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
     Ok(ApiResponse::success(ride_returns, "Successfully fetched rides!".to_string()))
 }
 
+#[command]
+pub async fn get_ride_by_id(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest
+) -> Result<ApiResponse<RideReturn>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let ride = RideEntities::find()
+    .filter(<RideEntities as EntityTrait>::Column::RideId.eq(payload.id))
+    .one(&db)
+    .await.map_err(|err| format!("Database error: {}", err))?;
+
+    let ride = match ride {
+        Some(ride) => ride,
+        None => return Ok(ApiResponse::error(None, "Ride not found.".to_string())),
+    };
+
+    let ride_status = get_ride_status(&ride, &db).await.unwrap_or_else(|_| "Unknown".to_string());
+    let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+
+    let ride_return = RideReturn {
+        ride_id: ride.ride_id.clone(),
+        ride_name: ride.name.clone(),
+        ride_description: ride.description.clone(),
+        ride_pictures: ride.pictures.clone(),
+        ride_status,
+        ride_price: ride.price.clone(),
+        queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
+        queue_list: ride_queue,
+    };
+
+    Ok(ApiResponse::success(ride_return, "Successfully fetched ride!".to_string()))
+    }
 
 #[derive(Deserialize)]
 pub struct CreateRideRequest {
@@ -136,10 +183,27 @@ pub async fn create_ride(
     }
 }
 
+pub async fn get_ride_price(
+    state: State<'_, AppState>,
+    ride_id: String,
+) -> Result<f32, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RideEntities::find()
+        .filter(<RideEntities as EntityTrait>::Column::RideId.eq(ride_id))
+        .one(&db)
+        .await
+    {
+        Ok(Some(ride)) => Ok(ride.price),
+        Ok(None) => Err("Ride not found.".to_string()),
+        Err(err) => Err(format!("Database error: {}", err)),
+    }
+}
+
 #[derive(Deserialize)]
 pub struct AddQueueRequest {
-    user_id: String,
-    ride_id: String,
+    pub user_id: String,
+    pub ride_id: String,
 }
 #[command]
 pub async fn add_ride_queue(
@@ -165,6 +229,21 @@ pub async fn add_ride_queue(
             data: None, 
             message: "User is already in queue.".to_string() 
         });
+    }
+
+    let ride_price: Result<f32, String> = get_ride_price(state.clone(), payload.ride_id.clone()).await;
+
+    let deduct_user_balance: Result<ApiResponse<f32>, _> = change_user_balance(
+        state.clone(),
+        ChangeUserBalanceRequest { user_id: payload.user_id.clone(), mutation: -ride_price? }
+    ).await;
+
+    let deduct_user_balance = deduct_user_balance.unwrap();
+
+    if let ApiResponse::Error { success, .. } = deduct_user_balance {
+        if !success {
+            return Ok(ApiResponse::error(None, "User balance is not enough!".to_string()));
+        }
     }
 
     let new_queue = QueueActiveModel {
@@ -233,4 +312,83 @@ pub async fn is_user_in_queue(
         Err(err) => Ok(ApiResponse::error(Some(false), format!("Error checking queue status: {}", err))),
     }
 }
+
+#[command]
+pub async fn clear_ride_staff_allocation(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RideStaffEntities::delete_many()
+        .filter(<RideStaffEntities as EntityTrait>::Column::RideId.eq(&payload.id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully cleared staff allocation".to_string())),
+        Err(err) => Ok(ApiResponse::error(Some(false), format!("Error clearing staff allocation: {}", err))),
+    }
+}
+
+#[command]
+pub async fn allocate_ride_staff(
+    state: State<'_, AppState>,
+    payload: AllocateStaffRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RideStaffEntities::delete_many()
+        .filter(<RideStaffEntities as EntityTrait>::Column::StaffId.eq(&payload.staff_id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => {}
+        Err(err) => return Ok(ApiResponse::error(Some(false), format!("Staff already allocated. Failed deallocating: {}", err))),
+    }
+
+    let new_allocation = RideStaffActiveModel {
+        staff_id: Set(payload.staff_id.clone()),
+        ride_id: Set(payload.ride_id.clone()),
+    };
     
+    match new_allocation.insert(&db).await {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully allocated staff!".to_string())),
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error allocating staff: {}", e))),
+    }
+}
+
+
+#[derive(Deserialize)]
+pub struct GetAllocatedStaffRequest {
+    ride_id: String,
+}
+#[command]
+pub async fn get_allocated_ride_staff(
+    state: State<'_, AppState>,
+    payload: GetAllocatedStaffRequest,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = RideStaffEntities::find()
+        .filter(<RideStaffEntities as EntityTrait>::Column::RideId.eq(payload.ride_id))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.staff_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
+}
+

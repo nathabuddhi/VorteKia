@@ -8,9 +8,14 @@ import {
     getUserRole,
     getUserDivision,
     getUserName,
+    getUserBalance,
 } from "@/controllers/user-controller";
 import { logout } from "@/controllers/app-controller";
 import RequestUID from "./request-uid";
+import CreateCustomer from "./create-customer";
+import { Label } from "./ui/label";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import TopUpBalance from "./top-up-balance";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -96,6 +101,7 @@ export function CustomerHeader() {
                         Back to Customer Page{" "}
                     </Button>
                 )}
+                {getUserRole() === "customer" && <TopUpBalance />}
                 {getCurrentApp()[1] === "ride" && isLoggedIn() && (
                     <Button variant={"ghost"}>My Queue</Button>
                 )}
@@ -104,6 +110,25 @@ export function CustomerHeader() {
                 )}
                 {getCurrentApp()[1] === "restaurant" && isLoggedIn() && (
                     <Button variant={"ghost"}>My Orders</Button>
+                )}
+                {getCurrentApp()[1] === "restaurant" && (
+                    <Button
+                        variant={"ghost"}
+                        onClick={() => navigate("/restaurant")}>
+                        All Restaurants
+                    </Button>
+                )}
+                {getCurrentApp()[1] === "ride" && (
+                    <Button variant={"ghost"} onClick={() => navigate("/ride")}>
+                        All Rides
+                    </Button>
+                )}
+                {getCurrentApp()[1] === "store" && (
+                    <Button
+                        variant={"ghost"}
+                        onClick={() => navigate("/store")}>
+                        All Stores
+                    </Button>
                 )}
                 {getCurrentApp()[1] === "customer" &&
                     (getCurrentApp()[2] === "home" ||
@@ -137,7 +162,7 @@ export function CustomerHeader() {
                         <Button
                             onClick={() => {
                                 logout();
-                                navigate(location.pathname);
+                                navigate("/main/home");
                             }}
                             variant={"ghost"}>
                             Logout
@@ -179,9 +204,14 @@ export function RideHeader() {
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
                 {role === "manager" && (
-                    <Button onClick={() => navigate("/ride")} variant={"ghost"}>
+                    <Button
+                        onClick={() => navigate("/staff/ride/manager")}
+                        variant={"ghost"}>
                         Manage Rides
                     </Button>
+                )}
+                {role === "manager" && (
+                    <Button variant={"ghost"}>Propose New Ride</Button>
                 )}
                 {role === "staff" && (
                     <Button variant={"ghost"}>My Assignment</Button>
@@ -267,7 +297,7 @@ export function StoreHeader() {
         if (role === "INITIAL" || division === "INITIAL") return;
         if (division !== "retail") {
             logout();
-            navigate("/home");
+            navigate("/main/home");
         }
     }, [role, navigate]);
 
@@ -332,9 +362,6 @@ export function ExecutiveHeader() {
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
                     onClick={() => {
@@ -378,9 +405,6 @@ export function MaintenanceHeader() {
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
                 {role === "staff" && (
                     <Button variant={"ghost"}>My Tasks</Button>
                 )}
@@ -429,9 +453,7 @@ export function CustomerServiceHeader() {
             </Link>
             <HelloLabel username={getUserName()} />
             <nav className="ml-auto flex gap-6">
-                <Button onClick={() => navigate("/home")} variant={"ghost"}>
-                    Home
-                </Button>
+                {(role === "staff" || role === "manager") && <CreateCustomer />}
                 {role === "staff" && (
                     <Button variant={"ghost"}>View Lost Items</Button>
                 )}
