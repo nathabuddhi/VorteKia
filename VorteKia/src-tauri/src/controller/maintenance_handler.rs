@@ -1,10 +1,14 @@
+use entity::division::{self, Entity as DivisionEntities};
+use entity::staff::Entity as StaffEntities;
 use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities};
-// use entity::maintenance_job_allocation::{ActiveModel as JobAllocationActiveModel, Entity as JobAllocationEntities};
+use entity::maintenance_job_allocation::{ActiveModel as JobAllocationActiveModel, Entity as JobAllocationEntities};
 use sea_orm::{Set, EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
+use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
 
+use super::user_handler::{get_user_by_id, LoginUIDRequest};
 use super::{ride_handler::SingleUidRequest, staff_handler::AllocateStaffRequest};
 
 #[derive(Serialize, Deserialize)]
@@ -192,29 +196,169 @@ pub async fn update_job_status(
     }
 }
 
-// #[command]
-// pub async fn assign_maintenance_job(
-//     state: State<'_, AppState>,
-//     payload: AllocateStaffRequest,
-// ) -> Result<ApiResponse<bool>, String> {
-//     let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+#[command]
+pub async fn assign_maintenance_job(
+    state: State<'_, AppState>,
+    payload: AllocateStaffRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
 
-//     match MaintenanceStaffEntities::delete_many()
-//         .filter(<RideStaffEntities as EntityTrait>::Column::StaffId.eq(&payload.staff_id))
-//         .exec(&db)
-//         .await
-//     {
-//         Ok(_) => {}
-//         Err(err) => return Ok(ApiResponse::error(Some(false), format!("Staff already allocated. Failed deallocating: {}", err))),
-//     }
+    match JobAllocationEntities::delete_many()
+        .filter(<JobAllocationEntities as EntityTrait>::Column::StaffId.eq(&payload.staff_id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => {}
+        Err(err) => return Ok(ApiResponse::error(Some(false), format!("Staff already allocated. Failed deallocating: {}", err))),
+    }
 
-//     let new_allocation = RideStaffActiveModel {
-//         staff_id: Set(payload.staff_id.clone()),
-//         ride_id: Set(payload.loc_id.clone()),
-//     };
+    let new_allocation = JobAllocationActiveModel {
+        job_id: Set(payload.loc_id.clone()),
+        staff_id: Set(payload.staff_id.clone()),
+    };
     
-//     match new_allocation.insert(&db).await {
-//         Ok(_) => Ok(ApiResponse::success(true, "Successfully allocated staff!".to_string())),
-//         Err(e) => Ok(ApiResponse::error(Some(false), format!("Error allocating staff: {}", e))),
-//     }
-// }
+    match new_allocation.insert(&db).await {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully allocated staff!".to_string())),
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error allocating staff: {}", e))),
+    }
+}
+
+#[command]
+pub async fn clear_job_allocation(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match JobAllocationEntities::delete_many()
+        .filter(<JobAllocationEntities as EntityTrait>::Column::JobId.eq(&payload.id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully cleared maintenance staff allocation".to_string())),
+        Err(err) => Ok(ApiResponse::error(Some(false), format!("Error clearing staff allocation: {}", err))),
+    }
+}
+
+#[command]
+pub async fn get_allocated_maintenance_staff(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = JobAllocationEntities::find()
+        .filter(<JobAllocationEntities as EntityTrait>::Column::JobId.eq(payload.id))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.staff_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
+}
+
+#[command]
+pub async fn get_all_maintenance_staff(
+    state: State<'_, AppState>,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = StaffEntities::find()
+        .find_also_related(division::Entity)
+        .filter(<DivisionEntities as EntityTrait>::Column::DivisionName.eq("maintenance"))
+        .filter(<StaffEntities as EntityTrait>::Column::Role.eq("staff"))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.0.user_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
+}
+
+#[command]
+pub async fn get_assigned_job(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<MaintenanceObject>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let maintenance_staff = JobAllocationEntities::find()
+        .filter(<JobAllocationEntities as EntityTrait>::Column::StaffId.eq(&payload.id))
+        .one(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let maintenance_staff = match maintenance_staff {
+        Some(maintenance_staff) => maintenance_staff,
+        None => return Ok(ApiResponse::error(None, "No job assigned to this staff.".to_string())),
+    };
+
+    let job = get_job_by_id(state.clone(), SingleUidRequest { id: maintenance_staff.job_id.clone() }).await;
+    let job = match job {
+        Ok(ApiResponse::Success { data, .. }) => data,
+        _ => return Err("Failed to fetch job details.".to_string()),
+    };
+
+    Ok(ApiResponse::success(job, "Successfully fetched job!".to_string()))
+}
+
+#[command] 
+pub async fn edit_job_details(
+    state: State<'_, AppState>,
+    payload: MaintenanceObject,
+) -> Result<ApiResponse<MaintenanceObject>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let existing_job = MaintenanceEntities::find()
+    .filter(<MaintenanceEntities as EntityTrait>::Column::JobId.eq(payload.job_id.clone()))
+    .one(&db)
+    .await.map_err(|err| format!("Database error: {}", err))?.unwrap();
+
+    let updated_job: MaintenanceActiveModel = MaintenanceActiveModel {
+        job_id: Set(existing_job.job_id),
+        location: Set(existing_job.location),
+        deadline: Set(payload.deadline.clone()),
+        description: Set(existing_job.description),
+        status: Set(existing_job.status),
+        notes: Set(payload.notes.clone()),
+        report: Set(payload.report.clone()),
+    };
+
+    let job: Result<ApiResponse<MaintenanceObject>, String> = get_job_by_id(state.clone(), SingleUidRequest { id: payload.job_id.clone() }).await;
+
+    let job = match job {
+        Ok(ApiResponse::Success { data, .. }) => data,
+        _ => return Err("Failed to fetch job details.".to_string()),
+    };
+
+    match updated_job.update(&db).await {
+        Ok(_) => Ok(ApiResponse::success(job, "Successfully updated job!".to_string())),
+        Err(e) => Ok(ApiResponse::error(None, format!("Error updating job: {}", e))),
+    }
+}

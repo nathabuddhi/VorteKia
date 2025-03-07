@@ -27,6 +27,7 @@ import MainPage from "./pages/main-page";
 import RideDetailPage from "./pages/ride/ride-detail";
 import ManageRidePage from "./pages/ride/manage-ride";
 import OfficialAccountPage from "./pages/official-account";
+import ManageJobPage from "./pages/maintenance/manage-job";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -81,8 +82,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                             element={<MaintenanceManagerPage />}
                         />
                         <Route
-                            path="*"
-                            element={<Navigate to="/main/home" />}
+                            path="manage-job/*"
+                            element={<ManageJobPage />}
                         />
                     </Route>
                     <Route path="customerservice">

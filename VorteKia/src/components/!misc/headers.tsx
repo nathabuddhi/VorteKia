@@ -282,9 +282,6 @@ export function RestaurantHeader() {
                         Manage Restaurants
                     </Button>
                 )}
-                {(role === "chef" || role === "waiter") && (
-                    <Button variant={"ghost"}>My Assignment</Button>
-                )}
                 <Button
                     onClick={() => {
                         logout();
@@ -338,9 +335,6 @@ export function StoreHeader() {
                 )}
                 {role === "customer" && (
                     <Button variant={"ghost"}>My Transactions</Button>
-                )}
-                {role === "staff" && (
-                    <Button variant={"ghost"}>My Assignment</Button>
                 )}
                 <Button
                     onClick={() => {
@@ -428,9 +422,6 @@ export function MaintenanceHeader() {
             {getUserSession() && <NotificationList />}
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
-                {role === "staff" && (
-                    <Button variant={"ghost"}>My Tasks</Button>
-                )}
                 {role === "manager" && (
                     <Button variant={"ghost"}>Manage Tasks</Button>
                 )}

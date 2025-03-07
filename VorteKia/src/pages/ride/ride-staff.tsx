@@ -59,8 +59,6 @@ export default function RideStaffPage() {
         fetchAssignedRide();
     }, [ride]);
 
-    useEffect(() => {});
-
     async function enqueueCustomer(data: z.infer<typeof UIDLoginFormSchema>) {
         try {
             if (ride === null) return;
@@ -181,13 +179,13 @@ export default function RideStaffPage() {
                 <MagicCard
                     className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md"
                     gradientColor={"#D9D9D955"}>
-                    <h1 className="text-2xl font-bold">{ride?.ride_name}</h1>
-                    <p className="text-gray-600">{ride?.ride_description}</p>
+                    <h1 className="text-2xl font-bold">{ride.ride_name}</h1>
+                    <p className="text-gray-600">{ride.ride_description}</p>
 
                     <div className="mt-4 flex flex-col gap-y-2">
-                        <Label>Operational Status: {ride?.ride_status}</Label>
-                        <Label>Currently In Queue: {ride?.queue_count}</Label>
-                        <Label>Attraction Price: ${ride?.ride_price}</Label>
+                        <Label>Operational Status: {ride.ride_status}</Label>
+                        <Label>Currently In Queue: {ride.queue_count}</Label>
+                        <Label>Attraction Price: ${ride.ride_price}</Label>
                     </div>
 
                     <Carousel
