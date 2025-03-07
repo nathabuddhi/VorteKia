@@ -8,6 +8,7 @@ pub mod chat_room_detail;
 pub mod customer;
 pub mod division;
 pub mod lost_item;
+pub mod maintenance_job_allocation;
 pub mod maintenance_job;
 pub mod menu;
 pub mod message;

@@ -1,10 +1,11 @@
 use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities};
+// use entity::maintenance_job_allocation::{ActiveModel as JobAllocationActiveModel, Entity as JobAllocationEntities};
 use sea_orm::{Set, EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
 use crate::{AppState, ApiResponse};
 
-use super::ride_handler::SingleUidRequest;
+use super::{ride_handler::SingleUidRequest, staff_handler::AllocateStaffRequest};
 
 #[derive(Serialize, Deserialize)]
 pub struct MaintenanceObject {
@@ -190,3 +191,30 @@ pub async fn update_job_status(
         Ok(ApiResponse::error(None, "Maintenance job not found.".into()))
     }
 }
+
+// #[command]
+// pub async fn assign_maintenance_job(
+//     state: State<'_, AppState>,
+//     payload: AllocateStaffRequest,
+// ) -> Result<ApiResponse<bool>, String> {
+//     let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+//     match MaintenanceStaffEntities::delete_many()
+//         .filter(<RideStaffEntities as EntityTrait>::Column::StaffId.eq(&payload.staff_id))
+//         .exec(&db)
+//         .await
+//     {
+//         Ok(_) => {}
+//         Err(err) => return Ok(ApiResponse::error(Some(false), format!("Staff already allocated. Failed deallocating: {}", err))),
+//     }
+
+//     let new_allocation = RideStaffActiveModel {
+//         staff_id: Set(payload.staff_id.clone()),
+//         ride_id: Set(payload.loc_id.clone()),
+//     };
+    
+//     match new_allocation.insert(&db).await {
+//         Ok(_) => Ok(ApiResponse::success(true, "Successfully allocated staff!".to_string())),
+//         Err(e) => Ok(ApiResponse::error(Some(false), format!("Error allocating staff: {}", e))),
+//     }
+// }
