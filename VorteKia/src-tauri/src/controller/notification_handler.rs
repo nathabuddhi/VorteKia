@@ -1,8 +1,7 @@
 use chrono::{Duration, Utc};
 use entity::notification::{self, Entity as NotificationEntities, ActiveModel as NotificationActiveModel};
 use sea_orm::{QueryOrder, Set};
-use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*,ActiveValue};
-use serde::{Deserialize, Serialize};
+use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use tauri::{command, State};
 
 use crate::{ApiResponse, AppState};

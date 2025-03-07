@@ -221,8 +221,8 @@ export default function CreateStaff() {
                                                         Staff
                                                     </SelectItem>
                                                     <SelectItem
-                                                        key="staff"
-                                                        value="staff">
+                                                        key="lostandfound"
+                                                        value="lostandfound">
                                                         Lost And Found Staff
                                                     </SelectItem>
                                                     <SelectItem
@@ -239,6 +239,11 @@ export default function CreateStaff() {
                                                         key="supervisor"
                                                         value="supervisor">
                                                         Supervisor
+                                                    </SelectItem>
+                                                    <SelectItem
+                                                        key="official"
+                                                        value="official">
+                                                        Official Account
                                                     </SelectItem>
                                                     <SelectItem
                                                         key="cfo"

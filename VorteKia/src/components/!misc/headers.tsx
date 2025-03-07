@@ -1,13 +1,13 @@
 import { Button } from "@/components/!!ui/button";
 import { Link, useLocation, useNavigate } from "react-router";
 import { House } from "lucide-react";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useState } from "react";
 import HelloLabel from "@/components/!misc/hello-label";
 import CreateStaff from "../generalstaff/create-staff";
 import {
     getUserRole,
     getUserDivision,
-    getUserName,
+    getUserSession,
 } from "@/controllers/user-controller";
 import { logout } from "@/controllers/app-controller";
 import RequestUID from "../customer/request-uid";
@@ -15,6 +15,7 @@ import CreateCustomer from "../generalstaff/create-customer";
 import TopUpBalance from "../customer/top-up-balance";
 import CreateRide from "../ride/create-ride";
 import NotificationList from "./notification-list";
+import ChatBox from "./chat-box";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -31,7 +32,7 @@ export function MainHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 <Button
                     onClick={() => navigate("/customer/home")}
@@ -56,21 +57,31 @@ export function StaffHeader() {
             <Link to="/home" className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
-
+            {getUserRole() === "official" && <ChatBox />}
+            {getUserRole() === "official" && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 <Button
                     onClick={() => navigate("/main/home")}
                     variant={"ghost"}>
                     Back To Main
                 </Button>
+                {getUserRole() !== "" && (
+                    <Button
+                        onClick={() => {
+                            logout();
+                            navigate("/main/home");
+                        }}
+                        variant={"ghost"}>
+                        Logout
+                    </Button>
+                )}
             </nav>
         </header>
     );
 }
 
 export function CustomerHeader() {
-    const [, forceUpdate] = useReducer((x) => x + 1, 0);
     const navigate = useNavigate();
 
     const isLoggedIn = () => {
@@ -84,8 +95,9 @@ export function CustomerHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <NotificationList />
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {getCurrentApp()[2] === "login" && <RequestUID />}
                 {getCurrentApp()[2] === "home" ? (
@@ -207,7 +219,9 @@ export function RideHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {role === "manager" && (
                     <Button
@@ -257,7 +271,9 @@ export function RestaurantHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {role === "supervisor" && (
                     <Button
@@ -309,7 +325,9 @@ export function StoreHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {role === "supervisor" && (
                     <Button
@@ -361,7 +379,9 @@ export function ExecutiveHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
@@ -404,7 +424,9 @@ export function MaintenanceHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {role === "staff" && (
                     <Button variant={"ghost"}>My Tasks</Button>
@@ -452,7 +474,9 @@ export function CustomerServiceHeader() {
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
-            <HelloLabel username={getUserName()} />
+            {getUserSession() && <ChatBox />}
+            {getUserSession() && <NotificationList />}
+            <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {(role === "staff" || role === "manager") && <CreateCustomer />}
                 {role === "staff" && (

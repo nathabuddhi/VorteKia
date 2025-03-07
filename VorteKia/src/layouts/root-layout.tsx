@@ -43,6 +43,7 @@ export default function RootLayout() {
                 curr_page_app === "cfo"
             )
                 return <ExecutiveHeader />;
+            else if (curr_page_app === "official") return <StaffHeader />;
             else if (curr_page_app === "customerservice")
                 return <CustomerServiceHeader />;
             else if (curr_page_app === "ride") return <RideHeader />;

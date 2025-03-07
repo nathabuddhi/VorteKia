@@ -1,17 +1,10 @@
-use entity::ride::{self, ActiveModel as RideActiveModel, Model as RideInstance, Entity as RideEntities};
-use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities, Model as MaintenanceInstance};
-use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities, Model as StaffInstance};
-use entity::division::{self, Entity as DivisionEntities};
-use sea_orm::{QueryOrder, Set};
-use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*,ActiveValue};
+use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities};
+use sea_orm::{Set, EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
-use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
-use chrono::{Duration, NaiveDateTime, Utc, NaiveTime};
 
 use super::ride_handler::SingleUidRequest;
-use super::staff_handler::AllocateStaffRequest;
 
 #[derive(Serialize, Deserialize)]
 pub struct MaintenanceObject {

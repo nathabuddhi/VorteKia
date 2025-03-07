@@ -22,8 +22,16 @@ import { Lens } from "@/components/!magicui/lens";
 export default function HomePage() {
     const navigate = useNavigate();
 
+    const scrollToImage = () => {
+        const image = document.getElementById("image");
+        if (image) {
+            image.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
     useEffect(() => {
         fireworks();
+        scrollToImage();
         const handleScroll = () => {
             if (window.scrollY === 0) {
                 fireworks();
@@ -84,9 +92,9 @@ export default function HomePage() {
                         loop
                         muted
                         playsInline
-                        className="absolute top-0 left-0 w-full h-full object-cover z-[-1]">
+                        className="absolute top-0 left-0 w-full h-full object-cover z-[-1]"
+                        id="image">
                         <source src="/images/home.mp4" type="video/mp4" />
-                        Your browser does not support the video tag.
                     </video>
                     <h1 className="text-6xl font-bold text-white bg-neutral-700 bg-opacity-60 rounded-lg p-1 mb-2">
                         Welcome to VorteKia!

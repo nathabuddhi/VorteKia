@@ -90,7 +90,7 @@ export default function MainPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center bg-muted p-0 pt-20">
+        <div className="flex flex-col items-center justify-center bg-muted p-0 pt-20 h-[calc(100vh-3.5rem)]">
             <div className="m-0 w-screen flex flex-col items-center justify-center">
                 <h1 className="text-4xl font-bold text-black bg-opacity-60 rounded-lg p-1 my-2">
                     Welcome to VorteKia!

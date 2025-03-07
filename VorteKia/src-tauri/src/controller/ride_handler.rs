@@ -1,17 +1,14 @@
-use entity::ride::{self, ActiveModel as RideActiveModel, Model as RideInstance, Entity as RideEntities};
-use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities, Model as MaintenanceInstance};
-use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities, Model as StaffInstance};
-use entity::division::{self, Entity as DivisionEntities};
-use entity::ride_staff_allocation::{ActiveModel as RideStaffActiveModel, Entity as RideStaffEntities, Model as RideStaffInstance};
-use entity::queue::{ActiveModel as QueueActiveModel, Entity as QueueEntities, Model as QueueInstance};
-use futures::stream::ForEach;
+use entity::ride::{ActiveModel as RideActiveModel, Entity as RideEntities};
+use entity::maintenance_job::Entity as MaintenanceEntities;
+use entity::ride_staff_allocation::{ActiveModel as RideStaffActiveModel, Entity as RideStaffEntities};
+use entity::queue::{ActiveModel as QueueActiveModel, Entity as QueueEntities};
 use sea_orm::{QueryOrder, Set};
-use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*,ActiveValue};
+use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
 use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
-use chrono::{Duration, NaiveDateTime, Utc, NaiveTime};
+use chrono::{Duration, Utc, NaiveTime};
 
 use super::notification_handler::add_notification;
 use super::staff_handler::AllocateStaffRequest;
@@ -22,7 +19,7 @@ pub struct SingleUidRequest {
     pub id: String
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct RideReturn {
     pub ride_id: String,
     pub ride_name: String,
@@ -64,17 +61,17 @@ async fn check_ride_staffed(ride_id: &str, db: &sea_orm::DatabaseConnection) -> 
         .map_err(|err| format!("Database error: {}", err))
 }
 
-async fn get_ride_status(ride: &RideInstance, db: &sea_orm::DatabaseConnection) -> Result<String, String> {
+async fn get_ride_status(ride_id: String, opening: NaiveTime, closing:NaiveTime, db: &sea_orm::DatabaseConnection) -> Result<String, String> {
     match MaintenanceEntities::find()
-        .filter(<MaintenanceEntities as EntityTrait>::Column::Location.eq(ride.ride_id.as_ref() as &str))
+        .filter(<MaintenanceEntities as EntityTrait>::Column::Location.eq(ride_id.clone()))
         .filter(<MaintenanceEntities as EntityTrait>::Column::Status.is_in(vec!["pending", "in progress"]))
         .all(db)
         .await
     {
         Ok(maintenance_jobs) if !maintenance_jobs.is_empty() => Ok("Under maintenance.".to_string()),
-        Ok(_) => match check_ride_staffed(ride.ride_id.as_ref(), db).await {
+        Ok(_) => match check_ride_staffed(ride_id.as_str(), db).await {
             Ok(true) => Ok(
-                if Utc::now().naive_utc().time() + Duration::hours(7) >= ride.opening && Utc::now().naive_utc().time() + Duration::hours(7) <= ride.closing {
+                if Utc::now().naive_utc().time() + Duration::hours(7) >= opening && Utc::now().naive_utc().time() + Duration::hours(7) <= closing {
                     "Operational.".to_string()
                 } else {
                     "Closed -> ".to_string()
@@ -92,11 +89,41 @@ async fn get_ride_status(ride: &RideInstance, db: &sea_orm::DatabaseConnection) 
 pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec<RideReturn>>, String> {
     let db = state.get_db().await.map_err(|e| e.to_string())?;
 
+    let cache_key = "get_all_rides";
+
+     if let Some(cached_rides) = state.cache.get_cache::<Vec<RideReturn>>(cache_key).await {
+        println!("Cache hit: Returning posts from Redis");
+        
+        let mut ride_returns = Vec::new();
+        for ride in cached_rides {
+            let opening_time = NaiveTime::parse_from_str(&ride.opening, "%H:%M:%S").unwrap_or_else(|_| NaiveTime::from_hms_opt(0, 0, 0).unwrap());
+            let closing_time = NaiveTime::parse_from_str(&ride.closing, "%H:%M:%S").unwrap_or_else(|_| NaiveTime::from_hms_opt(23, 59, 59).unwrap());
+            let ride_status = get_ride_status(ride.ride_id.clone(), opening_time, closing_time, &db).await.unwrap_or_else(|_| "Unknown".to_string());
+            let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+
+            ride_returns.push(RideReturn {
+                ride_id: ride.ride_id.clone(),
+                ride_name: ride.ride_name.clone(),
+                ride_description: ride.ride_description.clone(),
+                ride_pictures: ride.ride_pictures.clone(),
+                ride_status,
+                ride_type: ride.ride_type.clone(),
+                opening: ride.opening.to_string(),
+                closing: ride.closing.to_string(),
+                ride_price: ride.ride_price.clone(),
+                queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
+                queue_list: ride_queue,
+            });
+        }
+
+        return Ok(ApiResponse::success(ride_returns, "Successfully fetched rides!".to_string()));
+    }
+
     let rides = RideEntities::find().all(&db).await.map_err(|err| format!("Database error: {}", err))?;
     let mut ride_returns = Vec::new();
 
     for ride in rides {
-        let ride_status = get_ride_status(&ride, &db).await.unwrap_or_else(|_| "Unknown".to_string());
+        let ride_status = get_ride_status(ride.ride_id.clone(), ride.opening.clone(), ride.closing.clone(), &db).await.unwrap_or_else(|_| "Unknown".to_string());
         let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
 
         ride_returns.push(RideReturn {
@@ -113,7 +140,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             queue_list: ride_queue,
         });
     }
-
+    state.cache.set_cache("get_all_rides", &ride_returns, 60).await;
     Ok(ApiResponse::success(ride_returns, "Successfully fetched rides!".to_string()))
 }
 
@@ -134,7 +161,7 @@ pub async fn get_ride_by_id(
         None => return Ok(ApiResponse::error(None, "Ride not found.".to_string())),
     };
 
-    let ride_status = get_ride_status(&ride, &db).await.unwrap_or_else(|_| "Unknown".to_string());
+    let ride_status = get_ride_status(ride.ride_id.clone(), ride.opening.clone(), ride.closing.clone(), &db).await.unwrap_or_else(|_| "Unknown".to_string());
     let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
 
     let ride_return = RideReturn {
@@ -192,7 +219,10 @@ pub async fn create_ride(
     };
 
     match new_ride.insert(&db).await {
-        Ok(inserted_ride) => Ok(ApiResponse::success(inserted_ride.ride_id.to_string(), "Successfully added ride!".to_string())),
+        Ok(inserted_ride) => {
+            state.cache.delete_cache("get_all_rides").await;
+            Ok(ApiResponse::success(inserted_ride.ride_id.to_string(), "Successfully added ride!".to_string()))
+        },
         Err(e) => Ok(ApiResponse::error(None, format!("Error adding ride: {}", e))),
     }
 }
@@ -234,7 +264,10 @@ pub async fn edit_ride(
     };
 
     match updated_ride.update(&db).await {
-        Ok(_) => Ok(ApiResponse::success(found_ride.ride_id, "Successfully updated ride!".to_string())),
+        Ok(_) => {
+            state.cache.delete_cache("get_all_rides").await;
+            Ok(ApiResponse::success(found_ride.ride_id, "Successfully updated ride!".to_string()))
+        },
         Err(e) => Ok(ApiResponse::error(None, format!("Error updating ride: {}", e))),
     }
 }
@@ -316,7 +349,10 @@ pub async fn add_ride_queue(
         .map_err(|e| e.to_string())?;
     
     match new_queue.insert(&db).await {
-        Ok(_) => Ok(ApiResponse::success(queue_count, "Successfully enqueued for ride!".to_string())),
+        Ok(_) => {
+            state.cache.delete_cache("get_all_rides").await;
+            Ok(ApiResponse::success(queue_count, "Successfully enqueued for ride!".to_string()))
+        },
         Err(e) => Ok(ApiResponse::error(None, format!("Error entering ride queue: {}", e))),
     }
 }
@@ -343,7 +379,10 @@ pub async fn leave_ride_queue(
             let _ = queue.delete(&db).await.map_err(|err| format!("Database error: {}", err))?;
             Ok(ApiResponse::success(true, "Successfully left queue.".to_string()))
         }
-        Ok(None) => Ok(ApiResponse::error(Some(false), "User not in queue.".to_string())),
+        Ok(None) => {
+            state.cache.delete_cache("get_all_rides").await;
+            Ok(ApiResponse::error(Some(false), "User not in queue.".to_string()))
+        },
         Err(err) => Ok(ApiResponse::error(Some(false), "Unknown Error: ".to_string() + &err.to_string())),
     }
 }

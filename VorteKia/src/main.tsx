@@ -26,6 +26,7 @@ import CSStaffPage from "./pages/customerservice/cs-staff";
 import MainPage from "./pages/main-page";
 import RideDetailPage from "./pages/ride/ride-detail";
 import ManageRidePage from "./pages/ride/manage-ride";
+import OfficialAccountPage from "./pages/official-account";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -46,10 +47,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                 </Route>
                 <Route path={"staff"}>
                     <Route path="login" element={<StaffLogin />} />
+                    <Route path="official" element={<OfficialAccountPage />} />
                     <Route path="ride">
                         <Route path="staff" element={<RideStaffPage />} />
                         <Route path="manager" element={<RideManagerPage />} />
-                        <Route path="manage-ride/*" element={<ManageRidePage />} />
+                        <Route
+                            path="manage-ride/*"
+                            element={<ManageRidePage />}
+                        />
                     </Route>
                     <Route path="restaurant">
                         <Route index element={<RestaurantHomePage />} />

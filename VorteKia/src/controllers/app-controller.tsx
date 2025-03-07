@@ -7,6 +7,7 @@ export function getRedirectOnLogin(parsedUser: UserLoggedIn | null): string {
             parsedUser.division === "customer"
         )
             return "/customer/home";
+        else if (parsedUser.role === "official") return "/staff/official";
         else if (parsedUser.division === "consumption") {
             if (parsedUser.role === "chef") return "/staff/restaurant/chef";
             else if (parsedUser.role === "waiter")

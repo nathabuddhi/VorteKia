@@ -1,14 +1,11 @@
 use entity::division::{self, Entity as DivisionEntities};
-use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities, Model as StaffInstance};
-use entity::ride_staff_allocation::{ActiveModel as RideStaffActiveModel, Entity as RideStaffEntities, Model as RideStaffInstance};
-use futures::stream::ForEach;
-use sea_orm::{QueryOrder, Set};
-use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*,ActiveValue};
-use serde::{Deserialize, Serialize};
+use entity::staff::Entity as StaffEntities;
+use entity::ride_staff_allocation::Entity as RideStaffEntities;
+use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
+use serde::Deserialize;
 use tauri::{command, State};
 use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
-use chrono::{Duration, NaiveDateTime, Utc, NaiveTime};
 
 use super::ride_handler::{get_ride_by_id, RideReturn, SingleUidRequest};
 use super::user_handler::{get_user_by_id, LoginUIDRequest};

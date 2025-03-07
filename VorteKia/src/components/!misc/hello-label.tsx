@@ -1,11 +1,20 @@
 import { Label } from "@/components/!!ui/label";
+import { getUserSession } from "@/controllers/user-controller";
+import { useEffect, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 
-interface HelloLabelProps {
-    username: string;
-}
+export default function HelloLabel() {
+    const [username, setUsername] = useState("");
 
-export default function HelloLabel({ username }: HelloLabelProps) {
+    useEffect(() => {
+        const user = getUserSession();
+        setUsername(user ? user.name : "Guest");
+    }, [username]);
+
+    if (username === "") {
+        return null;
+    }
+
     return (
         <Label>
             <TypeAnimation

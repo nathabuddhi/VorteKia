@@ -7,20 +7,11 @@ import {
 import { Label } from "@/components/!!ui/label";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
-import { Ride, User } from "@/types";
-import {
-    allocateRideStaffPromise,
-    clearRideStaff,
-    getRideById,
-} from "@/controllers/ride-controller";
+import { Ride } from "@/types";
+import { getRideById } from "@/controllers/ride-controller";
 import { useNavigate } from "react-router";
 import { toast, Toaster } from "sonner";
-import {
-    dequeuePromise,
-    getQueuePos,
-    checkIsInQueue,
-    queuePromise,
-} from "@/controllers/ride-controller";
+
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import {
@@ -32,13 +23,6 @@ import {
     DialogTitle,
     DialogHeader,
 } from "@/components/!!ui/dialog";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
-import {
-    getAllRideStaff,
-    getAssignedRideStaffByRide,
-} from "@/controllers/staff-controller";
-import { Separator } from "@/components/!!ui/separator";
-import { Checkbox } from "@/components/!!ui/checkbox";
 import { Textarea } from "@/components/!!ui/textarea";
 import AllocateRideStaff from "../../components/ride/allocate-ride-staff";
 import EditRide from "@/components/ride/edit-ride";

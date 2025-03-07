@@ -43,7 +43,6 @@ export default function RideDetailPage() {
 
         const fetchRideDetails = async () => {
             const response = await getRideById(rideId);
-            console.log(response);
             if (response.data === null) {
                 toast.error("Ride Not Found!", {
                     description:

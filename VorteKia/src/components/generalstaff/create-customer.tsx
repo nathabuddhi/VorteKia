@@ -25,12 +25,28 @@ import { useEffect, useState } from "react";
 import {
     createCustomerPromise,
     CreateCustomerFormSchema,
+    createCustomerChatPromise,
 } from "@/controllers/register-controller";
 
 export default function CreateCustomer() {
+    const [isOpen, setIsOpen] = useState(false);
+
     const form = useForm<z.infer<typeof CreateCustomerFormSchema>>({
         resolver: zodResolver(CreateCustomerFormSchema),
     });
+
+    async function createCustomerChat(user_id: string) {
+        const response2 = createCustomerChatPromise(user_id);
+
+        toast.promise(response2, {
+            loading: "Creating chat...",
+            success: async () => {
+                return "Successfully created customer chat!";
+            },
+            error: (error) => `Failed creating chat: ${error.message || error}`,
+        });
+        return "Successfully created customer account and chat!";
+    }
 
     async function createCustomerAccount(
         data: z.infer<typeof CreateCustomerFormSchema>
@@ -41,7 +57,10 @@ export default function CreateCustomer() {
             toast.promise(response, {
                 loading: "Creating account...",
                 success: () => {
-                    return "Successfully created customer account!";
+                    response.then((res) =>
+                        createCustomerChat(res.data ? res.data : "")
+                    );
+                    return "Successfully created account.";
                 },
                 error: (error) =>
                     `Failed creating account: ${error.message || error}`,
@@ -55,14 +74,17 @@ export default function CreateCustomer() {
                 },
             });
         }
+
+        setIsOpen(false);
+        form.reset();
     }
 
     return (
         <>
-            <Dialog>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
-                    <Button variant="ghost">Create Staff Account</Button>
+                    <Button variant="ghost">Create Customer Account</Button>
                 </DialogTrigger>
                 <DialogContent className="">
                     <Form {...form}>

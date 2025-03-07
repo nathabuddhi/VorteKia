@@ -55,3 +55,16 @@ export interface Notification {
     time: string;
 }
 
+export interface ChatRoom {
+    room_id: string;
+    name: string;
+}
+
+export interface Message {
+    message_id: string;
+    room_id: string;
+    sender_name: string;
+    content: string;
+    timestamp: string;
+}
+

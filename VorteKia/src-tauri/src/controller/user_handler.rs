@@ -2,16 +2,15 @@ use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use entity::user::{ActiveModel as UserActiveModel, Entity as UserEntities};
 use entity::customer::{ActiveModel as CustomerActiveModel, Entity as CustomerEntities};
 use entity::staff::{ActiveModel as StaffActiveModel, Entity as StaffEntities};
-use entity::division::{self, Entity as DivisionEntities};
+use entity::division::Entity as DivisionEntities;
 use tauri::{command, State};
 use crate::{AppState, ApiResponse};
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use sea_orm::ActiveValue::Set;
 use bcrypt::{hash, verify, DEFAULT_COST};
-
+use super::chat_handler::add_user_to_room;
 use super::notification_handler::add_notification;
-use super::ride_handler::SingleUidRequest;
 
 fn hash_password(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
     hash(plain_password, DEFAULT_COST)
@@ -132,7 +131,7 @@ pub async fn login(
                     let division_name = get_user_division(&db, user.user_id.clone()).await?;
                     let user_balance = change_user_balance(state.clone(), ChangeUserBalanceRequest { user_id: user.user_id.clone(), mutation: 0.0 }).await?;
 
-                    let user_balance = match user_balance {
+                    let _ = match user_balance {
                         ApiResponse::Success { data, .. } => data,  
                         ApiResponse::Error { data: Some(value), .. } => value,  
                         _ => 0.0, 
@@ -320,12 +319,6 @@ pub async fn create_customer_account(
 
     match new_customer.insert(&db).await {
         Ok(inserted_customer) => {
-            add_notification(
-                state.clone(),
-                response,
-                format!("Successfully topped up ${}", payload.balance),
-            )
-            .await?;
             Ok(ApiResponse::Success {
                 success: true,
                 data: inserted_customer.user_id,
@@ -363,15 +356,31 @@ pub async fn create_staff_account(
     let db = state.get_db().await.map_err(|e| e)?;
 
     let new_staff = StaffActiveModel {
-        user_id: Set(response),
-        division_id: Set(payload.division_id),
-        role: Set(payload.role),
-    };
+    user_id: Set(response),
+    division_id: Set(payload.division_id),
+    role: Set(payload.role),
+};
 
-    match new_staff.insert(&db).await {
-        Ok(inserted_staff) => Ok(ApiResponse::Success { success: (true), data: (inserted_staff.user_id), message: ("Success created staff!".to_string()) }),
-        Err(e) => Err(e.to_string()),
-    }
+match new_staff.insert(&db).await {
+    Ok(inserted_staff) => {
+        match add_user_to_room(state.clone(), inserted_staff.user_id.clone(), "5782daf7-6727-49cb-9724-3fa0ce0b0e92".to_string()).await {
+            Ok(_) => {
+                return Ok(ApiResponse::Success {
+                    success: true,
+                    data: inserted_staff.user_id,
+                    message: "Success created staff!".to_string(),
+                });
+            },
+            Err(e) => {
+                return Err(e);
+            },
+        }
+    },
+    Err(e) => {
+        Err(e.to_string())
+    },
+}
+
 }
 
 #[derive(Deserialize)]
@@ -403,12 +412,13 @@ pub async fn change_user_balance(
                     match updated_user.update(&db).await {
                         Ok(_) => Ok(
                             {
-                                add_notification(
-                                    state.clone(),
-                                    user.user_id.clone(),
-                                    format!("Successfully topped up ${}", payload.mutation),
-                                )
-                                .await?;
+                                if payload.mutation > 0.0 {
+                                    add_notification(
+                                        state.clone(),
+                                        user.user_id.clone(),
+                                        format!("Successfully topped up ${}", payload.mutation)
+                                    ).await?;
+                                }
                                 ApiResponse::success(new_balance, "Balance Updated!".to_string())
                             }),
                         Err(e) => Err(e.to_string())

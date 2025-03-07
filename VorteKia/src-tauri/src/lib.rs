@@ -1,4 +1,5 @@
 use anyhow::Result;
+use cache_handler::CacheHandler;
 use dotenv::dotenv;
 use sea_orm::{Database, DatabaseConnection};
 use serde::Serialize;
@@ -6,13 +7,13 @@ use std::env;
 use std::sync::Arc;
 use tauri::Manager;
 use tokio::sync::Mutex;
-
+use deadpool_redis::{Config as RedisConfig, Runtime};
 pub mod controller;
 pub mod cache_handler;
-pub mod message_listener;
 
 pub struct AppState {
     db: Arc<Mutex<Option<DatabaseConnection>>>,
+    cache: Arc<CacheHandler>
 }
 
 impl AppState {
@@ -79,8 +80,16 @@ pub fn run() {
                 .block_on(Database::connect(&database_url))
                 .expect("Failed to connect to database");
 
+            let redis_url = env::var("REDIS_URL").expect("DATABASE_URL must be set");
+            let redis_cfg = RedisConfig::from_url(redis_url);
+            let redis_pool = redis_cfg.create_pool(Some(Runtime::Tokio1)).expect("Failed to create Redis pool");
+
+            let cache_handler = Arc::new(CacheHandler::new(redis_pool));
+
+
             let app_state = AppState {
                 db: Arc::new(Mutex::new(Some(db))),
+                cache: cache_handler,
             };
 
             app.manage(app_state);
@@ -116,6 +125,11 @@ pub fn run() {
             controller::ride_handler::process_next_queue,
             controller::notification_handler::get_notification_by_user,
             controller::notification_handler::delete_notification,
+            controller::chat_handler::get_chat_rooms_by_user,
+            controller::chat_handler::get_messages_by_room,
+            controller::chat_handler::send_message,
+            controller::chat_handler::create_cs_room,
+            controller::chat_handler::get_all_cs_chats,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

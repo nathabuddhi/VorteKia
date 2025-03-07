@@ -1,4 +1,4 @@
-import { ApiResponse, Division, UserLoggedIn } from "@/types";
+import { ApiResponse, Division } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
 import { z } from "zod";
 
@@ -70,6 +70,18 @@ export async function createCustomerPromise(
                 password: data.password,
                 name: data.name,
                 balance: 0,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}
+
+export async function createCustomerChatPromise(customer_id: string) {
+    try {
+        return await invoke<ApiResponse<string>>("create_cs_room", {
+            payload: {
+                id: customer_id,
             },
         });
     } catch (error) {
