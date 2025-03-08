@@ -2,15 +2,6 @@ import { Toaster, toast } from "sonner";
 import { Button } from "@/components/!!ui/button";
 import { Input } from "@/components/!!ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/!!ui/select";
-import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -33,10 +24,17 @@ import {
 import { Division } from "@/types";
 import { useEffect, useState } from "react";
 import { getDivisions } from "@/controllers/register-controller";
+import {
+    BroadcastFormSchema,
+    broadcastPromise,
+} from "@/controllers/cs-controller";
+import { Checkbox } from "../!!ui/checkbox";
+import { Label } from "../!!ui/label";
 
 export default function CreateBroadcast() {
     const [divisions, setDivisions] = useState<Division[] | null>();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [recepients, setRecepients] = useState<string[]>([]);
 
     async function fetchDivisions() {
         const response = await getDivisions();
@@ -56,22 +54,19 @@ export default function CreateBroadcast() {
         resolver: zodResolver(BroadcastFormSchema),
     });
 
-    async function createStaffAccount(
-        data: z.infer<typeof BroadcastFormSchema>
-    ) {
+    async function sendBroadcast(data: z.infer<typeof BroadcastFormSchema>) {
         try {
             setIsDialogOpen(false);
-            const response = createStaffPromise(data);
+            const response = broadcastPromise(data, recepients);
             toast.promise(response, {
-                loading: "Creating account...",
+                loading: "Sending Broadcast...",
                 success: () => {
-                    return "Successfully created staff account!";
+                    return "Successfully sent broadcast: ";
                 },
-                error: (error) =>
-                    `Failed creating account: ${error.message || error}`,
+                error: (error) => error,
             });
         } catch (error) {
-            toast.error("Failed creating account!", {
+            toast.error("Failed sending broadcast!", {
                 description: "An error occured: " + error,
                 action: {
                     label: "Close",
@@ -80,6 +75,14 @@ export default function CreateBroadcast() {
             });
         }
     }
+
+    const handleCheckboxChange = (divisionId: string) => {
+        setRecepients((prevRecepients) =>
+            prevRecepients.includes(divisionId)
+                ? prevRecepients.filter((id) => id !== divisionId)
+                : [...prevRecepients, divisionId]
+        );
+    };
 
     return (
         <>
@@ -93,7 +96,7 @@ export default function CreateBroadcast() {
                 <DialogContent className="">
                     <Form {...form}>
                         <form
-                            onSubmit={form.handleSubmit(createStaffAccount)}
+                            onSubmit={form.handleSubmit(sendBroadcast)}
                             className="space-y-6">
                             <DialogHeader>
                                 <DialogTitle>Create Broadcast</DialogTitle>
@@ -104,10 +107,10 @@ export default function CreateBroadcast() {
                             </DialogHeader>
                             <FormField
                                 control={form.control}
-                                name="email"
+                                name="content"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel></FormLabel>
+                                        <FormLabel>Broadcast Message</FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="email"
@@ -118,151 +121,31 @@ export default function CreateBroadcast() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="password"
-                                                type="password"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Name</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="name"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="division_id"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Division</FormLabel>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            required>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Staff Division" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectLabel>
-                                                        Division
-                                                    </SelectLabel>
-                                                    {divisions &&
-                                                        divisions.map((div) => (
-                                                            <SelectItem
-                                                                key={
-                                                                    div.division_id
-                                                                }
-                                                                value={
-                                                                    div.division_id
-                                                                }>
-                                                                {
-                                                                    div.division_name
-                                                                }
-                                                            </SelectItem>
-                                                        ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="role"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Role</FormLabel>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            required>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Staff Role" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectLabel>
-                                                        Role
-                                                    </SelectLabel>
-                                                    <SelectItem
-                                                        key="manager"
-                                                        value="manager">
-                                                        Manager
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="staff"
-                                                        value="staff">
-                                                        Staff
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="lostandfound"
-                                                        value="lostandfound">
-                                                        Lost And Found Staff
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="chef"
-                                                        value="chef">
-                                                        Chef
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="waiter"
-                                                        value="waiter">
-                                                        Waiter
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="supervisor"
-                                                        value="supervisor">
-                                                        Supervisor
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="official"
-                                                        value="official">
-                                                        Official Account
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="cfo"
-                                                        value="cfo">
-                                                        Chief Financial Officer
-                                                    </SelectItem>
-                                                    <SelectItem
-                                                        key="coo"
-                                                        value="coo">
-                                                        Chief Operational
-                                                        Officer
-                                                    </SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div>
+                                <FormLabel>Broadcast Recepients</FormLabel>
+                                {divisions?.map((division) => (
+                                    <div
+                                        key={division.division_id}
+                                        className="flex items-center">
+                                        <Checkbox
+                                            id={division.division_id}
+                                            checked={recepients.includes(
+                                                division.division_id
+                                            )}
+                                            onCheckedChange={() =>
+                                                handleCheckboxChange(
+                                                    division.division_id
+                                                )
+                                            }
+                                        />
+                                        <Label htmlFor={division.division_id}>
+                                            {division.division_name}
+                                        </Label>
+                                    </div>
+                                ))}
+                            </div>
                             <DialogFooter>
-                                <Button type="submit">Create Account</Button>
+                                <Button type="submit">Send Broadcast</Button>
                             </DialogFooter>
                         </form>
                     </Form>

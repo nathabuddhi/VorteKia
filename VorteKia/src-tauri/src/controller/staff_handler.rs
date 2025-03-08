@@ -47,6 +47,37 @@ pub async fn get_all_ride_staff(
 }
 
 #[command]
+pub async fn get_staff_by_division(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staffs = StaffEntities::find()
+        .filter(<StaffEntities as EntityTrait>::Column::DivisionId.eq(payload.id))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staffs {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.user_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
+}
+
+
+#[command]
 pub async fn get_assigned_ride(
     state: State<'_, AppState>,
     payload: SingleUidRequest,

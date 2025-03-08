@@ -136,6 +136,7 @@ pub fn run() {
             controller::chat_handler::send_message,
             controller::chat_handler::create_cs_room,
             controller::chat_handler::get_all_cs_chats,
+            controller::cs_handler::send_broadcast,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

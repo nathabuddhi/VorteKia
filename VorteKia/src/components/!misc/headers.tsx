@@ -16,6 +16,7 @@ import TopUpBalance from "../customer/top-up-balance";
 import CreateRide from "../ride/create-ride";
 import NotificationList from "./notification-list";
 import ChatBox from "./chat-box";
+import CreateBroadcast from "../customerservice/create-broadcast";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -473,9 +474,7 @@ export function CustomerServiceHeader() {
                 {role === "staff" && (
                     <Button variant={"ghost"}>View Lost Items</Button>
                 )}
-                {role === "manager" && (
-                    <Button variant={"ghost"}>Create Broadcast</Button>
-                )}
+                {role === "manager" && <CreateBroadcast />}
                 <Button
                     onClick={() => {
                         logout();

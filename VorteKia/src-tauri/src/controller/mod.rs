@@ -6,5 +6,6 @@ pub mod staff_handler;
 pub mod maintenance_handler;
 pub mod notification_handler;
 pub mod chat_handler;
+pub mod cs_handler;
 // pub mod customer_handler;
 // pub mod restaurant_handler;
