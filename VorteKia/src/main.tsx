@@ -99,7 +99,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                             element={<Navigate to="/customerservice" />}
                         />
                     </Route>
-                    <Route path="retail">
+                    <Route path="store">
                         <Route path="staff" element={<StoreStaffPage />} />
                         <Route path="manager" element={<StoreManagerPage />} />
                     </Route>
