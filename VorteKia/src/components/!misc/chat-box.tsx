@@ -34,9 +34,8 @@ export default function ChatBox() {
 
         if (response.success) {
             setChats(response.data);
-            console.log(response.data);
             if (
-                getUserRole() === "staff" &&
+                (getUserRole() === "staff" || getUserRole() === "manager") &&
                 getUserDivision() === "customerservice"
             ) {
                 const response2 = await getCSChats();
