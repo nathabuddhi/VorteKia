@@ -218,7 +218,7 @@ export async function allocateRideStaffPromise(
         return await invoke<ApiResponse<string>>("allocate_ride_staff", {
             payload: {
                 staff_id: staff_id,
-                ride_id: ride_id,
+                loc_id: ride_id,
             },
         });
     } catch (error) {
