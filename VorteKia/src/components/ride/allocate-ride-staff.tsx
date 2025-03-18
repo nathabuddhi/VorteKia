@@ -65,11 +65,7 @@ export default function AllocateRideStaff({ rideId }: { rideId: string }) {
                 if (response.success) {
                     return "Cleared ride staff allocation. Allocating staff now...";
                 } else {
-                    throw new Error(
-                        typeof response.message === "string"
-                            ? response.message
-                            : "Unknown error."
-                    );
+                    throw new Error(String(response.message));
                 }
             },
             error: (error) =>
@@ -86,16 +82,13 @@ export default function AllocateRideStaff({ rideId }: { rideId: string }) {
                                 "Successfully allocated staff -> " + staff_id
                             );
                         } else {
-                            throw new Error(
-                                "Unknown error allocating staff -> " + staff_id
-                            );
+                            throw new Error(String(response.message));
                         }
                     },
-                    error: (error) =>
-                        `Failed logging in: ${error.message || error}`,
+                    error: (error) => `${error.message || error}`,
                 });
             } catch (error) {
-                toast.error("Failed logging In!", {
+                toast.error("Failed allocating staff!", {
                     description: "An error occured: " + error,
                     action: {
                         label: "Close",
