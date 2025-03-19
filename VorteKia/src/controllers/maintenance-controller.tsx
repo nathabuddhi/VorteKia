@@ -47,6 +47,37 @@ export const MaintenanceRequestSchema = z.object({
     }),
 });
 
+export async function createMaintenanceJob(
+    data: z.infer<typeof CreateJobSchema>
+) {
+    try {
+        return await invoke<ApiResponse<MaintenanceJob[]>>(
+            "create_maintenance_job",
+            {
+                payload: {
+                    location: data.location,
+                    description: data.description,
+                    notes: data.notes,
+                },
+            }
+        );
+    } catch (error) {
+        return { success: false, data: [], message: error };
+    }
+}
+
+export const CreateJobSchema = z.object({
+    location: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    description: z.string().max(20, {
+        message: "Maximum 20 characters.",
+    }),
+    notes: z.string().min(20, {
+        message: "At least 20 characters.",
+    }),
+});
+
 export async function submitJobReport(report: string, job: MaintenanceJob) {
     try {
         return await invoke<ApiResponse<MaintenanceJob>>("edit_job_details", {
@@ -123,16 +154,36 @@ export async function clearMaintenanceJobStaff(jobId: string) {
 }
 
 export async function editJobPromise(data: z.infer<typeof EditJobSchema>) {
+    const pre_payload: MaintenanceJob = {
+        job_id: data.job_id ?? "",
+        description: data.description,
+        notes: data.notes,
+        status: data.status,
+        report: data.report ?? "",
+        deadline: data.deadline?.toISOString().split("T")[0] ?? "",
+        location: data.location,
+    };
+
+    const payload = JSON.stringify({
+        job_id: pre_payload.job_id,
+        description: pre_payload.description,
+        notes: pre_payload.notes,
+        status: pre_payload.status,
+        report: pre_payload.report,
+        deadline: pre_payload.deadline,
+        location: pre_payload.location,
+    });
+
     return await invoke<ApiResponse<MaintenanceJob>>("edit_job_details", {
-        payload: data,
+        payload: payload,
     });
 }
 
 export const EditJobSchema = z.object({
-    id: z
+    job_id: z
         .string()
         .length(36, {
-            message: "Invalid ride ID",
+            message: "Invalid job ID",
         })
         .optional(),
     description: z.string().min(3, {
@@ -144,9 +195,7 @@ export const EditJobSchema = z.object({
     status: z.string().min(3, {
         message: "At least 3 characters.",
     }),
-    report: z.string().min(3, {
-        message: "At least 3 characters.",
-    }),
+    report: z.string().optional(),
     deadline: z.date().optional(),
     location: z.string().min(3, {
         message: "At least 3 characters.",

@@ -44,21 +44,31 @@ export default function ManageJobPage() {
             <NeonGradientCard className="h-[calc(100vh-10rem)] w-[calc(100vh-10rem)]">
                 <Toaster position="bottom-right" richColors expand />
                 <MagicCard
-                    className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md"
+                    className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md h-full flex items-center justify-evenly"
                     gradientColor={"#D9D9D955"}>
                     <h1 className="text-2xl font-bold">{job.description}</h1>
                     <p className="text-gray-600">Location: {job.location}</p>
 
                     <div className="mt-4 flex flex-col gap-y-2">
-                        <Label>Job Details: {job.notes}</Label>
-                        <Label>Job Status: {job.status}</Label>
                         <Label>
-                            Job Deadline: $
-                            {job.deadline
-                                ? job.deadline
-                                : "This job has no deadline."}
+                            Job Details:
+                            <br />
+                            {job.notes}
                         </Label>
+                        <br />
+                        <Label>Job Status: {job.status}</Label>
+                        <br />
+                        <Label>
+                            Job Deadline: <br />
+                            {job.deadline ? (
+                                job.deadline
+                            ) : (
+                                <i>This job has no deadline.</i>
+                            )}
+                        </Label>
+                        <br />
                         <Label>Staff Report: {job.report}</Label>
+                        <br />
                     </div>
                     <div className="mt-6 flex justify-evenly">
                         {job && <AllocateMaintenanceStaff jobId={job.job_id} />}

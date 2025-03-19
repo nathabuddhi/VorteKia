@@ -32,7 +32,7 @@ export function ManageJobCard({ job }: { job: MaintenanceJob }) {
             <CardContent className="pb-2">
                 <Label
                     className={`${
-                        job.status !== "Completed"
+                        job.status !== "completed" && job.status !== "rejected"
                             ? "text-red-500"
                             : "text-green-500"
                     }`}>

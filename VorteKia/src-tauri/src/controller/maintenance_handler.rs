@@ -1,12 +1,16 @@
 use entity::division::{self, Entity as DivisionEntities};
 use entity::staff::Entity as StaffEntities;
 use entity::maintenance_job::{ActiveModel as MaintenanceActiveModel, Entity as MaintenanceEntities};
+use entity::restaurant::Entity as RestaurantEntities;
+use entity::store::Entity as StoreEntities;
+use entity::ride::Entity as RideEntities;
 use entity::maintenance_job_allocation::{ActiveModel as JobAllocationActiveModel, Entity as JobAllocationEntities};
 use sea_orm::{Set, EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
 use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
+use chrono::NaiveDate;
 
 use super::user_handler::{get_user_by_id, LoginUIDRequest};
 use super::{ride_handler::SingleUidRequest, staff_handler::AllocateStaffRequest};
@@ -15,7 +19,7 @@ use super::{ride_handler::SingleUidRequest, staff_handler::AllocateStaffRequest}
 pub struct MaintenanceObject {
     pub job_id: String,
     pub location: Option<String>,
-    pub deadline: Option<Date>,
+    pub deadline: Option<NaiveDate>,
     pub description: String,
     pub status: String,
     pub notes: Option<String>,
@@ -48,6 +52,48 @@ pub async fn get_all_jobs(
     }
 
     Ok(ApiResponse::success(maintenance_returns, "Successfully fetched maintenance jobs!".to_string()))
+}
+
+#[command]
+pub async fn get_job_location(
+    state: State<'_, AppState>,
+    location: String,
+) -> Result<String, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    if location.len() != 36 {
+        return Ok(location);
+    } else {
+         let restaurant = RestaurantEntities::find()
+        .filter(<RestaurantEntities as EntityTrait>::Column::RestaurantId.eq(location.clone()))
+        .one(&db)
+        .await
+        .map_err(|e| format!("Error querying Restaurant: {}", e))?;
+
+        let store = StoreEntities::find()
+            .filter(<StoreEntities as EntityTrait>::Column::StoreId.eq(location.clone()))
+            .one(&db)
+            .await
+            .map_err(|e| format!("Error querying Store: {}", e))?;
+
+        let ride = RideEntities::find()
+            .filter(<RideEntities as EntityTrait>::Column::RideId.eq(location.clone()))
+            .one(&db)
+            .await
+            .map_err(|e| format!("Error querying Ride: {}", e))?;
+
+        if let Some(re) = restaurant {
+            return Ok(format!("Restaurant: {}", re.name)); 
+        }
+        if let Some(s) = store {
+            return Ok(format!("Store: {}", s.name)); 
+        }
+        if let Some(ri) = ride {
+            return Ok(format!("Ride: {}", ri.name)); 
+        }
+
+        Ok(location)
+    }
 }
 
 #[command] 
@@ -101,7 +147,7 @@ pub async fn get_job_by_id(
     let maintenance_return = MaintenanceObject {
         job_id: job.job_id,
         description: job.description,
-        location: job.location, 
+        location: Some(get_job_location(state.clone(), job.location.unwrap()).await?),    
         deadline: job.deadline,
         status: job.status,
         notes: job.notes,
@@ -134,7 +180,7 @@ pub async fn create_maintenance_job(
         job_id: Set(generated_id.to_string()),
         deadline: Set(None),
         description: Set(payload.description),
-        status: Set("Pending".to_string()),
+        status: Set("pending".to_string()),
         location: Set(Some(payload.location)),
         notes: Set(Some(payload.notes)),
         report: Set(None),
@@ -331,9 +377,11 @@ pub async fn get_assigned_job(
 #[command] 
 pub async fn edit_job_details(
     state: State<'_, AppState>,
-    payload: MaintenanceObject,
+    payload: String,
 ) -> Result<ApiResponse<MaintenanceObject>, String> {
     let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let payload: MaintenanceObject = serde_json::from_str(&payload).map_err(|e| format!("Error parsing payload: {}", e))?;
 
     let existing_job = MaintenanceEntities::find()
     .filter(<MaintenanceEntities as EntityTrait>::Column::JobId.eq(payload.job_id.clone()))
@@ -344,8 +392,8 @@ pub async fn edit_job_details(
         job_id: Set(existing_job.job_id),
         location: Set(existing_job.location),
         deadline: Set(payload.deadline.clone()),
-        description: Set(existing_job.description),
-        status: Set(existing_job.status),
+        description: Set(payload.description.clone()),
+        status: Set(payload.status.clone()),
         notes: Set(payload.notes.clone()),
         report: Set(payload.report.clone()),
     };

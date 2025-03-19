@@ -1,6 +1,7 @@
 import { Toaster, toast } from "sonner";
 import { Button } from "@/components/!!ui/button";
 import { Input } from "@/components/!!ui/input";
+import { format } from "date-fns";
 import {
     Dialog,
     DialogContent,
@@ -38,34 +39,37 @@ import {
 import { MaintenanceJob } from "@/types";
 import { Calendar } from "../ui/calendar";
 import { ScrollArea } from "../!!ui/scroll-area";
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { cn } from "@/lib/utils";
 
 export default function EditJob(job: { job: MaintenanceJob }) {
     const form = useForm<z.infer<typeof EditJobSchema>>({
         resolver: zodResolver(EditJobSchema),
+        defaultValues: {
+            job_id: job.job.job_id,
+            location: job.job.location,
+            description: job.job.description,
+            status: job.job.status,
+            deadline: new Date(job.job.deadline),
+            notes: job.job.notes,
+            report: job.job.report,
+        },
     });
 
     async function editJob(data: z.infer<typeof EditJobSchema>) {
-        try {
-            const response = editJobPromise(data);
-            toast.promise(response, {
-                loading: "Updating job...",
-                success: () => {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                    return "Successfully update job!";
-                },
-                error: (error) => `${error.message || error}`,
-            });
-        } catch (error) {
-            toast.error("Failed updating job!", {
-                description: "An error occured: " + error,
-                action: {
-                    label: "Close",
-                    onClick: () => {},
-                },
-            });
-        }
+        const response = editJobPromise(data);
+        toast.promise(response, {
+            loading: "Updating job...",
+            success: () => {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                return "Successfully update job!";
+            },
+            error: (error) =>
+                `Failed updating job! An error occurred: ${error}`,
+        });
     }
 
     return (
@@ -73,32 +77,34 @@ export default function EditJob(job: { job: MaintenanceJob }) {
             <Dialog>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
-                    <Button variant="ghost">Update Job Details</Button>
+                    <Button variant="outline">Update Job Details</Button>
                 </DialogTrigger>
-                <DialogContent className="w-[27.8rem]">
-                    <ScrollArea className="max-h-96">
+                <DialogContent className="w-[30rem]">
+                    <ScrollArea className="max-h-96 p-2">
                         <Form {...form}>
                             <form
                                 onSubmit={form.handleSubmit(editJob)}
-                                className="space-y-6">
+                                className="space-y-6 p-1">
                                 <DialogHeader>
-                                    <DialogTitle>Update Ride</DialogTitle>
+                                    <DialogTitle>Edit Job</DialogTitle>
                                     <DialogDescription>
-                                        Make sure to update the ride details
-                                        correctly.
+                                        Make sure to update the Job Details
+                                        accordingly.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <FormField
                                     control={form.control}
-                                    name="description"
+                                    name="job_id"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Job Description
-                                            </FormLabel>
+                                            <FormLabel>Job ID</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Job Description"
+                                                    placeholder="Job Location"
+                                                    defaultValue={
+                                                        job.job.job_id
+                                                    }
+                                                    disabled
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -111,10 +117,33 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                     name="location"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Location</FormLabel>
+                                            <FormLabel>Job Location</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Job Location"
+                                                    defaultValue={
+                                                        job.job.location
+                                                    }
+                                                    disabled
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Location"
+                                                    placeholder="Job Description"
+                                                    defaultValue={
+                                                        job.job.description
+                                                    }
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -130,7 +159,7 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                             <FormLabel>Job Status</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                defaultValue={field.value}
+                                                defaultValue={job.job.status}
                                                 required>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Job Status" />
@@ -144,6 +173,11 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                                             key="pending"
                                                             value="pending">
                                                             Pending
+                                                        </SelectItem>
+                                                        <SelectItem
+                                                            key="rejected"
+                                                            value="rejected">
+                                                            Rejected
                                                         </SelectItem>
                                                         <SelectItem
                                                             key="progress"
@@ -166,14 +200,48 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                     control={form.control}
                                     name="deadline"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Deadline</FormLabel>
-                                            <FormControl>
-                                                <Calendar
-                                                    mode="single"
-                                                    className="rounded-md border"
-                                                />
-                                            </FormControl>
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Job Deadline</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-[240px] pl-3 text-left font-normal",
+                                                                !field.value &&
+                                                                    "text-muted-foreground"
+                                                            )}>
+                                                            {field.value ? (
+                                                                format(
+                                                                    field.value,
+                                                                    "PPP"
+                                                                )
+                                                            ) : (
+                                                                <span>
+                                                                    Pick a date
+                                                                </span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                    className="w-auto p-0"
+                                                    align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={
+                                                            field.onChange
+                                                        }
+                                                        disabled={(date) =>
+                                                            date < new Date()
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -187,6 +255,7 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Notes"
+                                                    defaultValue={job.job.notes}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -196,13 +265,16 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="notes"
+                                    name="report"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Report</FormLabel>
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Report"
+                                                    // defaultValue={
+                                                    //     job.job.report
+                                                    // }
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -211,7 +283,7 @@ export default function EditJob(job: { job: MaintenanceJob }) {
                                     )}
                                 />
                                 <DialogFooter className="flex flex-col w-full">
-                                    <Button type="submit">Update</Button>
+                                    <Button type="submit">Save Changes</Button>
                                 </DialogFooter>
                             </form>
                         </Form>

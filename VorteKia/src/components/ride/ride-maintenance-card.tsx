@@ -75,12 +75,12 @@ export default function RideMaintenanceCard({ rideId }: { rideId: string }) {
                     setTimeout(() => {
                         navigate("/staff/ride/manager");
                     }, 2000);
-                    return "Successfully updated ride!";
+                    return "Successfully submitted maintenance request!";
                 },
                 error: (error) => `${error.message || error}`,
             });
         } catch (error) {
-            toast.error("Failed editting ride!", {
+            toast.error("Failed submitting maintenance request!", {
                 description: "An error occured: " + error,
                 action: {
                     label: "Close",

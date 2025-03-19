@@ -19,6 +19,7 @@ import ChatBox from "./chat-box";
 import CreateBroadcast from "../customerservice/create-broadcast";
 import ViewProposals from "../executive/view-proposals";
 import CreateProposal from "../generalstaff/create-proposal";
+import CreateJob from "../maintenance/create-job";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -428,8 +429,13 @@ export function MaintenanceHeader() {
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {role === "manager" && (
-                    <Button variant={"ghost"}>Manage Tasks</Button>
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate("/staff/maintenance/manager")}>
+                        View Jobs
+                    </Button>
                 )}
+                {role === "manager" && <CreateJob />}
                 <Button
                     onClick={() => {
                         logout();
