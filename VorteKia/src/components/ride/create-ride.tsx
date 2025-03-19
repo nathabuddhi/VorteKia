@@ -61,7 +61,7 @@ export default function CreateRide() {
             <Dialog>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
-                    <Button variant="ghost">Propose New Ride</Button>
+                    <Button variant="ghost">Create Ride</Button>
                 </DialogTrigger>
                 <DialogContent className="w-[27.8rem]">
                     <Form {...form}>
@@ -69,9 +69,10 @@ export default function CreateRide() {
                             onSubmit={form.handleSubmit(createRide)}
                             className="space-y-6">
                             <DialogHeader>
-                                <DialogTitle>Propose Ride</DialogTitle>
+                                <DialogTitle>Create Ride</DialogTitle>
                                 <DialogDescription>
-                                    Ride creation requires COO or CEO approval.
+                                    Create rides upon approving manager
+                                    proposals.
                                 </DialogDescription>
                             </DialogHeader>
                             <FormField

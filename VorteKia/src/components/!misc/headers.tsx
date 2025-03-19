@@ -17,6 +17,8 @@ import CreateRide from "../ride/create-ride";
 import NotificationList from "./notification-list";
 import ChatBox from "./chat-box";
 import CreateBroadcast from "../customerservice/create-broadcast";
+import ViewProposals from "../executive/view-proposals";
+import CreateProposal from "../generalstaff/create-proposal";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -231,7 +233,7 @@ export function RideHeader() {
                         Manage Rides
                     </Button>
                 )}
-                {role === "manager" && <CreateRide />}
+                {role === "manager" && <CreateProposal />}
                 <Button
                     onClick={() => {
                         logout();
@@ -377,7 +379,9 @@ export function ExecutiveHeader() {
             {getUserSession() && <ChatBox />}
             {getUserSession() && <NotificationList />}
             <HelloLabel />
-            <nav className="ml-auto flex gap-6">
+            <nav className="ml-auto flex gap-3">
+                <ViewProposals />
+                {(role === "coo" || role === "ceo") && <CreateRide />}
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
                     onClick={() => {

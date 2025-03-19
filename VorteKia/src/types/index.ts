@@ -68,3 +68,12 @@ export interface Message {
     timestamp: string;
 }
 
+export interface Proposal {
+    proposal_id: string;
+    status: string;
+    recepient: string;
+    subject: String;
+    content: String;
+    response: String;
+}
+

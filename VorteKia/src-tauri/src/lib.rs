@@ -98,7 +98,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            controller::app_handler::get_all_apps,            
+            controller::app_handler::get_curr_app,            
             controller::user_handler::login,
             controller::user_handler::login_uid,
             controller::user_handler::create_customer_account,
@@ -137,6 +137,10 @@ pub fn run() {
             controller::chat_handler::create_cs_room,
             controller::chat_handler::get_all_cs_chats,
             controller::cs_handler::send_broadcast,
+            controller::proposal_handler::get_proposal_by_id,
+            controller::proposal_handler::get_proposal_by_user,
+            controller::proposal_handler::create_proposal,
+            controller::proposal_handler::process_proposal,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
