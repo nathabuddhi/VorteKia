@@ -8,12 +8,17 @@ use crate::{AppState, ApiResponse};
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use sea_orm::ActiveValue::Set;
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify};
 use super::chat_handler::add_user_to_room;
 use super::notification_handler::add_notification;
+use rand::Rng;
 
 fn hash_password(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
-    hash(plain_password, DEFAULT_COST)
+
+    let mut rng = rand::thread_rng();
+    let cost = rng.gen_range(9..=12); 
+
+    hash(plain_password, cost)
 }
 
 fn verify_password(plain_password: &str, hashed_password: &str) -> Result<bool, bcrypt::BcryptError> {

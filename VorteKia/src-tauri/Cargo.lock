@@ -6530,6 +6530,7 @@ dependencies = [
  "entity",
  "futures",
  "log",
+ "rand 0.8.5",
  "sea-orm",
  "sea-orm-cli",
  "serde",

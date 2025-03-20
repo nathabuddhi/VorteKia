@@ -50,10 +50,10 @@ export default function ManageJobPage() {
                     <p className="text-gray-600">Location: {job.location}</p>
 
                     <div className="mt-4 flex flex-col gap-y-2">
-                        <Label>
+                        <Label className="max-w-lg block">
                             Job Details:
                             <br />
-                            {job.notes}
+                            <p className="break-words">{job.notes}</p>
                         </Label>
                         <br />
                         <Label>Job Status: {job.status}</Label>

@@ -39,6 +39,7 @@ uuid = {version = "1.15.1", features = [ "v4" ] }
 futures = "0.3.31"
 
 bcrypt = "0.12"
+rand = "0.8"
 warp = "0.3"
 time = "0.3.37"
 chrono = "0.4.40"
