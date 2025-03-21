@@ -20,7 +20,7 @@ import {
     FormMessage,
 } from "@/components/!!ui/form";
 import { MagicCard } from "@/components/!magicui/magic-card";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import {
     getUserSession,
     LoginFormSchema,
@@ -152,11 +152,9 @@ export default function StaffLogin() {
                         </CardContent>
                         <CardFooter className="flex justify-center">
                             <Button variant={"link"}>
-                                <Link to="/login">
-                                    Not a staff? That's awkward...
-                                    <br />
-                                    Click here I guess..?
-                                </Link>
+                                Not a staff? That's awkward...
+                                <br />
+                                Pretend you didn't see this.
                             </Button>
                         </CardFooter>
                     </MagicCard>

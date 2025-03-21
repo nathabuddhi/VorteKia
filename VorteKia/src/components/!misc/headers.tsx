@@ -9,7 +9,7 @@ import {
     getUserDivision,
     getUserSession,
 } from "@/controllers/user-controller";
-import { logout } from "@/controllers/app-controller";
+import { is_backend_routing, logout } from "@/controllers/app-controller";
 import RequestUID from "../customer/request-uid";
 import CreateCustomer from "../generalstaff/create-customer";
 import TopUpBalance from "../customer/top-up-balance";
@@ -45,7 +45,8 @@ export function MainHeader() {
                 </Button>
                 <Button
                     onClick={() => navigate("/staff/login")}
-                    variant={"ghost"}>
+                    variant={"ghost"}
+                    disabled>
                     Staff Application
                 </Button>
             </nav>
@@ -65,11 +66,13 @@ export function StaffHeader() {
             {getUserRole() === "official" && <NotificationList />}
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
-                <Button
-                    onClick={() => navigate("/main/home")}
-                    variant={"ghost"}>
-                    Back To Main
-                </Button>
+                {!is_backend_routing() && (
+                    <Button
+                        onClick={() => navigate("/main/home")}
+                        variant={"ghost"}>
+                        Back To Main
+                    </Button>
+                )}
                 {getUserRole() !== "" && (
                     <Button
                         onClick={() => {
@@ -88,21 +91,17 @@ export function StaffHeader() {
 export function CustomerHeader() {
     const navigate = useNavigate();
 
-    const isLoggedIn = () => {
-        return getUserRole() !== "";
-    };
-
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">
             <Link
-                to="/customer/home"
+                to="/main/home"
                 className="mr-6 flex hover:bg-gray-100 rounded-lg">
                 <House className="h-10 w-10 p-2" />
             </Link>
             {getUserSession() && <ChatBox />}
             {getUserSession() && <NotificationList />}
             <HelloLabel />
-            <nav className="ml-auto flex gap-6">
+            <nav className="ml-auto flex gap-3">
                 {getCurrentApp()[2] === "login" && <RequestUID />}
                 {getCurrentApp()[2] === "home" ? (
                     <Button
@@ -114,65 +113,57 @@ export function CustomerHeader() {
                         Back to Main Page
                     </Button>
                 ) : (
-                    <Button
-                        onClick={() => {
-                            logout();
-                            navigate("/customer/home");
-                        }}
-                        variant={"ghost"}>
-                        Back to Customer Page{" "}
-                    </Button>
+                    !is_backend_routing() && (
+                        <Button
+                            onClick={() => {
+                                logout();
+                                navigate("/customer/home");
+                            }}
+                            variant={"ghost"}>
+                            Back to Customer Page
+                        </Button>
+                    )
                 )}
                 {getUserRole() === "customer" && <TopUpBalance />}
-                {getCurrentApp()[1] === "ride" && isLoggedIn() && (
-                    <Button variant={"ghost"}>My Queue</Button>
-                )}
-                {getCurrentApp()[1] === "store" && isLoggedIn() && (
-                    <Button variant={"ghost"}>My Transactions</Button>
-                )}
-                {getCurrentApp()[1] === "restaurant" && isLoggedIn() && (
-                    <Button variant={"ghost"}>My Orders</Button>
-                )}
-                {getCurrentApp()[1] === "restaurant" && (
-                    <Button
-                        variant={"ghost"}
-                        onClick={() => navigate("/restaurant")}>
-                        All Restaurants
-                    </Button>
-                )}
-                {getCurrentApp()[1] === "ride" && (
+                {/* {getCurrentApp()[1] === "restaurant" &&
+                    !is_backend_routing() && (
+                        <Button
+                            variant={"ghost"}
+                            onClick={() => navigate("/restaurant")}>
+                            All Restaurants
+                        </Button>
+                    )}
+                {getCurrentApp()[1] === "ride" && !is_backend_routing() && (
                     <Button variant={"ghost"} onClick={() => navigate("/ride")}>
                         All Rides
                     </Button>
                 )}
-                {getCurrentApp()[1] === "store" && (
+                {getCurrentApp()[1] === "store" && !is_backend_routing() && (
                     <Button
                         variant={"ghost"}
                         onClick={() => navigate("/store")}>
                         All Stores
                     </Button>
+                )} */}
+                {!is_backend_routing() && (
+                    <>
+                        <Button
+                            onClick={() => navigate("/ride")}
+                            variant={"ghost"}>
+                            Browse Rides
+                        </Button>
+                        <Button
+                            onClick={() => navigate("/restaurant")}
+                            variant={"ghost"}>
+                            Browse Restaurants
+                        </Button>
+                        <Button
+                            onClick={() => navigate("/store")}
+                            variant={"ghost"}>
+                            Browse Stores
+                        </Button>
+                    </>
                 )}
-                {getCurrentApp()[1] === "customer" &&
-                    (getCurrentApp()[2] === "home" ||
-                        getCurrentApp()[2] === "login") && (
-                        <>
-                            <Button
-                                onClick={() => navigate("/ride")}
-                                variant={"ghost"}>
-                                Browse Rides
-                            </Button>
-                            <Button
-                                onClick={() => navigate("/restaurant")}
-                                variant={"ghost"}>
-                                Browse Restaurants
-                            </Button>
-                            <Button
-                                onClick={() => navigate("/store")}
-                                variant={"ghost"}>
-                                Browse Stores
-                            </Button>
-                        </>
-                    )}
                 {getCurrentApp()[2] !== "login" &&
                     (getUserRole() === "" ? (
                         <Button

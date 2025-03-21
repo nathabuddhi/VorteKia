@@ -200,8 +200,8 @@ export default function RideDetailPage() {
                                         {isInQueue &&
                                             getUserRole() === "customer" && (
                                                 <i>
-                                                    Leave your current queue to
-                                                    enqueue.
+                                                    You are still queued for
+                                                    another ride!
                                                 </i>
                                             )}
                                         {getUserRole() !== "customer" &&

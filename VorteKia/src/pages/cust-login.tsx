@@ -1,5 +1,5 @@
 import { Button } from "@/components/!!ui/button";
-import { useEffect, useReducer } from "react";
+import { useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import {
     Card,
@@ -20,7 +20,7 @@ import {
     FormMessage,
 } from "@/components/!!ui/form";
 import { MagicCard } from "@/components/!magicui/magic-card";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import {
     getUserSession,
     loginUIDPromise,
@@ -134,17 +134,10 @@ export default function CustomerLogin() {
                             </Form>
                         </CardContent>
                         <CardFooter className="flex justify-center flex-col">
-                            <Button variant={"link"} className="italic mb-8">
+                            <Button variant={"link"} className="italic mb-1">
                                 Don't have an account? <br />
                                 Head to the Customer Service <br />
                                 Counter to create one now!
-                            </Button>
-                            <Button variant={"link"} size={"sm"}>
-                                <Link
-                                    to="/staff/login"
-                                    className="text-xs italic">
-                                    Or Login as a Staff instead? 😈
-                                </Link>
                             </Button>
                         </CardFooter>
                     </MagicCard>

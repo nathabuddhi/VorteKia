@@ -44,7 +44,7 @@ export default function RideHomePage() {
         <div className="p-4">
             <Toaster position="bottom-right" richColors />
             <h1 className="text-4xl font-bold mb-4 text-center">
-                Ride Home Page
+                VorteKia Rides
             </h1>
             <div
                 className={`justify-center grid gap-6 ${

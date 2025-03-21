@@ -1,6 +1,14 @@
-import { UserLoggedIn } from "@/types";
+import { ApiResponse, UserLoggedIn } from "@/types";
+import { invoke } from "@tauri-apps/api/core";
+import { useState, useEffect } from "react";
 
 export function getRedirectOnLogin(parsedUser: UserLoggedIn | null): string {
+    if (is_backend_routing()) {
+        return localStorage.getItem("app")
+            ? `/${localStorage.getItem("app")}`
+            : "/main/home";
+    }
+
     if (parsedUser != null) {
         if (
             parsedUser.role === "customer" ||
@@ -44,4 +52,53 @@ export function getRedirectOnLogin(parsedUser: UserLoggedIn | null): string {
 
 export function logout() {
     localStorage.removeItem("user");
+}
+
+export const useAutoLogout = () => {
+    const [timeout, setTimeoutState] = useState<ReturnType<
+        typeof setTimeout
+    > | null>(null);
+
+    const logoutTime = 60000;
+
+    const logout = () => {
+        alert("You have been logged out due to inactivity.");
+    };
+
+    const resetTimeout = () => {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        const newTimeout = setTimeout(logout, logoutTime);
+        setTimeoutState(newTimeout);
+    };
+
+    useEffect(() => {
+        const events = ["mousemove", "keydown", "scroll", "click"];
+
+        events.forEach((event) => {
+            window.addEventListener(event, resetTimeout);
+        });
+
+        resetTimeout();
+
+        return () => {
+            events.forEach((event) => {
+                window.removeEventListener(event, resetTimeout);
+            });
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+        };
+    }, [timeout, logoutTime]);
+
+    return null;
+};
+
+export async function get_curr_app() {
+    return await invoke<ApiResponse<string>>("get_curr_app");
+}
+
+export function is_backend_routing() {
+    return localStorage.getItem("app") !== null;
 }

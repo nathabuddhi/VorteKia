@@ -11,13 +11,22 @@ import {
     CardTitle,
 } from "@/components/!!ui/card";
 import { MagicCard } from "@/components/!magicui/magic-card";
-import { invoke } from "@tauri-apps/api/core";
-import { ApiResponse, UserLoggedIn } from "@/types";
 import { Meteors } from "@/components/!magicui/meteors";
 import { User, UserPen } from "lucide-react";
+import { get_curr_app } from "@/controllers/app-controller";
 
 export default function MainPage() {
     const navigate = useNavigate();
+
+    async function check_curr_app() {
+        localStorage.removeItem("user");
+        localStorage.removeItem("app");
+        const response = await get_curr_app();
+        if (response.data && response.data !== "") {
+            localStorage.setItem("app", response.data);
+            navigate("/" + response.data);
+        }
+    }
 
     useEffect(() => {
         fireworks();
@@ -29,13 +38,7 @@ export default function MainPage() {
 
         window.addEventListener("scroll", handleScroll);
 
-        // this is a simple fix to "initialize" the connection to the backend database
-        invoke<ApiResponse<UserLoggedIn>>("login", {
-            payload: {
-                email: "",
-                password: "",
-            },
-        });
+        check_curr_app();
 
         const user = localStorage.getItem("user");
         const parsedUser = user ? JSON.parse(user) : null;
@@ -140,7 +143,7 @@ export default function MainPage() {
                                     className="w-full"
                                     onClick={() => navigate("/customer/home")}
                                     variant={"default"}>
-                                    I'm a Customer!
+                                    Yes, I'm a Customer!
                                 </Button>
                             </CardFooter>
                         </MagicCard>
@@ -173,9 +176,12 @@ export default function MainPage() {
                             <CardFooter>
                                 <Button
                                     className="w-full"
-                                    onClick={() => navigate("/staff/login")}
-                                    variant={"default"}>
-                                    I work here!
+                                    variant={"default"}
+                                    disabled>
+                                    <i>
+                                        Contact IT to access the staff
+                                        application.
+                                    </i>
                                 </Button>
                             </CardFooter>
                         </MagicCard>

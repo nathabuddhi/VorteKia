@@ -18,10 +18,9 @@ import { InteractiveHoverButton } from "@/components/!magicui/interactive-hover-
 import Autoplay from "embla-carousel-autoplay";
 import { Label } from "@/components/!!ui/label";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 export default function RideCard({ ride }: { ride: Ride }) {
-    const navigate = useNavigate();
-
     return (
         <Card className="max-w-[29rem]">
             <MagicCard gradientColor={"#D9D9D955"}>
@@ -77,8 +76,12 @@ export default function RideCard({ ride }: { ride: Ride }) {
                 <CardFooter>
                     <InteractiveHoverButton
                         className="w-full"
-                        onClick={() => navigate("/ride/" + ride.ride_id)}>
-                        View Ride Detail
+                        onClick={() =>
+                            toast.info(
+                                "Head to each ride to view full details!"
+                            )
+                        }>
+                        View Ride
                     </InteractiveHoverButton>
                 </CardFooter>
             </MagicCard>
