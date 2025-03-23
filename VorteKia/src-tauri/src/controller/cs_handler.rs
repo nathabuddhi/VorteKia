@@ -23,6 +23,22 @@ pub async fn send_broadcast(
     let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
 
     for division_id in payload.recepients.clone() {
+        if division_id == "d936c06c-28a6-4846-beb0-ed65ea8633fc" {
+            let customers = match entity::customer::Entity::find().all(&db).await {
+                Ok(customers) => customers,
+                Err(_) => {
+                    return Err("Failed to fetch customers".to_string());
+                }
+            };
+
+            for customer in customers {
+                add_notification(state.clone(), customer.user_id.clone(), format!("A broadcast has been sent: {}", payload.content))
+                    .await.map_err(|e| e.to_string())?;
+            }
+
+            continue;
+        }
+
         let staff_members = match get_staff_by_division(state.clone(), SingleUidRequest {id: division_id.clone() }).await {
             Ok(staff) => staff,
             Err(_) => {
