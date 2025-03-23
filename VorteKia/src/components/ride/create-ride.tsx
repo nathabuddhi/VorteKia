@@ -27,7 +27,7 @@ import {
 } from "@/controllers/ride-controller";
 import { Textarea } from "../ui/textarea";
 
-export default function CreateRide() {
+export default function CreateRideDialog() {
     const form = useForm<z.infer<typeof CreateRideSchema>>({
         resolver: zodResolver(CreateRideSchema),
     });

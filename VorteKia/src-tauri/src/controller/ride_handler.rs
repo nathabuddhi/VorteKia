@@ -71,13 +71,13 @@ async fn get_ride_status(ride_id: String, opening: NaiveTime, closing:NaiveTime,
         .all(db)
         .await
     {
-        Ok(maintenance_jobs) if !maintenance_jobs.is_empty() => Ok("Under maintenance.".to_string()),
+        Ok(maintenance_jobs) if !maintenance_jobs.is_empty() => return Ok("Under maintenance.".to_string()),
         Ok(_) => match check_ride_staffed(ride_id.as_str(), db).await {
             Ok(true) => Ok(
                 if Utc::now().naive_utc().time() + Duration::hours(7) >= opening && Utc::now().naive_utc().time() + Duration::hours(7) <= closing {
                     "Operational.".to_string()
                 } else {
-                    "Closed -> ".to_string()
+                    "Closed.".to_string()
                 }
             ),
             Ok(false) => Ok("Non Operational.".to_string()),
@@ -94,9 +94,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
 
     let cache_key = "get_all_rides";
 
-     if let Some(cached_rides) = state.cache.get_cache::<Vec<RideReturn>>(cache_key).await {
-        println!("Cache hit: Returning posts from Redis");
-        
+    if let Some(cached_rides) = state.cache.get_cache::<Vec<RideReturn>>(cache_key).await {
         let mut ride_returns = Vec::new();
         for ride in cached_rides {
             let opening_time = NaiveTime::parse_from_str(&ride.opening, "%H:%M:%S").unwrap_or_else(|_| NaiveTime::from_hms_opt(0, 0, 0).unwrap());
@@ -157,7 +155,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             income: ride_income,
         });
     }
-    state.cache.set_cache("get_all_rides", &ride_returns, 60).await;
+    state.cache.set_cache(cache_key, &ride_returns, 60).await;
     Ok(ApiResponse::success(ride_returns, "Successfully fetched rides!".to_string()))
 }
 
@@ -203,7 +201,7 @@ pub async fn get_ride_by_id(
     };
 
     Ok(ApiResponse::success(ride_return, "Successfully fetched ride!".to_string()))
-    }
+}
 
 #[derive(Deserialize)]
 pub struct CreateRideRequest {

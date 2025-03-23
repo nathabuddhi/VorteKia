@@ -17,7 +17,6 @@ import {
 import RequestUID from "../customer/request-uid";
 import CreateCustomer from "../customerservice/create-customer";
 import TopUpBalance from "../customer/top-up-balance";
-import CreateRide from "../ride/create-ride";
 import NotificationList from "./notification-list";
 import ChatBox from "./chat-box";
 import CreateBroadcast from "../customerservice/create-broadcast";
@@ -25,7 +24,9 @@ import ViewProposals from "../executive/view-proposals";
 import CreateProposal from "../generalstaff/create-proposal";
 import CreateJob from "../maintenance/create-job";
 import CreateItemDialog from "../customerservice/create-item";
-import { DeleteRideDialog } from "../executive/delete-ride";
+import DeleteRideDialog from "../executive/delete-ride";
+import CreateRestaurantDialog from "../restaurant/create-restaurant";
+import CreateRideDialog from "../ride/create-ride";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -280,7 +281,7 @@ export function RestaurantHeader() {
                         Manage Restaurants
                     </Button>
                 )}
-                {role === "supervisor" && <CreateRestaurantDialog />}
+                {role === "supervisor" && <CreateProposal />}
                 <Button
                     onClick={() => {
                         logout();
@@ -381,8 +382,12 @@ export function ExecutiveHeader() {
             <HelloLabel />
             <nav className="ml-auto flex gap-3">
                 <ViewProposals />
-                {(role === "coo" || role === "ceo") && <CreateRide />}
+                {(role === "coo" || role === "ceo") && <CreateRideDialog />}
+                {(role === "cfo" || role === "ceo") && (
+                    <CreateRestaurantDialog />
+                )}
                 {(role === "coo" || role === "ceo") && <DeleteRideDialog />}
+                {/* {(role === "coo" || role === "ceo") && <DeleteRestaurantDialog />} */}
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
                     onClick={() => {

@@ -6,7 +6,7 @@ import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const DeleteRideDialog = () => {
+export default function DeleteRideDialog() {
     const [rides, setRides] = useState<Ride[] | null>(null);
 
     const fetchRides = async () => {
@@ -63,4 +63,4 @@ export const DeleteRideDialog = () => {
             </DialogContent>
         </Dialog>
     );
-};
+}
