@@ -1,4 +1,4 @@
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router";
 import { House } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -134,26 +134,6 @@ export function CustomerHeader() {
                     )
                 )}
                 {getUserRole() === "customer" && <TopUpBalance />}
-                {/* {getCurrentApp()[1] === "restaurant" &&
-                    !is_backend_routing() && (
-                        <Button
-                            variant={"ghost"}
-                            onClick={() => navigate("/restaurant")}>
-                            All Restaurants
-                        </Button>
-                    )}
-                {getCurrentApp()[1] === "ride" && !is_backend_routing() && (
-                    <Button variant={"ghost"} onClick={() => navigate("/ride")}>
-                        All Rides
-                    </Button>
-                )}
-                {getCurrentApp()[1] === "store" && !is_backend_routing() && (
-                    <Button
-                        variant={"ghost"}
-                        onClick={() => navigate("/store")}>
-                        All Stores
-                    </Button>
-                )} */}
                 {!is_backend_routing() && (
                     <>
                         <Button
@@ -210,7 +190,7 @@ export function RideHeader() {
 
     useEffect(() => {
         if (role === "INITIAL" || division === "INITIAL") return;
-        if (division !== "operational") {
+        if (division !== "operational" && division !== "executive") {
             logout();
             navigate("/main/home");
         }
@@ -227,6 +207,13 @@ export function RideHeader() {
             {getUserSession() && <NotificationList />}
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
+                {division === "executive" && (
+                    <Button
+                        onClick={() => navigate("/staff/login")}
+                        variant={"ghost"}>
+                        Back to Executive Page
+                    </Button>
+                )}
                 {role === "manager" && (
                     <Button
                         onClick={() => navigate("/staff/ride/manager")}
@@ -262,7 +249,7 @@ export function RestaurantHeader() {
 
     useEffect(() => {
         if (role === "INITIAL" || division === "INITIAL") return;
-        if (division !== "consumption") {
+        if (division !== "consumption" && division !== "executive") {
             logout();
             navigate("/main/home");
         }
@@ -279,13 +266,21 @@ export function RestaurantHeader() {
             {getUserSession() && <NotificationList />}
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
+                {division === "executive" && (
+                    <Button
+                        onClick={() => navigate("/staff/login")}
+                        variant={"ghost"}>
+                        Back to Executive Page
+                    </Button>
+                )}
                 {role === "supervisor" && (
                     <Button
-                        onClick={() => navigate("/restaurant")}
+                        onClick={() => navigate("/staff/restaurant/supervisor")}
                         variant={"ghost"}>
                         Manage Restaurants
                     </Button>
                 )}
+                {role === "supervisor" && <CreateRestaurantDialog />}
                 <Button
                     onClick={() => {
                         logout();
@@ -313,7 +308,7 @@ export function StoreHeader() {
 
     useEffect(() => {
         if (role === "INITIAL" || division === "INITIAL") return;
-        if (division !== "retail") {
+        if (division !== "retail" && division !== "executive") {
             logout();
             navigate("/main/home");
         }
@@ -330,15 +325,19 @@ export function StoreHeader() {
             {getUserSession() && <NotificationList />}
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
+                {division === "executive" && (
+                    <Button
+                        onClick={() => navigate("/staff/login")}
+                        variant={"ghost"}>
+                        Back to Executive Page
+                    </Button>
+                )}
                 {role === "supervisor" && (
                     <Button
                         onClick={() => navigate("/store")}
                         variant={"ghost"}>
-                        Manage Restaurants
+                        Manage Stores
                     </Button>
-                )}
-                {role === "customer" && (
-                    <Button variant={"ghost"}>My Transactions</Button>
                 )}
                 <Button
                     onClick={() => {
@@ -412,7 +411,7 @@ export function MaintenanceHeader() {
 
     useEffect(() => {
         if (role === "INITIAL") return;
-        if (division !== "maintenance") {
+        if (division !== "maintenance" && division !== "executive") {
             logout();
             navigate("/home");
         }
@@ -429,6 +428,13 @@ export function MaintenanceHeader() {
             {getUserSession() && <NotificationList />}
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
+                {division === "executive" && (
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate("/staff/login")}>
+                        Back to Executive Page
+                    </Button>
+                )}
                 {role === "manager" && (
                     <Button
                         variant="ghost"
