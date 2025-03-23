@@ -9,7 +9,11 @@ import {
     getUserDivision,
     getUserSession,
 } from "@/controllers/user-controller";
-import { is_backend_routing, logout } from "@/controllers/app-controller";
+import {
+    is_backend_routing,
+    logout,
+    useAutoLogout,
+} from "@/controllers/app-controller";
 import RequestUID from "../customer/request-uid";
 import CreateCustomer from "../customerservice/create-customer";
 import TopUpBalance from "../customer/top-up-balance";
@@ -92,6 +96,9 @@ export function StaffHeader() {
 
 export function CustomerHeader() {
     const navigate = useNavigate();
+
+    const role = getUserRole();
+    useAutoLogout(role !== "");
 
     return (
         <header className="flex h-14 w-full shrink-0 justify-between items-center px-4 absolute top-0 left-0 z-10 bg-background overflow-hidden border-b-2 border-accent">

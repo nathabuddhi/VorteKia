@@ -48,7 +48,7 @@ export default function RideDetailPage() {
                     description:
                         "This ride does not exist. Redirecting in half a second.",
                 });
-                console.log(response.data);
+                console.log(response);
                 setTimeout(() => {
                     navigate("/ride");
                 }, 500);
@@ -57,7 +57,7 @@ export default function RideDetailPage() {
         };
 
         fetchRideDetails();
-    });
+    }, [ride]);
 
     const [queuePosition, setQueuePosition] = useState(0);
     const [isInQueue, setIsInQueue] = useState(false);

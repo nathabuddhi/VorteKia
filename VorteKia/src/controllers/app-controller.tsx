@@ -1,6 +1,6 @@
 import { ApiResponse, UserLoggedIn } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function getRedirectOnLogin(parsedUser: UserLoggedIn | null): string {
     if (is_backend_routing()) {
@@ -57,43 +57,59 @@ export function logout() {
     localStorage.removeItem("user");
 }
 
-export const useAutoLogout = () => {
-    const [timeout, setTimeoutState] = useState<ReturnType<
-        typeof setTimeout
-    > | null>(null);
+export const useAutoLogout = (shouldActivate: boolean) => {
+    const logoutTime = 60;
 
-    const logoutTime = 60000;
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [countdown, setCountdown] = useState<number>(logoutTime);
 
-    const logout = () => {
-        alert("You have been logged out due to inactivity.");
+    const startLogoutTimer = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(logout, logoutTime * 1000);
     };
 
-    const resetTimeout = () => {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-        const newTimeout = setTimeout(logout, logoutTime);
-        setTimeoutState(newTimeout);
+    const startCountdownTimer = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        setCountdown(logoutTime);
+
+        intervalRef.current = setInterval(() => {
+            setCountdown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(intervalRef.current!);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const resetTimers = () => {
+        startLogoutTimer();
+        startCountdownTimer();
     };
 
     useEffect(() => {
+        if (!shouldActivate) return;
+
         const events = ["mousemove", "keydown", "scroll", "click"];
-
-        events.forEach((event) => {
-            window.addEventListener(event, resetTimeout);
-        });
-
-        resetTimeout();
+        events.forEach((event) => window.addEventListener(event, resetTimers));
+        resetTimers();
 
         return () => {
-            events.forEach((event) => {
-                window.removeEventListener(event, resetTimeout);
-            });
-            if (timeout) {
-                clearTimeout(timeout);
-            }
+            events.forEach((event) =>
+                window.removeEventListener(event, resetTimers)
+            );
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [timeout, logoutTime]);
+    }, [shouldActivate]);
+
+    useEffect(() => {
+        if (shouldActivate) {
+            console.log("AUTO LOGOUT: " + countdown);
+        }
+    }, [countdown, shouldActivate]);
 
     return null;
 };
