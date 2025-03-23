@@ -3,21 +3,16 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "Order")]
+#[sea_orm(table_name = "RestaurantWaiterAllocation")]
 pub struct Model {
-    #[sea_orm(column_name = "orderID", primary_key, auto_increment = false)]
-    pub order_id: String,
+    #[sea_orm(column_name = "staffID", primary_key, auto_increment = false)]
+    pub staff_id: String,
     #[sea_orm(column_name = "restaurantID")]
-    pub restaurant_id: String,
-    #[sea_orm(column_name = "customerID")]
-    pub customer_id: String,
-    pub status: String,
+    pub restaurant_id: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::order_detail::Entity")]
-    OrderDetail,
     #[sea_orm(
         belongs_to = "super::restaurant::Entity",
         from = "Column::RestaurantId",
@@ -28,18 +23,12 @@ pub enum Relation {
     Restaurant,
     #[sea_orm(
         belongs_to = "super::user::Entity",
-        from = "Column::CustomerId",
+        from = "Column::StaffId",
         to = "super::user::Column::UserId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
     User,
-}
-
-impl Related<super::order_detail::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::OrderDetail.def()
-    }
 }
 
 impl Related<super::restaurant::Entity> for Entity {

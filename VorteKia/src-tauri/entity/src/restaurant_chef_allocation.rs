@@ -3,26 +3,16 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "RestaurantStaffAllocation")]
+#[sea_orm(table_name = "RestaurantChefAllocation")]
 pub struct Model {
     #[sea_orm(column_name = "staffID", primary_key, auto_increment = false)]
     pub staff_id: String,
     #[sea_orm(column_name = "restaurantID")]
     pub restaurant_id: Option<String>,
-    #[sea_orm(column_name = "orderID")]
-    pub order_id: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::order::Entity",
-        from = "Column::OrderId",
-        to = "super::order::Column::OrderId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Order,
     #[sea_orm(
         belongs_to = "super::restaurant::Entity",
         from = "Column::RestaurantId",
@@ -39,12 +29,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     User,
-}
-
-impl Related<super::order::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Order.def()
-    }
 }
 
 impl Related<super::restaurant::Entity> for Entity {

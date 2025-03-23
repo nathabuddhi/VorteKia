@@ -27,8 +27,6 @@ pub enum Relation {
     Order,
     #[sea_orm(has_many = "super::queue::Entity")]
     Queue,
-    #[sea_orm(has_one = "super::restaurant_staff_allocation::Entity")]
-    RestaurantStaffAllocation,
     #[sea_orm(has_one = "super::ride_staff_allocation::Entity")]
     RideStaffAllocation,
     #[sea_orm(has_one = "super::sales_associate_allocation::Entity")]
@@ -68,12 +66,6 @@ impl Related<super::order::Entity> for Entity {
 impl Related<super::queue::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Queue.def()
-    }
-}
-
-impl Related<super::restaurant_staff_allocation::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::RestaurantStaffAllocation.def()
     }
 }
 
