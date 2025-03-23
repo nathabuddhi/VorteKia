@@ -512,3 +512,30 @@ pub async fn process_next_queue(
         None => Ok(ApiResponse::error(Some(false), "No customer in queue.".to_string())),
     }
 }
+
+#[command]
+pub async fn delete_ride(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let ride = RideEntities::find()
+        .filter(<RideEntities as EntityTrait>::Column::RideId.eq(payload.id))
+        .one(&db)
+        .await
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    let ride = match ride {
+        Some(ride) => ride,
+        None => return Ok(ApiResponse::error(Some(false), "Ride not found.".to_string())),
+    };
+
+    match ride.delete(&db).await {
+        Ok(_) => {
+            state.cache.delete_cache("get_all_rides").await;
+            Ok(ApiResponse::success(true, "Successfully deleted ride!".to_string()))
+        },
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error deleting ride: {}", e))),
+    }
+}

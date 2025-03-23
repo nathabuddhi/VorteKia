@@ -144,15 +144,6 @@ export const getRideById = async (ride_id: string) => {
     }
 };
 
-export const DeleteRideSchema = z.object({
-    id: z.string().length(36, {
-        message: "Invalid ride ID",
-    }),
-    reason: z.string().min(50, {
-        message: "At least 50 characters.",
-    }),
-});
-
 export const UpdateRideSchema = z.object({
     id: z.string().length(36, {
         message: "Invalid ride ID",
@@ -276,6 +267,20 @@ export async function editRidePromise(
                 pictures: [""],
                 ride_type: data.type,
                 price: data.price,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: String(error) };
+    }
+}
+
+export async function deleteRidePromise(
+    id: string
+): Promise<ApiResponse<String>> {
+    try {
+        return await invoke<ApiResponse<String>>("delete_ride", {
+            payload: {
+                id: id,
             },
         });
     } catch (error) {

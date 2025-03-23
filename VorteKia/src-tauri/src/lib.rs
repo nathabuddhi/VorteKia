@@ -128,6 +128,7 @@ pub fn run() {
             controller::ride_handler::clear_ride_staff_allocation,
             controller::ride_handler::create_ride,
             controller::ride_handler::edit_ride,
+            controller::ride_handler::delete_ride,
             controller::ride_handler::process_next_queue,
             controller::notification_handler::get_notification_by_user,
             controller::notification_handler::delete_notification,

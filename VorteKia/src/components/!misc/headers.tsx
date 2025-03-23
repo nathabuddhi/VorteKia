@@ -21,6 +21,7 @@ import ViewProposals from "../executive/view-proposals";
 import CreateProposal from "../generalstaff/create-proposal";
 import CreateJob from "../maintenance/create-job";
 import CreateItemDialog from "../customerservice/create-item";
+import { DeleteRideDialog } from "../executive/delete-ride";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -375,6 +376,7 @@ export function ExecutiveHeader() {
             <nav className="ml-auto flex gap-3">
                 <ViewProposals />
                 {(role === "coo" || role === "ceo") && <CreateRide />}
+                {(role === "coo" || role === "ceo") && <DeleteRideDialog />}
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
                     onClick={() => {
