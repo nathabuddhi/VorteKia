@@ -26,6 +26,7 @@ pub mod store;
 pub mod transaction;
 pub mod transaction_detail;
 pub mod user;
+pub mod income;
 
 pub fn add(left: u64, right: u64) -> u64 {
     left + right

@@ -6,10 +6,12 @@ use sea_orm::{QueryOrder, Set};
 use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
+use crate::controller::income_handler::get_income;
 use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
 use chrono::{Duration, Utc, NaiveTime};
 
+use super::income_handler::{update_income_data, UpdateIncomeRequest};
 use super::notification_handler::add_notification;
 use super::staff_handler::AllocateStaffRequest;
 use super::user_handler::{change_user_balance, get_user_by_id, ChangeUserBalanceRequest, LoginUIDRequest};
@@ -32,6 +34,7 @@ pub struct RideReturn {
     pub closing: String,
     pub queue_count: usize,
     pub queue_list: Option<Vec<String>>,
+    pub income: f32,
 }
 
 async fn get_ride_queue(ride_id: &str, db: &sea_orm::DatabaseConnection) -> Result<Option<Vec<String>>, String> {
@@ -100,6 +103,12 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             let closing_time = NaiveTime::parse_from_str(&ride.closing, "%H:%M:%S").unwrap_or_else(|_| NaiveTime::from_hms_opt(23, 59, 59).unwrap());
             let ride_status = get_ride_status(ride.ride_id.clone(), opening_time, closing_time, &db).await.unwrap_or_else(|_| "Unknown".to_string());
             let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+            let ride_income = get_income(state.clone(), SingleUidRequest { id: ride.ride_id.clone() }).await.unwrap();
+            let ride_income = match ride_income {
+                ApiResponse::Success { data, .. } => data,
+                ApiResponse::Error { data: Some(value), .. } => value,
+                _ => 0.0,
+            };
 
             ride_returns.push(RideReturn {
                 ride_id: ride.ride_id.clone(),
@@ -113,6 +122,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
                 ride_price: ride.ride_price.clone(),
                 queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
                 queue_list: ride_queue,
+                income: ride_income
             });
         }
 
@@ -125,6 +135,12 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
     for ride in rides {
         let ride_status = get_ride_status(ride.ride_id.clone(), ride.opening.clone(), ride.closing.clone(), &db).await.unwrap_or_else(|_| "Unknown".to_string());
         let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+        let ride_income = get_income(state.clone(), SingleUidRequest { id: ride.ride_id.clone() }).await.unwrap();
+        let ride_income = match ride_income {
+            ApiResponse::Success { data, .. } => data,
+            ApiResponse::Error { data: Some(value), .. } => value,
+            _ => 0.0,
+        };
 
         ride_returns.push(RideReturn {
             ride_id: ride.ride_id.clone(),
@@ -138,6 +154,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             ride_price: ride.price.clone(),
             queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
             queue_list: ride_queue,
+            income: ride_income,
         });
     }
     state.cache.set_cache("get_all_rides", &ride_returns, 60).await;
@@ -163,6 +180,12 @@ pub async fn get_ride_by_id(
 
     let ride_status = get_ride_status(ride.ride_id.clone(), ride.opening.clone(), ride.closing.clone(), &db).await.unwrap_or_else(|_| "Unknown".to_string());
     let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+    let ride_income = get_income(state.clone(), SingleUidRequest { id: ride.ride_id.clone() }).await.unwrap();
+    let ride_income = match ride_income {
+        ApiResponse::Success { data, .. } => data,
+        ApiResponse::Error { data: Some(value), .. } => value,
+        _ => 0.0,
+    };
 
     let ride_return = RideReturn {
         ride_id: ride.ride_id.clone(),
@@ -176,6 +199,7 @@ pub async fn get_ride_by_id(
         ride_price: ride.price.clone(),
         queue_count: ride_queue.as_ref().map_or(0, |q| q.len()),
         queue_list: ride_queue,
+        income: ride_income
     };
 
     Ok(ApiResponse::success(ride_return, "Successfully fetched ride!".to_string()))
@@ -325,7 +349,7 @@ pub async fn add_ride_queue(
 
     let deduct_user_balance: Result<ApiResponse<f32>, _> = change_user_balance(
         state.clone(),
-        ChangeUserBalanceRequest { user_id: payload.user_id.clone(), mutation: -ride_price? }
+        ChangeUserBalanceRequest { user_id: payload.user_id.clone(), mutation: -ride_price.clone()? }
     ).await;
 
     let deduct_user_balance = deduct_user_balance.unwrap();
@@ -335,6 +359,8 @@ pub async fn add_ride_queue(
             return Ok(ApiResponse::error(None, "User balance is not enough!".to_string()));
         }
     }
+
+    let _ = update_income_data(state.clone(), UpdateIncomeRequest { id: payload.ride_id.clone(), mutation: ride_price? }).await;
 
     let new_queue = QueueActiveModel {
         ride_id: Set(payload.ride_id.clone()),

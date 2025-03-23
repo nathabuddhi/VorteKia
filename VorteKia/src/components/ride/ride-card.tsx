@@ -106,7 +106,7 @@ export function ManageRideCard({ ride }: { ride: Ride }) {
                     {ride.ride_description}
                 </CardDescription>
             </CardHeader>
-            <CardContent className="pb-2">
+            <CardContent className="pb-2 flex flex-col gap-y-2">
                 <Label
                     className={`${
                         ride.ride_status !== "Operational."
@@ -115,6 +115,7 @@ export function ManageRideCard({ ride }: { ride: Ride }) {
                     }`}>
                     Ride Status: {ride.ride_status}
                 </Label>
+                <Label>Ride Income: {ride.income}</Label>
             </CardContent>
             <CardFooter>
                 <InteractiveHoverButton

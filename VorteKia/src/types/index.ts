@@ -36,6 +36,7 @@ export interface Ride {
     closing: string;
     queue_count: number;
     queue_list: string[];
+    income: number;
 }
 
 export interface MaintenanceJob {

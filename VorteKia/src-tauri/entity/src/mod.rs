@@ -27,4 +27,4 @@ pub mod staff;
 pub mod store;
 pub mod transaction;
 pub mod transaction_detail;
-pub mod user;
+pub mod income;
