@@ -91,3 +91,13 @@ export interface LostItem {
     owner_id: string;
 }
 
+export interface Restaurant {
+    id: string;
+    name: string;
+    description: string;
+    pictures: string[];
+    status: string;
+    cuisine: string;
+    income: number;
+}
+

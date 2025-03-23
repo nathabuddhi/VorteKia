@@ -148,6 +148,9 @@ pub fn run() {
             controller::proposal_handler::get_proposal_by_user,
             controller::proposal_handler::create_proposal,
             controller::proposal_handler::process_proposal,
+            controller::restaurant_handler::create_restaurant,
+            controller::restaurant_handler::get_restaurant_by_id,
+            controller::restaurant_handler::get_all_restaurants,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
