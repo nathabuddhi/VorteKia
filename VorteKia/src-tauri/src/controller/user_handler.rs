@@ -361,32 +361,38 @@ pub async fn create_staff_account(
     let db = state.get_db().await.map_err(|e| e)?;
 
     let new_staff = StaffActiveModel {
-    user_id: Set(response),
-    division_id: Set(payload.division_id),
-    role: Set(payload.role),
-};
+        user_id: Set(response.clone()),
+        division_id: Set(payload.division_id.clone()),
+        role: Set(payload.role.clone()),
+    };
 
-match new_staff.insert(&db).await {
-    Ok(inserted_staff) => {
-        match add_user_to_room(state.clone(), inserted_staff.user_id.clone(), "5782daf7-6727-49cb-9724-3fa0ce0b0e92".to_string()).await {
-            Ok(_) => {
-                return Ok(ApiResponse::Success {
-                    success: true,
-                    data: inserted_staff.user_id,
-                    message: "Success created staff!".to_string(),
-                });
-            },
-            Err(e) => {
-                return Err(e);
-            },
+    match new_staff.insert(&db).await {
+        Ok(inserted_staff) => {
+            if payload.division_id == "ee079fd0-bf45-48f8-9833-9b5520211385" {
+                add_user_to_room(
+                    state.clone(),
+                    inserted_staff.user_id.clone(),
+                    "5e12475b-f646-46a2-afc0-d5c97acbb673".to_string(), 
+                )
+                .await
+                .map_err(|e| format!("Failed to add to maintenance room: {}", e))?;
+            }
+
+            add_user_to_room(
+                state.clone(),
+                inserted_staff.user_id.clone(),
+                "5782daf7-6727-49cb-9724-3fa0ce0b0e92".to_string(), 
+            )
+            .await
+            .map_err(|e| format!("Failed to add to general staff room: {}", e))?;
+
+            Ok(ApiResponse::success("Success!".to_string(), "Successfully created staff account!".to_string()))
         }
-    },
-    Err(e) => {
-        Err(e.to_string())
-    },
+
+        Err(e) => Err(e.to_string()),
+    }
 }
 
-}
 
 #[derive(Deserialize)]
 pub struct ChangeUserBalanceRequest {
