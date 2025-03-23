@@ -39,9 +39,7 @@ export default function CreateJob() {
             toast.promise(response, {
                 loading: "Creating job...",
                 success: () => {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2500);
+                    window.location.reload();
                     return "Successfully created job!";
                 },
                 error: (error) => `${error.message || error}`,

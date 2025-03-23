@@ -7,9 +7,23 @@ import { toast, Toaster } from "sonner";
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 
-import { getJobById } from "@/controllers/maintenance-controller";
+import {
+    deleteJobPromise,
+    getJobById,
+} from "@/controllers/maintenance-controller";
 import AllocateMaintenanceStaff from "@/components/maintenance/allocate-maintenance-job";
 import EditJob from "@/components/maintenance/edit-job";
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/!!ui/alert-dialog";
+import { Button } from "@/components/!!ui/button";
 
 export default function ManageJobPage() {
     const [job, setJob] = useState<MaintenanceJob | null>(null);
@@ -36,6 +50,20 @@ export default function ManageJobPage() {
 
         fetchRideDetails();
     }, [navigate]);
+
+    async function deleteJob() {
+        if (!job) return;
+
+        const response = deleteJobPromise(job.job_id);
+        toast.promise(response, {
+            loading: "Deleting job...",
+            success: () => {
+                navigate("/staff/maintenance/manager");
+                return "Job deleted successfully";
+            },
+            error: "Failed to delete job: " + (await response).message,
+        });
+    }
 
     if (!job) return null;
 
@@ -70,9 +98,39 @@ export default function ManageJobPage() {
                         <Label>Staff Report: {job.report}</Label>
                         <br />
                     </div>
-                    <div className="mt-6 flex justify-evenly">
+                    <div className="mt-6 flex justify-evenly w-[26rem]">
                         {job && <AllocateMaintenanceStaff jobId={job.job_id} />}
                         {job && <EditJob job={job} />}
+                        {job && (
+                            <AlertDialog>
+                                <AlertDialogTrigger>
+                                    <Button variant="destructive" type="button">
+                                        Delete Job
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                            Are you absolutely sure?
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This
+                                            will permanently delete this job.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                            Cancel
+                                        </AlertDialogCancel>
+                                        <Button
+                                            variant={"destructive"}
+                                            onClick={() => deleteJob()}>
+                                            Delete Job
+                                        </Button>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
                     </div>
                 </MagicCard>
             </NeonGradientCard>

@@ -410,3 +410,25 @@ pub async fn edit_job_details(
         Err(e) => Ok(ApiResponse::error(None, format!("Error updating job: {}", e))),
     }
 }
+
+#[command]
+pub async fn delete_job(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let job = get_job_by_id(state.clone(), payload).await;
+    let job = match job {
+        Ok(ApiResponse::Success { data, .. }) => data,
+        _ => return Ok(ApiResponse::error(Some(false), "Job not found.".to_string())),
+    };
+
+    match MaintenanceEntities::delete_by_id(job.job_id)
+        .exec(&db)
+        .await
+    {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully deleted job!".to_string())),
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error deleting job: {}", e))),
+    }
+}

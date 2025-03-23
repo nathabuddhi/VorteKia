@@ -49,7 +49,7 @@ export default function MaintenanceManagerPage() {
                 Maintenance Manager Page
             </h1>
             <div
-                className={`justify-center grid gap-6 ${
+                className={`justify-between grid gap-6 ${
                     jobs && jobs.length <= 2 ? "grid-cols-1" : "grid-cols-3"
                 }`}>
                 {jobs?.map((j) => (

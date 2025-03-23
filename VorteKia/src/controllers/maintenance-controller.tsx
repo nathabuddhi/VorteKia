@@ -227,3 +227,11 @@ export async function getStaffAssignment() {
         },
     });
 }
+
+export async function deleteJobPromise(id: string) {
+    return await invoke<ApiResponse<boolean>>("delete_job", {
+        payload: {
+            id: id,
+        },
+    });
+}

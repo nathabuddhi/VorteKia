@@ -118,6 +118,7 @@ pub fn run() {
             controller::maintenance_handler::get_all_maintenance_staff,
             controller::maintenance_handler::get_assigned_job,
             controller::maintenance_handler::edit_job_details,
+            controller::maintenance_handler::delete_job,
             controller::ride_handler::get_all_rides,
             controller::ride_handler::get_ride_by_id,
             controller::ride_handler::add_ride_queue,

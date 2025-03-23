@@ -16,7 +16,7 @@ export function ManageJobCard({ job }: { job: MaintenanceJob }) {
     const navigate = useNavigate();
 
     return (
-        <Card className="max-w-[29rem] relative">
+        <Card className="w-[29rem] relative">
             <ShineBorder
                 shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
                 className="max-w-[29rem]"
