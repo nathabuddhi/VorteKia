@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 
 export function getRedirectOnLogin(parsedUser: UserLoggedIn | null): string {
     if (is_backend_routing()) {
-        return localStorage.getItem("app")
-            ? `/${localStorage.getItem("app")}`
-            : "/main/home";
+        if (localStorage.getItem("app") === "staff/login" && !parsedUser)
+            return "/staff/login";
+        else if (localStorage.getItem("app") !== "staff/login")
+            return localStorage.getItem("app")
+                ? `/${localStorage.getItem("app")}`
+                : "/main/home";
     }
 
     if (parsedUser != null) {

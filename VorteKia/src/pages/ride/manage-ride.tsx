@@ -14,16 +14,6 @@ import { toast, Toaster } from "sonner";
 
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
-import {
-    Dialog,
-    DialogContent,
-    DialogTrigger,
-    DialogFooter,
-    DialogDescription,
-    DialogTitle,
-    DialogHeader,
-} from "@/components/!!ui/dialog";
-import { Textarea } from "@/components/!!ui/textarea";
 import AllocateRideStaff from "../../components/ride/allocate-ride-staff";
 import EditRide from "@/components/ride/edit-ride";
 import RideMaintenanceCard from "@/components/ride/ride-maintenance-card";
@@ -93,35 +83,15 @@ export default function ManageRidePage() {
                         {ride && <RideMaintenanceCard rideId={ride.ride_id} />}
                         {ride && <AllocateRideStaff rideId={ride.ride_id} />}
                         {ride && <EditRide ride={ride} />}
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="destructive">
-                                    Delete Ride
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Ride Deletion</DialogTitle>
-                                    <DialogDescription>
-                                        Are you sure? This action is
-                                        irreversible. Ride Deletion requires COO
-                                        approval.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid w-full gap-1.5">
-                                    <Label htmlFor="reason">Reason</Label>
-                                    <Textarea
-                                        placeholder="Ride deletion reason here"
-                                        id="reason"
-                                    />
-                                </div>
-                                <DialogFooter>
-                                    <Button type="submit">
-                                        Submit Ride Deletion Proposal
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                        <Button
+                            variant="destructive"
+                            onClick={() =>
+                                toast.info(
+                                    "To delete a ride, submit a proposal to the COO."
+                                )
+                            }>
+                            Delete Ride
+                        </Button>
                     </div>
                 </MagicCard>
             </NeonGradientCard>

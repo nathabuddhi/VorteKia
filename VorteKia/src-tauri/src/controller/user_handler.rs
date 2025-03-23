@@ -417,7 +417,7 @@ pub async fn change_user_balance(
                     match updated_user.update(&db).await {
                         Ok(_) => Ok(
                             {
-                                if payload.mutation > 0.0 {
+                                if payload.mutation >= 10.0 {
                                     add_notification(
                                         state.clone(),
                                         user.user_id.clone(),

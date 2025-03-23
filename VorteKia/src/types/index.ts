@@ -77,3 +77,16 @@ export interface Proposal {
     response: String;
 }
 
+export interface LostItem {
+    item_id: string;
+    image: string;
+    name: string;
+    description: string;
+    last_seen: string;
+    color: string;
+    status: string;
+    found_at: string;
+    finder_id: string;
+    owner_id: string;
+}
+

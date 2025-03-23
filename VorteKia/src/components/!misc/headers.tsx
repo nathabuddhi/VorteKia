@@ -11,7 +11,7 @@ import {
 } from "@/controllers/user-controller";
 import { is_backend_routing, logout } from "@/controllers/app-controller";
 import RequestUID from "../customer/request-uid";
-import CreateCustomer from "../generalstaff/create-customer";
+import CreateCustomer from "../customerservice/create-customer";
 import TopUpBalance from "../customer/top-up-balance";
 import CreateRide from "../ride/create-ride";
 import NotificationList from "./notification-list";
@@ -20,6 +20,7 @@ import CreateBroadcast from "../customerservice/create-broadcast";
 import ViewProposals from "../executive/view-proposals";
 import CreateProposal from "../generalstaff/create-proposal";
 import CreateJob from "../maintenance/create-job";
+import CreateItemDialog from "../customerservice/create-item";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -472,8 +473,8 @@ export function CustomerServiceHeader() {
             <HelloLabel />
             <nav className="ml-auto flex gap-6">
                 {(role === "staff" || role === "manager") && <CreateCustomer />}
-                {role === "staff" && (
-                    <Button variant={"ghost"}>View Lost Items</Button>
+                {(role === "lostandfound" || role === "manager") && (
+                    <CreateItemDialog />
                 )}
                 {role === "manager" && <CreateBroadcast />}
                 <Button

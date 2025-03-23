@@ -21,13 +21,13 @@ import CFOPage from "./pages/executive/cfo";
 import MaintenanceStaffPage from "./pages/maintenance/maintenance-staff";
 import MaintenanceManagerPage from "./pages/maintenance/maintenance-manager";
 import CSLostAndFoundPage from "./pages/customerservice/cs-lnf";
-import CSManagerPage from "./pages/customerservice/cs-manager";
 import CSStaffPage from "./pages/customerservice/cs-staff";
 import MainPage from "./pages/main-page";
 import RideDetailPage from "./pages/ride/ride-detail";
 import ManageRidePage from "./pages/ride/manage-ride";
 import OfficialAccountPage from "./pages/official-account";
 import ManageJobPage from "./pages/maintenance/manage-job";
+import CSManagerPage from "./pages/customerservice/cs-manager";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>

@@ -21,7 +21,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/!!ui/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     createCustomerPromise,
     CreateCustomerFormSchema,
@@ -143,6 +143,28 @@ export default function CreateCustomer() {
                                             <Input
                                                 placeholder="name"
                                                 {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="balance"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Initial Balance</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="10"
+                                                type="number"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    field.onChange(
+                                                        Number(e.target.value)
+                                                    );
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />

@@ -40,6 +40,9 @@ export const CreateCustomerFormSchema = z.object({
     name: z.string().min(5, {
         message: "At least 8 characters long.",
     }),
+    balance: z.number().min(0, {
+        message: "Balance must be a positive number.",
+    }),
 });
 
 export async function createStaffPromise(
@@ -69,7 +72,7 @@ export async function createCustomerPromise(
                 email: data.email,
                 password: data.password,
                 name: data.name,
-                balance: 0,
+                balance: data.balance,
             },
         });
     } catch (error) {
