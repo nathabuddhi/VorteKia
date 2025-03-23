@@ -1,13 +1,13 @@
 import { MagicCard } from "@/components/!magicui/magic-card";
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/!!ui/carousel";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/!!ui/dialog";
-import { Label } from "@/components/!!ui/label";
+} from "@/components/ui/carousel";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { getAssignedRide } from "@/controllers/staff-controller";
 import { Ride } from "@/types";
 import Autoplay from "embla-carousel-autoplay";
@@ -19,7 +19,7 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import {
     Form,
@@ -28,8 +28,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
-import { Input } from "@/components/!!ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { ShimmerButton } from "@/components/!magicui/shimmer-button";
 import {
     enqueueCustomerPromise,
@@ -39,8 +39,8 @@ import {
 import { UIDLoginFormSchema } from "@/controllers/user-controller";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
-import { Separator } from "@/components/!!ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 export default function RideStaffPage() {
     const [ride, setRide] = useState<Ride | null>(null);

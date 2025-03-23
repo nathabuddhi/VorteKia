@@ -1,4 +1,4 @@
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import {
@@ -8,8 +8,8 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
-import { Input } from "@/components/!!ui/input";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import {
     Form,
@@ -18,7 +18,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
+} from "@/components/ui/form";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import { useNavigate } from "react-router";
 import {

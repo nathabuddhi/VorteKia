@@ -1,4 +1,4 @@
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { LostItem } from "@/types";
 import {
@@ -9,8 +9,8 @@ import {
     DialogDescription,
     DialogTitle,
     DialogHeader,
-} from "@/components/!!ui/dialog";
-import { Textarea } from "@/components/!!ui/textarea";
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
     EditLostItemSchema,
     EditLostItemPromise,
@@ -28,15 +28,15 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
-import { Input } from "../!!ui/input";
+} from "@/components/ui/form";
+import { Input } from "../ui/input";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/!!ui/select";
+} from "@/components/ui/select";
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -46,9 +46,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/!!ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { ScrollArea } from "../!!ui/scroll-area";
+import { ScrollArea } from "../ui/scroll-area";
 
 export default function EditItemDialog({ item }: { item: LostItem }) {
     const [isOpen, setIsOpen] = useState(false);

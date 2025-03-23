@@ -1,4 +1,4 @@
-import { Label } from "@/components/!!ui/label";
+import { Label } from "@/components/ui/label";
 import { getUserSession } from "@/controllers/user-controller";
 import { useEffect, useState } from "react";
 import { TypeAnimation } from "react-type-animation";

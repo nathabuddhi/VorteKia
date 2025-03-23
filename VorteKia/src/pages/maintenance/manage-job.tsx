@@ -1,4 +1,4 @@
-import { Label } from "@/components/!!ui/label";
+import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { MaintenanceJob } from "@/types";
 import { useNavigate } from "react-router";
@@ -22,8 +22,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/!!ui/alert-dialog";
-import { Button } from "@/components/!!ui/button";
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ManageJobPage() {
     const [job, setJob] = useState<MaintenanceJob | null>(null);

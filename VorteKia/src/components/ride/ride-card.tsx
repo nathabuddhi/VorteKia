@@ -6,17 +6,17 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import { ShineBorder } from "@/components/!magicui/shine-border";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/!!ui/carousel";
+} from "@/components/ui/carousel";
 import { InteractiveHoverButton } from "@/components/!magicui/interactive-hover-button";
 import Autoplay from "embla-carousel-autoplay";
-import { Label } from "@/components/!!ui/label";
+import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 

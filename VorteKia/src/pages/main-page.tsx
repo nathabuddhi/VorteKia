@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
 import {
@@ -9,7 +9,7 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import { Meteors } from "@/components/!magicui/meteors";
 import { User, UserPen } from "lucide-react";

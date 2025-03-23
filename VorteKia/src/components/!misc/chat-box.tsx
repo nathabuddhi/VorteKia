@@ -13,12 +13,12 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
-import { Button } from "../!!ui/button";
+} from "@/components/ui/dialog";
+import { Button } from "../ui/button";
 import { MessageSquare } from "lucide-react";
-import { ScrollArea } from "../!!ui/scroll-area";
+import { ScrollArea } from "../ui/scroll-area";
 import { Label } from "@radix-ui/react-label";
-import { Separator } from "../!!ui/separator";
+import { Separator } from "../ui/separator";
 import ChatComponent from "./chat-component";
 
 export default function ChatBox() {

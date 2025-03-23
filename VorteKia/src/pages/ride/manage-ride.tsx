@@ -1,10 +1,10 @@
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/!!ui/carousel";
-import { Label } from "@/components/!!ui/label";
+} from "@/components/ui/carousel";
+import { Label } from "@/components/ui/label";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
 import { Ride } from "@/types";

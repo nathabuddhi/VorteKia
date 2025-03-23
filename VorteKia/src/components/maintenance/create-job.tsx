@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import {
     CreateJobSchema,
     createMaintenanceJob,
@@ -12,7 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,9 +24,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
-import { Input } from "../!!ui/input";
-import { Textarea } from "../!!ui/textarea";
+} from "@/components/ui/form";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 export default function CreateJob() {
     const form = useForm<z.infer<typeof CreateJobSchema>>({

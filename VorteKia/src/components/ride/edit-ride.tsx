@@ -1,6 +1,6 @@
 import { Toaster, toast } from "sonner";
-import { Button } from "@/components/!!ui/button";
-import { Input } from "@/components/!!ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,15 +20,15 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
+} from "@/components/ui/form";
 import {
     editRidePromise,
     UpdateRideSchema,
 } from "@/controllers/ride-controller";
-import { Textarea } from "../!!ui/textarea";
+import { Textarea } from "../ui/textarea";
 import { Ride } from "@/types";
 import { useNavigate } from "react-router";
-import { ScrollArea } from "../!!ui/scroll-area";
+import { ScrollArea } from "../ui/scroll-area";
 
 export default function EditRide({ ride }: { ride: Ride }) {
     const navigate = useNavigate();

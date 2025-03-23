@@ -2,9 +2,9 @@ import { deleteRidePromise, getRides } from "@/controllers/ride-controller";
 import { Ride } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/!!ui/dialog";
-import { Button } from "@/components/!!ui/button";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const DeleteRideDialog = () => {
     const [rides, setRides] = useState<Ride[] | null>(null);

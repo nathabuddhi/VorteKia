@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { ClipboardCheck } from "lucide-react";
 import {
     Card,
@@ -7,7 +7,7 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { MaintenanceJob } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,8 +16,8 @@ import {
     getMaintenanceHistory,
     MaintenanceRequestSchema,
 } from "@/controllers/maintenance-controller";
-import { Label } from "../!!ui/label";
-import { ScrollArea } from "../!!ui/scroll-area";
+import { Label } from "../ui/label";
+import { ScrollArea } from "../ui/scroll-area";
 import {
     Dialog,
     DialogContent,
@@ -26,7 +26,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -37,10 +37,10 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
+} from "@/components/ui/form";
 import { useNavigate } from "react-router";
-import { Input } from "../!!ui/input";
-import { Textarea } from "../!!ui/textarea";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 export default function RideMaintenanceCard({ rideId }: { rideId: string }) {
     const [maintenanceHistory, setMaintenanceHistory] = useState<

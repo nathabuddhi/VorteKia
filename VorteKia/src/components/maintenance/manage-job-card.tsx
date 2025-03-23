@@ -7,9 +7,9 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import { ShineBorder } from "@/components/!magicui/shine-border";
-import { Label } from "@/components/!!ui/label";
+import { Label } from "@/components/ui/label";
 import { InteractiveHoverButton } from "@/components/!magicui/interactive-hover-button";
 
 export function ManageJobCard({ job }: { job: MaintenanceJob }) {

@@ -1,6 +1,6 @@
 import { Toaster, toast } from "sonner";
-import { Button } from "@/components/!!ui/button";
-import { Input } from "@/components/!!ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,12 +20,12 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
+} from "@/components/ui/form";
 import {
     createProposalPromise,
     CreateProposalSchema,
 } from "@/controllers/proposal-controller";
-import { Textarea } from "../!!ui/textarea";
+import { Textarea } from "../ui/textarea";
 import {
     Select,
     SelectContent,
@@ -33,7 +33,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/!!ui/select";
+} from "@/components/ui/select";
 
 export default function CreateProposal() {
     const form = useForm<z.infer<typeof CreateProposalSchema>>({

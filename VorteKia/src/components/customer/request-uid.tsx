@@ -1,6 +1,6 @@
 import { Toaster, toast } from "sonner";
-import { Button } from "@/components/!!ui/button";
-import { Input } from "@/components/!!ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,7 +20,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
+} from "@/components/ui/form";
 import {
     requestUIDPromise,
     LoginFormSchema,

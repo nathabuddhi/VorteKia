@@ -10,7 +10,7 @@ import {
     StoreHeader,
 } from "@/components/!misc/headers";
 import { ThemeProvider } from "@/components/!misc/theme-provider";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserLoggedIn } from "@/types";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";

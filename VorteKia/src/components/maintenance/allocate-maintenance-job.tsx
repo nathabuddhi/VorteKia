@@ -1,5 +1,5 @@
-import { Button } from "@/components/!!ui/button";
-import { Label } from "@/components/!!ui/label";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { User } from "@/types";
 import { toast } from "sonner";
@@ -11,10 +11,10 @@ import {
     DialogDescription,
     DialogTitle,
     DialogHeader,
-} from "@/components/!!ui/dialog";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
-import { Separator } from "@/components/!!ui/separator";
-import { Checkbox } from "@/components/!!ui/checkbox";
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     allocateMaintenanceStaffPromise,
     clearMaintenanceJobStaff,

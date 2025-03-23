@@ -1,4 +1,4 @@
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
     Dialog,
@@ -8,8 +8,8 @@ import {
     DialogDescription,
     DialogTitle,
     DialogHeader,
-} from "@/components/!!ui/dialog";
-import { Textarea } from "@/components/!!ui/textarea";
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
     CreateLostItemSchema,
     CreateLostItemPromise,
@@ -25,17 +25,17 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
-import { Input } from "../!!ui/input";
+} from "@/components/ui/form";
+import { Input } from "../ui/input";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/!!ui/select";
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { ScrollArea } from "../!!ui/scroll-area";
+import { ScrollArea } from "../ui/scroll-area";
 
 export default function CreateItemDialog() {
     const [isOpen, setIsOpen] = useState(false);

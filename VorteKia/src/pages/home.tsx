@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Button } from "@/components/!!ui/button";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
 import {
@@ -9,13 +9,13 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-} from "@/components/!!ui/carousel";
+} from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Lens } from "@/components/!magicui/lens";
 

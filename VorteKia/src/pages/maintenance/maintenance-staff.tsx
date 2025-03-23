@@ -1,8 +1,8 @@
 import { MagicCard } from "@/components/!magicui/magic-card";
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
-import { Button } from "@/components/!!ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/!!ui/dialog";
-import { Label } from "@/components/!!ui/label";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { MaintenanceJob, Ride } from "@/types";
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
@@ -12,12 +12,12 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/!!ui/card";
+} from "@/components/ui/card";
 import {
     getStaffAssignment,
     submitJobReport,
 } from "@/controllers/maintenance-controller";
-import { Textarea } from "@/components/!!ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function MaintenanceStaffPage() {
     const [job, setJob] = useState<MaintenanceJob | null>(null);

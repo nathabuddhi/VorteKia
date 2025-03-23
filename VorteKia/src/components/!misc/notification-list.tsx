@@ -1,5 +1,5 @@
-import { Dialog, DialogContent, DialogTrigger } from "@/components/!!ui/dialog";
-import { Button } from "@/components/!!ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -7,9 +7,9 @@ import {
     getNotificationByUser,
 } from "@/controllers/notification-controller";
 import { Notification } from "@/types";
-import { ScrollArea } from "../!!ui/scroll-area";
-import { Label } from "../!!ui/label";
-import { Separator } from "../!!ui/separator";
+import { ScrollArea } from "../ui/scroll-area";
+import { Label } from "../ui/label";
+import { Separator } from "../ui/separator";
 
 export default function NotificationList() {
     const [notifications, setNotifications] = useState<Notification[]>();

@@ -1,17 +1,17 @@
-import { Button } from "../!!ui/button";
+import { Button } from "../ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { getMessages, sendMessage } from "@/controllers/chat-controller";
 import { Message } from "@/types";
 import { useEffect, useState } from "react";
 import { SendHorizonal } from "lucide-react";
-import { Textarea } from "../!!ui/textarea";
+import { Textarea } from "../ui/textarea";
 import { Toaster } from "sonner";
 
 export default function ChatComponent({

@@ -1,5 +1,5 @@
-import { Button } from "@/components/!!ui/button";
-import { Label } from "@/components/!!ui/label";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { User } from "@/types";
 import {
@@ -15,14 +15,14 @@ import {
     DialogDescription,
     DialogTitle,
     DialogHeader,
-} from "@/components/!!ui/dialog";
-import { ScrollArea } from "@/components/!!ui/scroll-area";
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     getAllRideStaff,
     getAssignedRideStaffByRide,
 } from "@/controllers/staff-controller";
-import { Separator } from "@/components/!!ui/separator";
-import { Checkbox } from "@/components/!!ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AllocateRideStaff({ rideId }: { rideId: string }) {
     const [allocatedStaff, setAllocatedStaff] = useState<string[]>([]);

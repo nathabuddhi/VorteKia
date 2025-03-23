@@ -1,6 +1,6 @@
 import { Toaster, toast } from "sonner";
-import { Button } from "@/components/!!ui/button";
-import { Input } from "@/components/!!ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import {
     Dialog,
@@ -10,7 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/!!ui/dialog";
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,8 +21,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/!!ui/form";
-import { Textarea } from "../!!ui/textarea";
+} from "@/components/ui/form";
+import { Textarea } from "../ui/textarea";
 import {
     editJobPromise,
     EditJobSchema,
@@ -35,10 +35,10 @@ import {
     SelectGroup,
     SelectValue,
     SelectLabel,
-} from "@/components/!!ui/select";
+} from "@/components/ui/select";
 import { MaintenanceJob } from "@/types";
 import { Calendar } from "../ui/calendar";
-import { ScrollArea } from "../!!ui/scroll-area";
+import { ScrollArea } from "../ui/scroll-area";
 import { CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
