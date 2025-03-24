@@ -9,4 +9,5 @@ pub mod chat_handler;
 pub mod cs_handler;
 pub mod proposal_handler;
 pub mod restaurant_handler;
+pub mod menu_handler;
 pub mod income_handler;

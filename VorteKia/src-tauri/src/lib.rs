@@ -151,6 +151,18 @@ pub fn run() {
             controller::restaurant_handler::create_restaurant,
             controller::restaurant_handler::get_restaurant_by_id,
             controller::restaurant_handler::get_all_restaurants,
+            controller::restaurant_handler::clear_restaurant_chef_allocation,
+            controller::restaurant_handler::clear_restaurant_waiter_allocation,
+            controller::restaurant_handler::allocate_restaurant_chef,
+            controller::restaurant_handler::allocate_restaurant_waiter,
+            controller::restaurant_handler::get_allocated_restaurant_chef,
+            controller::restaurant_handler::get_allocated_restaurant_waiter,
+            controller::restaurant_handler::get_assigned_restaurant,
+            controller::restaurant_handler::get_all_waiters,
+            controller::restaurant_handler::get_all_chefs,
+            controller::menu_handler::get_restaurant_menu,
+            controller::menu_handler::create_menu,
+            controller::menu_handler::edit_menu,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

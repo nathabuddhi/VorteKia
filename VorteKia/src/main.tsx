@@ -28,6 +28,7 @@ import ManageRidePage from "./pages/ride/manage-ride";
 import OfficialAccountPage from "./pages/official-account";
 import ManageJobPage from "./pages/maintenance/manage-job";
 import CSManagerPage from "./pages/customerservice/cs-manager";
+import RestaurantDetailPage from "./pages/restaurant/restaurant-detail";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -107,7 +108,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                 </Route>
                 <Route path={"restaurant"}>
                     <Route index element={<RestaurantHomePage />} />
-                    {/* <Route path="*" element={<RestaurantDetailPage />} /> */}
+                    <Route path="*" element={<RestaurantDetailPage />} />
                 </Route>
                 <Route path={"ride"}>
                     <Route index element={<RideHomePage />} />

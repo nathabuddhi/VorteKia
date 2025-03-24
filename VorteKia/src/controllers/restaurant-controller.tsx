@@ -1,6 +1,7 @@
-import { ApiResponse, Restaurant } from "@/types";
+import { ApiResponse, Menu, Restaurant } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
 import { z } from "zod";
+import { getUserSession } from "./user-controller";
 
 export const getRestaurantById = async (restaurant_id: string) => {
     try {
@@ -84,4 +85,21 @@ export async function createRestaurantPromise(
     } catch (error) {
         return { success: false, data: null, message: String(error) };
     }
+}
+
+export async function orderMenuPromise(menu_id: string) {
+    return await invoke<ApiResponse<String>>("order_menu", {
+        payload: {
+            user_id: getUserSession()?.user_id,
+            menu_id: menu_id,
+        },
+    });
+}
+
+export async function getAllMenuByRestaurant(restaurant_id: string) {
+    return await invoke<ApiResponse<Menu[]>>("get_restaurant_menu", {
+        payload: {
+            id: restaurant_id,
+        },
+    });
 }

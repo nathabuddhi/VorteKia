@@ -1,4 +1,6 @@
 use entity::restaurant::{ActiveModel as RestaurantActiveModel, Entity as RestaurantEntities};
+use entity::division::{self, Entity as DivisionEntities};
+use entity::staff::Entity as StaffEntities;
 use entity::restaurant_waiter_allocation::{ActiveModel as RestaurantWaiterActiveModel, Entity as RestaurantWaiterEntities};
 use entity::restaurant_chef_allocation::{ActiveModel as RestaurantChefActiveModel, Entity as RestaurantChefEntities};
 use sea_orm::{QueryOrder, Set};
@@ -126,7 +128,7 @@ pub async fn get_all_restaurants(state: State<'_, AppState>) -> Result<ApiRespon
             }
         }
 
-        return Ok(ApiResponse::success(restaurant_returns, "Successfully fetched rides!".to_string()));
+        return Ok(ApiResponse::success(restaurant_returns, "Successfully fetched restaurants!".to_string()));
     }
 
     let restaurants = RestaurantEntities::find().all(&db).await.map_err(|err| format!("Database error: {}", err))?;
@@ -142,7 +144,7 @@ pub async fn get_all_restaurants(state: State<'_, AppState>) -> Result<ApiRespon
         }
 
     state.cache.set_cache(cache_key, &restaurant_returns, 60).await;
-    Ok(ApiResponse::success(restaurant_returns, "Successfully fetched rides!".to_string()))
+    Ok(ApiResponse::success(restaurant_returns, "Successfully fetched restaurants!".to_string()))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -186,4 +188,250 @@ pub async fn create_restaurant(
         },
         Err(e) => Ok(ApiResponse::error(None, format!("Error adding restaurant: {}", e))),
     }
+}
+
+#[command]
+pub async fn clear_restaurant_waiter_allocation(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RestaurantWaiterEntities::delete_many()
+        .filter(<RestaurantWaiterEntities as EntityTrait>::Column::RestaurantId.eq(&payload.id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully cleared waiter allocation".to_string())),
+        Err(err) => Ok(ApiResponse::error(Some(false), format!("Error clearing waiter allocation: {}", err))),
+    }
+}
+
+#[command]
+pub async fn clear_restaurant_chef_allocation(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RestaurantChefEntities::delete_many()
+        .filter(<RestaurantWaiterEntities as EntityTrait>::Column::RestaurantId.eq(&payload.id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully cleared chef allocation".to_string())),
+        Err(err) => Ok(ApiResponse::error(Some(false), format!("Error clearing chef allocation: {}", err))),
+    }
+}
+
+#[command]
+pub async fn allocate_restaurant_waiter(
+    state: State<'_, AppState>,
+    payload: AllocateStaffRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RestaurantWaiterEntities::delete_many()
+        .filter(<RestaurantWaiterEntities as EntityTrait>::Column::StaffId.eq(&payload.staff_id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => {}
+        Err(err) => return Ok(ApiResponse::error(Some(false), format!("Waiter already allocated. Failed deallocating: {}", err))),
+    }
+
+    let new_allocation = RestaurantWaiterActiveModel {
+        staff_id: Set(payload.staff_id.clone()),
+        restaurant_id: Set(Some(payload.loc_id.clone())),
+    };
+    
+    match new_allocation.insert(&db).await {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully allocated waiter!".to_string())),
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error allocating waiter: {}", e))),
+    }
+}
+
+#[command]
+pub async fn allocate_restaurant_chef(
+    state: State<'_, AppState>,
+    payload: AllocateStaffRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    match RestaurantChefEntities::delete_many()
+        .filter(<RestaurantChefEntities as EntityTrait>::Column::StaffId.eq(&payload.staff_id))
+        .exec(&db)
+        .await
+    {
+        Ok(_) => {}
+        Err(err) => return Ok(ApiResponse::error(Some(false), format!("Chef already allocated. Failed deallocating: {}", err))),
+    }
+
+    let new_allocation = RestaurantChefActiveModel {
+        staff_id: Set(payload.staff_id.clone()),
+        restaurant_id: Set(Some(payload.loc_id.clone())),
+    };
+    
+    match new_allocation.insert(&db).await {
+        Ok(_) => Ok(ApiResponse::success(true, "Successfully allocated chef!".to_string())),
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error allocating chef: {}", e))),
+    }
+}
+
+#[command]
+pub async fn get_allocated_restaurant_chef(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = RestaurantChefEntities::find()
+        .filter(<RestaurantChefEntities as EntityTrait>::Column::RestaurantId.eq(payload.id))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.staff_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
+}
+
+#[command]
+pub async fn get_allocated_restaurant_waiter(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = RestaurantWaiterEntities::find()
+        .filter(<RestaurantWaiterEntities as EntityTrait>::Column::RestaurantId.eq(payload.id))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.staff_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched staff!".to_string()))
+}
+
+#[command]
+pub async fn get_assigned_restaurant(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<RestaurantReturn>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let restaurant_chef = RestaurantChefEntities::find()
+        .filter(<RestaurantChefEntities as EntityTrait>::Column::StaffId.eq(&payload.id))
+        .one(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let restaurant_waiter = RestaurantWaiterEntities::find()
+        .filter(<RestaurantWaiterEntities as EntityTrait>::Column::StaffId.eq(&payload.id))
+        .one(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let restaurant_id = if let Some(restaurant_chef) = restaurant_chef {
+        restaurant_chef.restaurant_id
+    } else if let Some(restaurant_waiter) = restaurant_waiter {
+        restaurant_waiter.restaurant_id
+    } else {
+        return Ok(ApiResponse::error(None, "No restaurant assigned to this staff.".to_string()));
+    };
+
+    let restaurant = get_restaurant_by_id(state.clone(), SingleUidRequest { id: restaurant_id.unwrap() }).await;
+    let restaurant = match restaurant {
+        Ok(ApiResponse::Success { data, .. }) => data,
+        _ => return Ok(ApiResponse::error(None, "Failed to fetch restaurant details.".to_string())),
+    };
+
+    Ok(ApiResponse::success(restaurant, "Successfully fetched restaurant!".to_string()))
+}
+
+#[command]
+pub async fn get_all_chefs(
+    state: State<'_, AppState>,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = StaffEntities::find()
+        .find_also_related(division::Entity)
+        .filter(<DivisionEntities as EntityTrait>::Column::DivisionName.eq("consumption"))
+        .filter(<StaffEntities as EntityTrait>::Column::Role.eq("chef"))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.0.user_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched chefs!".to_string()))
+}
+
+#[command]
+pub async fn get_all_waiters(
+    state: State<'_, AppState>,
+) -> Result<ApiResponse<Vec<UserDetail>>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let staff_allocations = StaffEntities::find()
+        .find_also_related(division::Entity)
+        .filter(<DivisionEntities as EntityTrait>::Column::DivisionName.eq("consumption"))
+        .filter(<StaffEntities as EntityTrait>::Column::Role.eq("waiter"))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut staff_returns = Vec::new();
+
+    for staff in staff_allocations {
+        let staff_request: Result<ApiResponse<UserDetail>, _> = get_user_by_id(state.clone(), LoginUIDRequest { user_id: staff.0.user_id }).await;
+
+        let staff_object = match staff_request {
+            Ok(ApiResponse::Success { data, .. }) => data,
+            Ok(ApiResponse::Error { data: Some(value), .. }) => value,
+            _ => return Err("Failed to fetch user details.".to_string()),
+        };
+
+        staff_returns.push(staff_object);
+    }
+
+    Ok(ApiResponse::success(staff_returns, "Successfully fetched waiters!".to_string()))
 }

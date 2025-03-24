@@ -101,3 +101,10 @@ export interface Restaurant {
     income: number;
 }
 
+export interface Menu {
+    menu_id: string;
+    name: string;
+    description: string;
+    pictures: string[];
+    price: number;
+}
