@@ -113,3 +113,51 @@ export async function getCustomerOrders(restaurant_id: string) {
         },
     });
 }
+
+export async function getAssignedRestaurant() {
+    return await invoke<ApiResponse<Restaurant>>("get_assigned_restaurant", {
+        payload: {
+            id: getUserSession()?.user_id,
+        },
+    });
+}
+
+export async function getChefOrders(restaurant_id: string) {
+    return await invoke<ApiResponse<Order[]>>("get_orders_chef", {
+        payload: {
+            id: restaurant_id,
+        },
+    });
+}
+
+export async function getWaiterOrders(restaurant_id: string) {
+    return await invoke<ApiResponse<Order[]>>("get_orders_waiter", {
+        payload: {
+            id: restaurant_id,
+        },
+    });
+}
+
+export async function processOrder(order_id: string) {
+    return await invoke<ApiResponse<String>>("take_order", {
+        payload: {
+            id: order_id,
+        },
+    });
+}
+
+export async function cookOrder(order_id: string) {
+    return await invoke<ApiResponse<String>>("cook_order", {
+        payload: {
+            id: order_id,
+        },
+    });
+}
+
+export async function deliverOrder(order_id: string) {
+    return await invoke<ApiResponse<String>>("deliver_order", {
+        payload: {
+            id: order_id,
+        },
+    });
+}

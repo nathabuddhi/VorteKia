@@ -3,19 +3,17 @@ use entity::division::{self, Entity as DivisionEntities};
 use entity::staff::Entity as StaffEntities;
 use entity::restaurant_waiter_allocation::{ActiveModel as RestaurantWaiterActiveModel, Entity as RestaurantWaiterEntities};
 use entity::restaurant_chef_allocation::{ActiveModel as RestaurantChefActiveModel, Entity as RestaurantChefEntities};
-use sea_orm::{QueryOrder, Set};
-use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
+use sea_orm::{Set, EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
 use crate::controller::user_handler::UserDetail;
 use crate::{AppState, ApiResponse};
 use chrono::{Duration, Utc, NaiveTime};
 
-use super::income_handler::{get_income, update_income_data, UpdateIncomeRequest};
-use super::notification_handler::add_notification;
+use super::income_handler::get_income;
 use super::ride_handler::SingleUidRequest;
 use super::staff_handler::AllocateStaffRequest;
-use super::user_handler::{change_user_balance, get_user_by_id, ChangeUserBalanceRequest, LoginUIDRequest};
+use super::user_handler::{get_user_by_id, LoginUIDRequest};
 
 #[derive(Serialize, Deserialize)]
 pub struct RestaurantReturn {

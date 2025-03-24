@@ -1,9 +1,5 @@
-import MenuCard from "@/components/restaurant/menu-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    getAllMenuByRestaurant,
-    getCustomerOrders,
-} from "@/controllers/restaurant-controller";
+import { getCustomerOrders } from "@/controllers/restaurant-controller";
 import { Order, Restaurant } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
