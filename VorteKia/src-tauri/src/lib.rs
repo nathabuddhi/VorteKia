@@ -163,6 +163,13 @@ pub fn run() {
             controller::menu_handler::get_restaurant_menu,
             controller::menu_handler::create_menu,
             controller::menu_handler::edit_menu,
+            controller::order_handler::order_menu,
+            controller::order_handler::take_order,
+            controller::order_handler::cook_order,
+            controller::order_handler::deliver_order,
+            controller::order_handler::get_orders_customer,
+            controller::order_handler::get_orders_chef,
+            controller::order_handler::get_orders_waiter,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -97,6 +97,8 @@ export default function MenuCard({ menu }: { menu: Menu }) {
     );
 }
 
+
+
 // export function ManageMenuCard({ menu }: { menu: Menu }) {
 //     const navigate = useNavigate();
 

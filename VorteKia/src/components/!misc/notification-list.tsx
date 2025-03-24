@@ -37,7 +37,7 @@ export default function NotificationList() {
                     <ScrollArea className="max-h-96">
                         {notifications?.map((n) => {
                             return (
-                                <>
+                                <div key={n.notification_id}>
                                     <div className="flex gap-y-2 flex-col">
                                         <Label className=" font-bold">
                                             <i>
@@ -62,7 +62,7 @@ export default function NotificationList() {
                                         Delete Notification
                                     </Button>
                                     <Separator />
-                                </>
+                                </div>
                             );
                         })}
                         {notifications?.length === 0 && (

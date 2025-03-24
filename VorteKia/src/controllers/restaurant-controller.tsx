@@ -1,4 +1,4 @@
-import { ApiResponse, Menu, Restaurant } from "@/types";
+import { ApiResponse, Menu, Order, Restaurant } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
 import { z } from "zod";
 import { getUserSession } from "./user-controller";
@@ -92,6 +92,7 @@ export async function orderMenuPromise(menu_id: string) {
         payload: {
             user_id: getUserSession()?.user_id,
             menu_id: menu_id,
+            quantity: 1,
         },
     });
 }
@@ -100,6 +101,15 @@ export async function getAllMenuByRestaurant(restaurant_id: string) {
     return await invoke<ApiResponse<Menu[]>>("get_restaurant_menu", {
         payload: {
             id: restaurant_id,
+        },
+    });
+}
+
+export async function getCustomerOrders(restaurant_id: string) {
+    return await invoke<ApiResponse<Order[]>>("get_orders_customer", {
+        payload: {
+            user_id: getUserSession()?.user_id,
+            restaurant_id: restaurant_id,
         },
     });
 }

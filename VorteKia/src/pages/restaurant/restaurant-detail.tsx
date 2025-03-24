@@ -14,7 +14,8 @@ import { toast, Toaster } from "sonner";
 import { getUserRole } from "@/controllers/user-controller";
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
-import ViewAllMenu from "./view-all-menu";
+import ViewAllMenu from "../../components/restaurant/view-all-menu";
+import ViewOrderHistory from "@/components/restaurant/view-order-history";
 
 export default function RestaurantDetailPage() {
     const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -101,7 +102,11 @@ export default function RestaurantDetailPage() {
                     <TabsContent value="menu">
                         {restaurant && <ViewAllMenu restaurant={restaurant} />}
                     </TabsContent>
-                    <TabsContent value="history"></TabsContent>
+                    <TabsContent value="history">
+                        {restaurant && (
+                            <ViewOrderHistory restaurant={restaurant} />
+                        )}
+                    </TabsContent>
                 </Tabs>
             </NeonGradientCard>
         </div>

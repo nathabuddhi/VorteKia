@@ -108,3 +108,11 @@ export interface Menu {
     pictures: string[];
     price: number;
 }
+
+export interface Order {
+    order_id: string;
+    customer_id: string;
+    status: string;
+    menu_name: string;
+    quantity: number;
+}
