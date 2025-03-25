@@ -25,8 +25,8 @@ pub enum Relation {
         belongs_to = "super::restaurant::Entity",
         from = "Column::RestaurantId",
         to = "super::restaurant::Column::RestaurantId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Restaurant,
 }

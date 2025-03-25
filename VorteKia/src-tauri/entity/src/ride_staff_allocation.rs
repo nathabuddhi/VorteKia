@@ -17,8 +17,8 @@ pub enum Relation {
         belongs_to = "super::ride::Entity",
         from = "Column::RideId",
         to = "super::ride::Column::RideId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Ride,
     #[sea_orm(

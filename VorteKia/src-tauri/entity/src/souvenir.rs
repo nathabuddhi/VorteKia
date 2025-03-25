@@ -23,8 +23,8 @@ pub enum Relation {
         belongs_to = "super::store::Entity",
         from = "Column::StoreId",
         to = "super::store::Column::StoreId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Store,
     #[sea_orm(has_many = "super::transaction_detail::Entity")]

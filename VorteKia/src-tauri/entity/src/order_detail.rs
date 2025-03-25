@@ -18,16 +18,16 @@ pub enum Relation {
         belongs_to = "super::menu::Entity",
         from = "Column::MenuId",
         to = "super::menu::Column::MenuId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Menu,
     #[sea_orm(
         belongs_to = "super::order::Entity",
         from = "Column::OrderId",
         to = "super::order::Column::OrderId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Order,
 }

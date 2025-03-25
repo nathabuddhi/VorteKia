@@ -17,8 +17,8 @@ pub enum Relation {
         belongs_to = "super::maintenance_job::Entity",
         from = "Column::JobId",
         to = "super::maintenance_job::Column::JobId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     MaintenanceJob,
     #[sea_orm(

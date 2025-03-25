@@ -18,16 +18,16 @@ pub enum Relation {
         belongs_to = "super::souvenir::Entity",
         from = "Column::SouvenirId",
         to = "super::souvenir::Column::SouvenirId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Souvenir,
     #[sea_orm(
         belongs_to = "super::transaction::Entity",
         from = "Column::TransactionId",
         to = "super::transaction::Column::TransactionId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
     Transaction,
 }
