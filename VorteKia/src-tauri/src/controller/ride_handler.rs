@@ -2,7 +2,7 @@ use entity::ride::{ActiveModel as RideActiveModel, Entity as RideEntities};
 use entity::maintenance_job::Entity as MaintenanceEntities;
 use entity::ride_staff_allocation::{ActiveModel as RideStaffActiveModel, Entity as RideStaffEntities};
 use entity::queue::{ActiveModel as QueueActiveModel, Entity as QueueEntities};
-use sea_orm::{QueryOrder, Set};
+use sea_orm::{IntoActiveModel, QueryOrder, Set};
 use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
@@ -37,18 +37,23 @@ pub struct RideReturn {
     pub income: f32,
 }
 
-async fn get_ride_queue(ride_id: &str, db: &sea_orm::DatabaseConnection) -> Result<Option<Vec<String>>, String> {
+async fn get_ride_queue(
+    ride_id: &str,
+    state: State<'_, AppState>,
+) -> Result<Option<Vec<String>>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
     match QueueEntities::find()
         .filter(<QueueEntities as EntityTrait>::Column::RideId.eq(ride_id))
         .order_by_asc(<QueueEntities as EntityTrait>::Column::Time)
-        .all(db)
+        .all(&db)
         .await
     {
         Ok(queues) => {
             if queues.is_empty() {
                 Ok(None)
             } else {
-                Ok(Some(queues.into_iter().map(|queue| queue.customer_id).collect()))
+                Ok(Some(queues.iter().map(|queue| queue.customer_id.clone()).collect()))
             }
         }
         Err(err) => Err(format!("Database error: {}", err)),
@@ -100,7 +105,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
             let opening_time = NaiveTime::parse_from_str(&ride.opening, "%H:%M:%S").unwrap_or_else(|_| NaiveTime::from_hms_opt(0, 0, 0).unwrap());
             let closing_time = NaiveTime::parse_from_str(&ride.closing, "%H:%M:%S").unwrap_or_else(|_| NaiveTime::from_hms_opt(23, 59, 59).unwrap());
             let ride_status = get_ride_status(ride.ride_id.clone(), opening_time, closing_time, &db).await.unwrap_or_else(|_| "Unknown".to_string());
-            let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+            let ride_queue = get_ride_queue(&ride.ride_id, state.clone()).await.unwrap_or(None);
             let ride_income = get_income(state.clone(), SingleUidRequest { id: ride.ride_id.clone() }).await.unwrap();
             let ride_income = match ride_income {
                 ApiResponse::Success { data, .. } => data,
@@ -132,7 +137,7 @@ pub async fn get_all_rides(state: State<'_, AppState>) -> Result<ApiResponse<Vec
 
     for ride in rides {
         let ride_status = get_ride_status(ride.ride_id.clone(), ride.opening.clone(), ride.closing.clone(), &db).await.unwrap_or_else(|_| "Unknown".to_string());
-        let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+        let ride_queue = get_ride_queue(&ride.ride_id, state.clone()).await.unwrap_or(None);
         let ride_income = get_income(state.clone(), SingleUidRequest { id: ride.ride_id.clone() }).await.unwrap();
         let ride_income = match ride_income {
             ApiResponse::Success { data, .. } => data,
@@ -177,7 +182,7 @@ pub async fn get_ride_by_id(
     };
 
     let ride_status = get_ride_status(ride.ride_id.clone(), ride.opening.clone(), ride.closing.clone(), &db).await.unwrap_or_else(|_| "Unknown".to_string());
-    let ride_queue = get_ride_queue(&ride.ride_id, &db).await.unwrap_or(None);
+    let ride_queue = get_ride_queue(&ride.ride_id, state.clone()).await.unwrap_or(None);
     let ride_income = get_income(state.clone(), SingleUidRequest { id: ride.ride_id.clone() }).await.unwrap();
     let ride_income = match ride_income {
         ApiResponse::Success { data, .. } => data,
@@ -562,4 +567,49 @@ pub async fn delete_ride(
         },
         Err(e) => Ok(ApiResponse::error(Some(false), format!("Error deleting ride: {}", e))),
     }
+}
+
+#[derive(Deserialize)]
+pub struct SwapQueueRequest {
+    pub user_id_1: String,
+    pub user_id_2: String,
+    pub ride_id: String,
+}
+
+#[command]
+pub async fn swap_ride_queue(
+    state: State<'_, AppState>,
+    payload: SwapQueueRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let user1_queue = QueueEntities::find()
+        .filter(<QueueEntities as EntityTrait>::Column::CustomerId.eq(&payload.user_id_1))
+        .filter(<QueueEntities as EntityTrait>::Column::RideId.eq(&payload.ride_id))
+        .one(&db)
+        .await
+        .map_err(|e| e.to_string())?.unwrap();
+
+    let user2_queue = QueueEntities::find()
+        .filter(<QueueEntities as EntityTrait>::Column::CustomerId.eq(&payload.user_id_2))
+        .filter(<QueueEntities as EntityTrait>::Column::RideId.eq(&payload.ride_id))
+        .one(&db)
+        .await
+        .map_err(|e| e.to_string())?.unwrap();
+
+    let user1_timestamp = user1_queue.time;
+    let user2_timestamp = user2_queue.time;
+
+    let mut user1 = user1_queue.into_active_model();
+    let mut user2 = user2_queue.into_active_model();
+
+    user1.time = Set(user2_timestamp);
+    user2.time = Set(user1_timestamp);
+
+    user1.update(&db).await.map_err(|e| e.to_string())?;
+    user2.update(&db).await.map_err(|e| e.to_string())?;
+
+    state.cache.delete_cache("get_all_rides").await;
+
+    Ok(ApiResponse::success(true, "Successfully swapped positions.".to_string()))
 }

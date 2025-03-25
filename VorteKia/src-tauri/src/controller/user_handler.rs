@@ -11,6 +11,7 @@ use sea_orm::ActiveValue::Set;
 use bcrypt::{hash, verify};
 use super::chat_handler::add_user_to_room;
 use super::notification_handler::add_notification;
+use super::ride_handler::SingleUidRequest;
 use rand::Rng;
 
 fn hash_password(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
@@ -445,3 +446,26 @@ pub async fn change_user_balance(
         }
 }
 
+#[command]
+pub async fn get_username(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest
+) -> Result<String, String> {
+    let db = state.get_db().await.map_err(|e| e)?;
+
+    match UserEntities::find()
+        .filter(<UserEntities as EntityTrait>::Column::UserId.eq(payload.id))
+        .one(&db)
+        .await
+    {
+        Ok(Some(user)) => {
+            Ok(user.name)
+        }
+        Ok(None) => {
+            Ok("Username not found".to_string())
+        }
+        Err(err) => {
+            Err(format!("Database error: {}", err))
+        }
+    }
+}

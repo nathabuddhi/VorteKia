@@ -287,3 +287,17 @@ export async function deleteRidePromise(
         return { success: false, data: null, message: String(error) };
     }
 }
+
+export async function swapQueuePositions(
+    user1: string,
+    user2: string,
+    ride_id: string
+): Promise<ApiResponse<Boolean>> {
+    return await invoke<ApiResponse<Boolean>>("swap_ride_queue", {
+        payload: {
+            user_id_1: user1,
+            user_id_2: user2,
+            ride_id: ride_id,
+        },
+    });
+}

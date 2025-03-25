@@ -35,6 +35,7 @@ import {
     enqueueCustomerPromise,
     forceDequeuePromise,
     processNextCustomerPromise,
+    swapQueuePositions,
 } from "@/controllers/ride-controller";
 import { UIDLoginFormSchema } from "@/controllers/user-controller";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,6 +46,7 @@ import { Separator } from "@/components/ui/separator";
 export default function RideStaffPage() {
     const [ride, setRide] = useState<Ride | null>(null);
     const [refresh, setRefresh] = useState(false);
+    const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
 
     const forceRefresh = () => setRefresh((prev) => !prev);
 
@@ -58,6 +60,54 @@ export default function RideStaffPage() {
     useEffect(() => {
         fetchAssignedRide();
     }, [ride]);
+
+    const handleSwapClick = async () => {
+        if (selectedCustomers.length === 2 && ride && ride.ride_id) {
+            const [custId1, custId2] = selectedCustomers;
+            try {
+                console.log("Swapping: ", custId1, custId2);
+                const response = swapQueuePositions(
+                    custId1,
+                    custId2,
+                    ride?.ride_id
+                );
+                console.log("Swap Response: ", response);
+                toast.promise(response, {
+                    loading: "Swapping Customers...",
+                    success: async () => {
+                        if ((await response).success) {
+                            return "Successfully swapped customers!";
+                        } else {
+                            throw new Error(String((await response).message));
+                        }
+                    },
+                    error:
+                        "Failed to swap customers: " + (await response).message,
+                });
+                if ((await response).success) {
+                    setSelectedCustomers([]);
+                    fetchAssignedRide();
+                }
+            } catch (err) {
+                console.log(err);
+                throw new Error(String(err));
+            }
+        } else {
+            toast.error("Please select exactly 2 customers to swap positions.");
+        }
+    };
+
+    const handleCustomerClick = (cust_id: string) => {
+        setSelectedCustomers((prevSelected) => {
+            if (prevSelected.includes(cust_id)) {
+                return prevSelected.filter((id) => id !== cust_id);
+            }
+            if (prevSelected.length < 2) {
+                return [...prevSelected, cust_id];
+            }
+            return prevSelected;
+        });
+    };
 
     async function enqueueCustomer(data: z.infer<typeof UIDLoginFormSchema>) {
         try {
@@ -279,29 +329,59 @@ export default function RideStaffPage() {
                                 <ScrollArea>
                                     {ride.queue_list &&
                                         ride.queue_list.map((cust_id) => {
+                                            const isSelected =
+                                                selectedCustomers.includes(
+                                                    cust_id
+                                                );
                                             return (
-                                                <>
-                                                    <div className="flex items-center justify-between p-3">
+                                                <div
+                                                    key={cust_id}
+                                                    className="flex flex-col items-center justify-between p-3">
+                                                    <div className="flex flex-col gap-y-2 w-full">
                                                         <Label>
-                                                            Customer ID:{" "}
+                                                            Customer ID:
                                                             {cust_id}
                                                         </Label>
-                                                        <Button
-                                                            variant={
-                                                                "destructive"
-                                                            }
-                                                            onClick={() => {
-                                                                dequeueCustomer(
-                                                                    cust_id
-                                                                );
-                                                            }}>
-                                                            Remove
-                                                        </Button>
+                                                        <div className="flex items-center gap-x-3">
+                                                            <Button
+                                                                variant="destructive"
+                                                                onClick={() =>
+                                                                    dequeueCustomer(
+                                                                        cust_id
+                                                                    )
+                                                                }>
+                                                                Remove
+                                                            </Button>
+                                                            <Button
+                                                                variant={
+                                                                    isSelected
+                                                                        ? "default"
+                                                                        : "secondary"
+                                                                }
+                                                                onClick={() =>
+                                                                    handleCustomerClick(
+                                                                        cust_id
+                                                                    )
+                                                                }>
+                                                                {isSelected
+                                                                    ? "Deselect"
+                                                                    : "Select"}
+                                                            </Button>
+                                                        </div>
+                                                        <Separator />
                                                     </div>
-                                                    <Separator />
-                                                </>
+                                                </div>
                                             );
                                         })}
+
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleSwapClick}
+                                        disabled={
+                                            selectedCustomers.length !== 2
+                                        }>
+                                        Swap Selected Customers
+                                    </Button>
                                 </ScrollArea>
                             </DialogContent>
                         </Dialog>

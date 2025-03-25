@@ -126,3 +126,13 @@ export async function refreshUserSession(): Promise<void> {
         localStorage.setItem("user", JSON.stringify(user.data));
     }
 }
+
+export async function getCustName(user_id: string) {
+    const response = await invoke<ApiResponse<string>>("get_username", {
+        payload: {
+            id: user_id,
+        },
+    });
+
+    return response.data;
+}
