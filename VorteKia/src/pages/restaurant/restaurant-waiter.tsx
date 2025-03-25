@@ -3,7 +3,6 @@ import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     getAssignedRestaurant,
-    getChefOrders,
     getWaiterOrders,
 } from "@/controllers/restaurant-controller";
 import { StaffOrderCard } from "@/components/restaurant/order-card";
@@ -68,6 +67,7 @@ export default function RestaurantWaiterPage() {
 
                     <div className="my-4 flex flex-col gap-y-2">
                         <Label>Operational Status: {restaurant.status}</Label>
+                        <Label>{restaurant.cuisine} Cuisine</Label>
                     </div>
 
                     <ScrollArea className="w-full max-h-96 p-2 pr-4 relative">
