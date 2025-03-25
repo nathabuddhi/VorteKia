@@ -99,6 +99,8 @@ export interface Restaurant {
     status: string;
     cuisine: string;
     income: number;
+    opening: string;
+    closing: string;
 }
 
 export interface Menu {
@@ -116,3 +118,4 @@ export interface Order {
     menu_name: string;
     quantity: number;
 }
+

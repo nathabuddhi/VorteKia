@@ -277,3 +277,44 @@ pub async fn get_orders_customer(
 
     Ok(ApiResponse::success(orders_return, "Orders fetched successfully!".to_string()))
 }
+
+#[command]
+pub async fn get_orders_restaurant(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest
+) -> Result<ApiResponse<Vec<OrderReturn>>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let orders = OrderEntities::find()
+        .filter(<OrderEntities as EntityTrait>::Column::RestaurantId.eq(payload.id))
+        .all(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut orders_return = Vec::new();
+
+    for o in orders {
+        let details = DetailEntities::find()
+            .filter(<DetailEntities as EntityTrait>::Column::OrderId.eq(o.order_id.clone()))
+            .one(&db)
+            .await
+            .map_err(|e| e.to_string())?.unwrap();
+        let menu_name = MenuEntities::find()
+            .filter(<MenuEntities as EntityTrait>::Column::MenuId.eq(details.menu_id.clone()))
+            .one(&db)
+            .await
+            .map_err(|e| e.to_string())?.unwrap().name;
+
+        let order = OrderReturn {
+            order_id: o.order_id.clone(),
+            customer_id: o.customer_id.clone(),
+            status: o.status.clone(),
+            menu_name: menu_name.clone(),
+            quantity: details.quantity.clone(),
+        };
+
+        orders_return.push(order);
+    }
+
+    Ok(ApiResponse::success(orders_return, "Orders fetched successfully!".to_string()))
+}

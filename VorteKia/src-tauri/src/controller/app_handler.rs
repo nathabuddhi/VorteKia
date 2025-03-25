@@ -22,10 +22,10 @@ pub async fn get_curr_app(
 
                 return Ok(ApiResponse::success(part1.to_string() + "/" + &part2.to_string(), "Success".to_string()));
             }
-            Ok(ApiResponse::success("".to_string(), "CURR_APP INVALID!".to_string()))
+            Ok(ApiResponse::error(None, "CURR_APP INVALID!".to_string()))
         },
         None => {
-            Ok(ApiResponse::success("".to_string(), "CURR_APP not set.".to_string()))
+            Ok(ApiResponse::error(None, "CURR_APP not set.".to_string()))
         }
     }
 }

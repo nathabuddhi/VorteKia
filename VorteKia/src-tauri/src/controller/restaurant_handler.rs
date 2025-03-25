@@ -24,6 +24,8 @@ pub struct RestaurantReturn {
     pub pictures: Vec<String>,
     pub status: String,
     pub income: f32,
+    pub opening: String,
+    pub closing: String,
 }
 
 async fn check_restaurant_staffed(
@@ -37,16 +39,16 @@ async fn check_restaurant_staffed(
         .all(&db)
         .await
         .map(|restaurant_waiter_allocations| !restaurant_waiter_allocations.is_empty())
-        .map_err(|err| format!("Database error: {}", err));
+        .map_err(|err| format!("Database error: {}", err)).unwrap();
 
     let chefs = RestaurantChefEntities::find()
         .filter(<RestaurantChefEntities as EntityTrait>::Column::RestaurantId.eq(restaurant_id))
         .all(&db)
         .await
         .map(|restaurant_chef_allocations| !restaurant_chef_allocations.is_empty())
-        .map_err(|err| format!("Database error: {}", err));
+        .map_err(|err| format!("Database error: {}", err)).unwrap();
 
-    if waiters.unwrap() && chefs.unwrap() {
+    if waiters && chefs {
         Ok(true)
     } else {
         Ok(false)
@@ -60,12 +62,12 @@ async fn get_restaurant_status(
     match check_restaurant_staffed(state.clone(), restaurant_id.clone()).await {
         Ok(true) => Ok(
             if Utc::now().naive_utc().time() + Duration::hours(7) >= opening && Utc::now().naive_utc().time() + Duration::hours(7) <= closing {
-                "Operational.".to_string()
+                "Open.".to_string()
             } else {
                 "Closed.".to_string()
             }
         ),
-        Ok(false) => Ok("Non Operational.".to_string()),
+        Ok(false) => Ok("Closed.".to_string()),
         Err(err) => Err(err),
     }
 }
@@ -104,6 +106,8 @@ pub async fn get_restaurant_by_id(
         pictures: restaurant.pictures.unwrap_or_default(),
         status: restaurant_status,
         income: restaurant_income,
+        opening: restaurant.opening.to_string(),
+        closing: restaurant.closing.to_string(),
     };
 
     Ok(ApiResponse::success(restaurant_return, "Successfully fetched restaurant!".to_string()))
@@ -432,4 +436,86 @@ pub async fn get_all_waiters(
     }
 
     Ok(ApiResponse::success(staff_returns, "Successfully fetched waiters!".to_string()))
+}
+
+#[derive(Deserialize)]
+pub struct EditRestaurantRequest {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub cuisine: String,
+    pub pictures: Vec<String>,
+    pub opening: String,
+    pub closing: String,
+}
+
+#[command]
+pub async fn edit_restaurant(
+    state: State<'_, AppState>,
+    payload: EditRestaurantRequest,
+) -> Result<ApiResponse<String>, String> {
+    let db = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let opening_time = NaiveTime::parse_from_str(&payload.opening, "%H:%M:%S")
+        .map_err(|e| format!("Invalid opening time: {}", e))?;
+
+    let closing_time = NaiveTime::parse_from_str(&payload.closing, "%H:%M:%S")
+        .map_err(|e| format!("Invalid closing time: {}", e))?;
+
+    let existing_restaurant = RestaurantEntities::find()
+    .filter(<RestaurantEntities as EntityTrait>::Column::RestaurantId.eq(payload.id))
+    .one(&db)
+    .await.map_err(|err| format!("Database error: {}", err))?;
+
+    let found_restaurant = match existing_restaurant {
+        Some(restaurant) => restaurant,
+        None => return Ok(ApiResponse::error(None, "Restaurant not found.".to_string())),
+    };
+
+    let old_pictures = found_restaurant.pictures.clone();
+
+    let updated_restaurant = RestaurantActiveModel {
+        restaurant_id: Set(found_restaurant.restaurant_id.clone()),
+        name: Set(payload.name),
+        description: Set(payload.description),
+        opening: Set(opening_time),
+        closing: Set(closing_time),
+        pictures: Set(old_pictures),
+        cuisine: Set(payload.cuisine),
+    };
+
+    match updated_restaurant.update(&db).await {
+        Ok(_) => {
+            state.cache.delete_cache("get_all_restaurants").await;
+            Ok(ApiResponse::success(found_restaurant.restaurant_id, "Successfully updated restaurant!".to_string()))
+        },
+        Err(e) => Ok(ApiResponse::error(None, format!("Error updating restaurant: {}", e))),
+    }
+}
+
+#[command]
+pub async fn delete_restaurant(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest,
+) -> Result<ApiResponse<bool>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let restaurant = RestaurantEntities::find()
+        .filter(<RestaurantEntities as EntityTrait>::Column::RestaurantId.eq(payload.id))
+        .one(&db)
+        .await
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    let restaurant = match restaurant {
+        Some(restaurant) => restaurant,
+        None => return Ok(ApiResponse::error(Some(false), "Restaurant not found.".to_string())),
+    };
+
+    match restaurant.delete(&db).await {
+        Ok(_) => {
+            state.cache.delete_cache("get_all_restaurants").await;
+            Ok(ApiResponse::success(true, "Successfully deleted restaurant!".to_string()))
+        },
+        Err(e) => Ok(ApiResponse::error(Some(false), format!("Error deleting restaurant: {}", e))),
+    }
 }

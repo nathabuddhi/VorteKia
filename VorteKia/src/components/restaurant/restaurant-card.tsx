@@ -100,7 +100,7 @@ export function ManageRestaurantCard({
     const navigate = useNavigate();
 
     return (
-        <Card className="max-w-[29rem] relative">
+        <Card className="w-[29rem] relative">
             <ShineBorder
                 shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
                 className="max-w-[29rem]"
@@ -116,13 +116,13 @@ export function ManageRestaurantCard({
             <CardContent className="pb-2 flex flex-col gap-y-2">
                 <Label
                     className={`${
-                        restaurant.status !== "Operational."
+                        restaurant.status !== "Open."
                             ? "text-red-500"
                             : "text-green-500"
                     }`}>
                     Restaurant Status: {restaurant.status}
                 </Label>
-                <Label>Restaurant Income: {restaurant.income}</Label>
+                <Label>Restaurant Income: ${restaurant.income}</Label>
             </CardContent>
             <CardFooter>
                 <InteractiveHoverButton

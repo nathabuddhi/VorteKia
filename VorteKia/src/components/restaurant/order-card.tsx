@@ -42,6 +42,9 @@ export function OrderCard({ order }: { order: Order }) {
                         Menu: {order.menu_name}
                     </Label>
                     <Label className="">Quantity: {order.quantity}</Label>
+                    <Label className="text-xs">
+                        Cst. {order.customer_id}
+                    </Label>
                 </CardContent>
             </MagicCard>
         </Card>

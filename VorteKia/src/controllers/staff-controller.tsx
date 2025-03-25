@@ -34,3 +34,30 @@ export async function getAssignedRideStaffByRide(rideId: string) {
         },
     });
 }
+
+export async function getAllChef() {
+    return await invoke<ApiResponse<User[]>>("get_all_chefs");
+}
+
+export async function getAllWaiters() {
+    return await invoke<ApiResponse<User[]>>("get_all_waiters");
+}
+
+export async function getAssignedChefs(restaurantId: string) {
+    return await invoke<ApiResponse<User[]>>("get_allocated_restaurant_chef", {
+        payload: {
+            id: restaurantId,
+        },
+    });
+}
+
+export async function getAssignedWaiters(restaurantId: string) {
+    return await invoke<ApiResponse<User[]>>(
+        "get_allocated_restaurant_waiter",
+        {
+            payload: {
+                id: restaurantId,
+            },
+        }
+    );
+}

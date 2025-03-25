@@ -29,6 +29,7 @@ import OfficialAccountPage from "./pages/official-account";
 import ManageJobPage from "./pages/maintenance/manage-job";
 import CSManagerPage from "./pages/customerservice/cs-manager";
 import RestaurantDetailPage from "./pages/restaurant/restaurant-detail";
+import ManageRestaurantPage from "./pages/restaurant/manage-restaurant";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -68,6 +69,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                         <Route
                             path="supervisor"
                             element={<RestaurantSupervisorPage />}
+                        />
+                        <Route
+                            path="manage-restaurant/*"
+                            element={<ManageRestaurantPage />}
+                        />
+                        <Route
+                            path="manage-menu/*"
+                            // element={<ManageMenuPage />}
                         />
                     </Route>
                     <Route path="ceo" element={<CEOPage />} />

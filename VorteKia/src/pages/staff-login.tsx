@@ -61,7 +61,7 @@ export default function StaffLogin() {
                                 response.data
                             );
                             navigate(redirectPath);
-                        }, 1000);
+                        }, 100);
                         return "Successfully logged in!";
                     } else {
                         throw new Error(

@@ -161,3 +161,103 @@ export async function deliverOrder(order_id: string) {
         },
     });
 }
+
+export async function getAllRestaurantOrders(restaurant_id: string) {
+    return await invoke<ApiResponse<Order[]>>("get_orders_restaurant", {
+        payload: {
+            id: restaurant_id,
+        },
+    });
+}
+
+export async function clearWaiterAllocation(restaurant_id: string) {
+    try {
+        return await invoke<ApiResponse<string>>(
+            "clear_restaurant_waiter_allocation",
+            {
+                payload: {
+                    id: restaurant_id,
+                },
+            }
+        );
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}
+
+export async function clearChefAllocation(restaurant_id: string) {
+    try {
+        return await invoke<ApiResponse<string>>(
+            "clear_restaurant_chef_allocation",
+            {
+                payload: {
+                    id: restaurant_id,
+                },
+            }
+        );
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}
+
+export async function allocateChefPromise(
+    restaurant_id: string,
+    staff_id: string
+) {
+    try {
+        return await invoke<ApiResponse<string>>("allocate_restaurant_chef", {
+            payload: {
+                staff_id: staff_id,
+                loc_id: restaurant_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}
+
+export async function allocateWaiterPromise(
+    restaurant_id: string,
+    staff_id: string
+) {
+    try {
+        return await invoke<ApiResponse<string>>("allocate_restaurant_waiter", {
+            payload: {
+                staff_id: staff_id,
+                loc_id: restaurant_id,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: error };
+    }
+}
+
+export async function editRestaurantPromise(
+    data: z.infer<typeof UpdateRestaurantSchema>
+): Promise<ApiResponse<String>> {
+    try {
+        return await invoke<ApiResponse<String>>("edit_restaurant", {
+            payload: {
+                id: data.id,
+                name: data.name,
+                description: data.description,
+                opening: data.opening,
+                closing: data.closing,
+                pictures: [""],
+                cuisine: data.cuisine,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: String(error) };
+    }
+}
+
+export async function deleteRestaurantPromise(
+    id: string
+): Promise<ApiResponse<boolean>> {
+    return await invoke<ApiResponse<boolean>>("delete_restaurant", {
+        payload: {
+            id: id,
+        },
+    });
+}

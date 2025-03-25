@@ -68,6 +68,8 @@ impl<T: Serialize> ApiResponse<T> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    std::env::set_var("RUST_BACKTRACE", "1");
+
     tauri::Builder::default()
         .setup(|app| {
             dotenv().ok();
@@ -160,6 +162,8 @@ pub fn run() {
             controller::restaurant_handler::get_assigned_restaurant,
             controller::restaurant_handler::get_all_waiters,
             controller::restaurant_handler::get_all_chefs,
+            controller::restaurant_handler::edit_restaurant,
+            controller::restaurant_handler::delete_restaurant,
             controller::menu_handler::get_restaurant_menu,
             controller::menu_handler::create_menu,
             controller::menu_handler::edit_menu,
@@ -170,6 +174,7 @@ pub fn run() {
             controller::order_handler::get_orders_customer,
             controller::order_handler::get_orders_chef,
             controller::order_handler::get_orders_waiter,
+            controller::order_handler::get_orders_restaurant,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
