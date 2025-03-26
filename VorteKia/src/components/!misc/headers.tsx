@@ -25,7 +25,6 @@ import CreateProposal from "../generalstaff/create-proposal";
 import CreateJob from "../maintenance/create-job";
 import CreateItemDialog from "../customerservice/create-item";
 import DeleteRideDialog from "../executive/delete-ride";
-import DeleteStoreDialog from "../executive/delete-store";
 
 export function getCurrentApp() {
     const location = useLocation();
