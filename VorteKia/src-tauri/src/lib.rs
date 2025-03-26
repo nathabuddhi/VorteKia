@@ -194,7 +194,8 @@ pub fn run() {
             controller::souvenir_handler::get_store_souvenir,
             controller::souvenir_handler::edit_souvenir,
             controller::souvenir_handler::delete_souvenir,
-
+            controller::income_handler::get_cfo_income,
+            controller::income_handler::get_store_income_day,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -14,7 +14,16 @@ export default function COOPage() {
                     </Label>
                 </div>
             )}
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
             <RideManagerPage />
+            <br />
+            <br />
+            <br />
             <MaintenanceManagerPage />
         </div>
     );

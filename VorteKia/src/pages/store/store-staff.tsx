@@ -7,21 +7,42 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
-import { Store } from "@/types";
+import { ApiResponse, Income, Store } from "@/types";
 import { getAssignedStore } from "@/controllers/store-controller";
 import { Toaster } from "sonner";
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import ViewAllSouvenir from "@/components/store/view-all-souvenir";
 import { ViewAllTransactions } from "@/components/store/view-transaction-history";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function StoreStaffPage() {
     const [store, setStore] = useState<Store | null>(null);
+    const [dailyIncome, setDailyIncome] = useState(0);
+
+    async function fetchDailyIncome() {
+        const response = await invoke<ApiResponse<Income>>(
+            "get_store_income_day",
+            {
+                payload: {
+                    id: store?.id,
+                },
+            }
+        );
+
+        if (response) {
+            if (response?.data) {
+                setDailyIncome(response.data.marketing);
+            }
+        }
+    }
 
     const fetchAssignedStore = async () => {
         const response = await getAssignedStore();
         if (response.success) {
             setStore(response.data);
+
+            fetchDailyIncome();
         }
     };
 
@@ -31,7 +52,7 @@ export default function StoreStaffPage() {
 
     return (
         <div className="flex items-center justify-center text-center h-[calc(100vh-3.5rem)] w-screen">
-            <NeonGradientCard className="w-[calc(100vh-10rem)] h-[calc(100vh-13rem)] ">
+            <NeonGradientCard className="w-[calc(100vh-10rem)] h-[calc(100vh-17rem)] ">
                 <Tabs defaultValue="information">
                     <TabsList className={"grid w-full grid-cols-3"}>
                         <TabsTrigger value="information">
@@ -58,7 +79,9 @@ export default function StoreStaffPage() {
                                 <Label>
                                     Operational Status: {store?.status}
                                 </Label>
-                                <Label>Store Income: ${store?.income}</Label>
+                                <Label>
+                                    Daily Store Income: ${dailyIncome}
+                                </Label>
                             </div>
 
                             <Carousel

@@ -27,6 +27,7 @@ import CreateItemDialog from "../customerservice/create-item";
 import DeleteRideDialog from "../executive/delete-ride";
 import CreateRestaurantDialog from "../restaurant/create-restaurant";
 import CreateRideDialog from "../ride/create-ride";
+import DeleteStoreDialog from "../executive/delete-store";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -382,12 +383,9 @@ export function ExecutiveHeader() {
             <HelloLabel />
             <nav className="ml-auto flex gap-3">
                 <ViewProposals />
-                {(role === "coo" || role === "ceo") && <CreateRideDialog />}
-                {(role === "cfo" || role === "ceo") && (
-                    <CreateRestaurantDialog />
-                )}
+                {role === "ceo" && <DeleteStoreDialog />}
                 {(role === "coo" || role === "ceo") && <DeleteRideDialog />}
-                {/* {(role === "coo" || role === "ceo") && <DeleteRestaurantDialog />} */}
+                {(role === "coo" || role === "ceo") && <DeleteStoreDialog />}
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
                     onClick={() => {

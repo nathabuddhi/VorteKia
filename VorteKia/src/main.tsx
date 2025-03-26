@@ -14,7 +14,7 @@ import RestaurantWaiterPage from "./pages/restaurant/restaurant-waiter";
 import RestaurantSupervisorPage from "./pages/restaurant/restaurant-supervisor";
 import StoreHomePage from "./pages/store/store-home";
 import StoreStaffPage from "./pages/store/store-staff";
-import StoreManagerPage from "./pages/store/store.manager";
+import StoreManagerPage from "./pages/store/store-manager";
 import COOPage from "./pages/executive/coo";
 import CEOPage from "./pages/executive/ceo";
 import CFOPage from "./pages/executive/cfo";

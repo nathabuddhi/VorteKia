@@ -1,62 +1,66 @@
-import { deleteRidePromise, getRides } from "@/controllers/ride-controller";
-import { Ride } from "@/types";
+import {
+    deleteStorePromise,
+    getAllStores,
+} from "@/controllers/store-controller";
+import { Store } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import CreateRestaurantDialog from "../restaurant/create-restaurant";
+import CreateStoreDialog from "../store/create-store";
 
-export default function DeleteRideDialog() {
-    const [rides, setRides] = useState<Ride[] | null>(null);
+export default function DeleteStoreDialog() {
+    const [stores, setStores] = useState<Store[] | null>(null);
 
-    const fetchRides = async () => {
-        const response = await getRides();
+    const fetchStores = async () => {
+        const response = await getAllStores();
 
         if (response.success) {
-            setRides(response.data);
+            setStores(response.data);
         } else {
-            toast.error("Failed fetching rides!", {
+            toast.error("Failed fetching stores!", {
                 description: "An error occurred: " + response.message,
             });
         }
     };
 
     useEffect(() => {
-        fetchRides();
+        fetchStores();
     }, []);
 
-    async function deleteRide(ride_id: string) {
-        const response = deleteRidePromise(ride_id);
+    async function deleteStore(store_id: string) {
+        const response = deleteStorePromise(store_id);
         toast.promise(response, {
-            loading: "Deleting ride...",
+            loading: "Deleting store...",
             success: async () => {
                 if ((await response).success) {
-                    fetchRides();
-                    return "Successfully deleted ride.";
+                    fetchStores();
+                    return "Successfully deleted store.";
                 } else
                     throw new Error(
                         (await response).message || "Unknown error."
                     );
             },
-            error: (error) => `Failed deleting ride: ${error.message || error}`,
+            error: (error) =>
+                `Failed deleting store: ${error.message || error}`,
         });
     }
 
     return (
         <Dialog>
             <DialogTrigger>
-                <Button variant={"ghost"}>Manage Rides</Button>
+                <Button variant={"ghost"}>Manage Stores</Button>
             </DialogTrigger>
             <DialogContent>
-                <CreateRestaurantDialog />
+                <CreateStoreDialog />
                 <ScrollArea className="flex flex-row max-h-96">
-                    {rides?.map((r) => (
+                    {stores?.map((r) => (
                         <div className="flex flex-col py-2 justify-between">
-                            {r.ride_name}
+                            {r.name}
                             <Button
                                 variant={"destructive"}
-                                onClick={() => deleteRide(r.ride_id)}>
+                                onClick={() => deleteStore(r.id)}>
                                 Delete
                             </Button>
                         </div>
