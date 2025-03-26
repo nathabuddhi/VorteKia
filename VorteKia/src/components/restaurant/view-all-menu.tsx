@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
+import CreateMenuDialog from "./create-menu";
 
 export default function ViewAllMenu(restaurant: { restaurant: Restaurant }) {
     const [menus, setMenus] = useState<Menu[]>([]);
@@ -47,7 +48,8 @@ export default function ViewAllMenu(restaurant: { restaurant: Restaurant }) {
     if (getUserRole() === "supervisor") {
         return (
             <>
-                <ScrollArea className="w-full max-h-96 p-2 pr-4 relative">
+                <CreateMenuDialog />
+                <ScrollArea className="w-full h-[31rem] p-2 pr-4 relative overflow-y-scroll">
                     <div className="grid grid-cols-2 gap-4">
                         {menus.map((menu) => (
                             <ManageMenuCard key={menu.menu_id} menu={menu} />
@@ -68,7 +70,7 @@ export default function ViewAllMenu(restaurant: { restaurant: Restaurant }) {
                     />
                 </div>
 
-                <ScrollArea className="w-full max-h-96 p-2 pr-4 relative">
+                <ScrollArea className="w-full h-[31rem] p-2 pr-4 relative overflow-y-scroll">
                     <div className="grid grid-cols-2 gap-4">
                         {filteredMenus.map((menu) => (
                             <MenuCard

@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
+import CreateSouvenirDialog from "./create-souvenir";
 
 export default function ViewAllSouvenir(store: { store: Store }) {
     const [souvenirs, setSouvenirs] = useState<Souvenir[]>([]);
@@ -49,7 +50,8 @@ export default function ViewAllSouvenir(store: { store: Store }) {
     if (getUserRole() !== "customer") {
         return (
             <>
-                <ScrollArea className="w-full h-[35rem] p-2 pr-4 relative overflow-y-scroll">
+                <CreateSouvenirDialog />
+                <ScrollArea className="w-full h-[31rem] p-2 pr-4 relative overflow-y-scroll">
                     <div className="grid grid-cols-2 gap-4">
                         {souvenirs.map((souvenir) => (
                             <ManageSouvenirCard

@@ -68,6 +68,63 @@ export const CreateRestaurantSchema = z.object({
     }),
 });
 
+export const CreateMenuSchema = z.object({
+    restaurant_id: z.string().length(36, {
+        message: "Must be 36 characters long.",
+    }),
+    name: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    description: z.string().min(10, {
+        message: "At least 10 characters.",
+    }),
+    price: z.number().min(1, {
+        message: "Must be positive and at least $1.",
+    }),
+    // pictures: z.array(z.string()).min(1, {
+    //     message: "At least 1 picture.",
+    // }),
+});
+
+export const EditMenuSchema = z.object({
+    menu_id: z.string().length(36, {
+        message: "Must be 36 characters long.",
+    }),
+    restaurant_id: z.string().length(36, {
+        message: "Must be 36 characters long.",
+    }),
+    name: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    description: z.string().min(10, {
+        message: "At least 10 characters.",
+    }),
+    price: z.number().min(1, {
+        message: "Must be positive and at least $1.",
+    }),
+    // pictures: z.array(z.string()).min(1, {
+    //     message: "At least 1 picture.",
+    // }),
+});
+
+export async function createMenuPromise(
+    data: z.infer<typeof CreateMenuSchema>
+) {
+    try {
+        return await invoke<ApiResponse<Menu>>("create_menu", {
+            payload: {
+                restaurant_id: data.restaurant_id,
+                name: data.name,
+                description: data.description,
+                pictures: [""],
+                price: data.price,
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: String(error) };
+    }
+}
+
 export async function createRestaurantPromise(
     data: z.infer<typeof CreateRestaurantSchema>
 ) {
