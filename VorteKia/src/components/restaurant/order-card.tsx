@@ -42,8 +42,8 @@ export function OrderCard({ order }: { order: Order }) {
                         Menu: {order.menu_name}
                     </Label>
                     <Label className="">Quantity: {order.quantity}</Label>
-                    <Label className="text-xs">
-                        Cst. {order.customer_id}
+                    <Label className="text-xs italic">
+                        Ordered at {order.timestamp}
                     </Label>
                 </CardContent>
             </MagicCard>
@@ -87,6 +87,10 @@ export function StaffOrderCard({ order }: { order: Order }) {
                 <CardHeader className="pb-0 text-center">
                     <CardTitle className="text-xs">
                         Order #{order.order_id}
+                        <br />
+                        Cst. {order.customer_id}
+                        <br />
+                        Ordered at: {order.timestamp}
                     </CardTitle>
                     <CardDescription className="min-h-[48px] text-sm text-gray-600">
                         Status: {order.status}

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { House } from "lucide-react";
 import { useEffect, useState } from "react";
 import HelloLabel from "@/components/!misc/hello-label";
-import CreateStaff from "../generalstaff/create-staff";
+import CreateStaff from "../executive/create-staff";
 import {
     getUserRole,
     getUserDivision,
@@ -110,7 +110,7 @@ export function CustomerHeader() {
             </Link>
             {getUserSession() && <ChatBox />}
             {getUserSession() && <NotificationList />}
-            <HelloLabel />
+            <HelloLabel key={role} />
             <nav className="ml-auto flex gap-3">
                 {getCurrentApp()[2] === "login" && <RequestUID />}
                 {getCurrentApp()[2] === "home" ? (

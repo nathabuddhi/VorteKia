@@ -169,6 +169,9 @@ pub fn run() {
             controller::menu_handler::get_restaurant_menu,
             controller::menu_handler::create_menu,
             controller::menu_handler::edit_menu,
+            controller::transaction_handler::create_transaction,
+            controller::transaction_handler::get_transactions_customer,
+            controller::transaction_handler::get_transactions_store,
             controller::order_handler::order_menu,
             controller::order_handler::take_order,
             controller::order_handler::cook_order,
@@ -177,6 +180,21 @@ pub fn run() {
             controller::order_handler::get_orders_chef,
             controller::order_handler::get_orders_waiter,
             controller::order_handler::get_orders_restaurant,
+            controller::store_handler::get_all_stores,
+            controller::store_handler::get_store_by_id,
+            controller::store_handler::create_store,
+            controller::store_handler::edit_store,
+            controller::store_handler::delete_store,
+            controller::store_handler::clear_store_associate_allocation,
+            controller::store_handler::allocate_store_associate,
+            controller::store_handler::get_allocated_store_associate,
+            controller::store_handler::get_assigned_store,
+            controller::store_handler::get_all_sales_associate,
+            controller::souvenir_handler::create_souvenir,
+            controller::souvenir_handler::get_store_souvenir,
+            controller::souvenir_handler::edit_souvenir,
+            controller::souvenir_handler::delete_souvenir,
+
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

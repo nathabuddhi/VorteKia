@@ -61,3 +61,17 @@ export async function getAssignedWaiters(restaurantId: string) {
         }
     );
 }
+
+
+
+export async function getAllStoreStaff(): Promise<ApiResponse<User[]>> {
+    return await invoke<ApiResponse<User[]>>("get_all_sales_associate");
+}
+
+export async function getAssignedStoreStaffByStore(storeId: string) {
+    return await invoke<ApiResponse<User[]>>("get_allocated_store_associate", {
+        payload: {
+            id: storeId,
+        },
+    });
+}

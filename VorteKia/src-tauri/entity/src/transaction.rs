@@ -11,7 +11,7 @@ pub struct Model {
     pub customer_id: String,
     #[sea_orm(column_name = "storeID")]
     pub store_id: String,
-    pub time: DateTimeWithTimeZone,
+    pub time: Date,
     pub status: String,
     pub payment: String,
 }

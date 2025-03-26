@@ -117,5 +117,42 @@ export interface Order {
     status: string;
     menu_name: string;
     quantity: number;
+    timestamp: string;
 }
 
+export interface Store {
+    id: string;
+    name: string;
+    description: string;
+    pictures: string[];
+    status: string;
+    income: number;
+    opening: string;
+    closing: string;
+}
+
+export interface Souvenir {
+    souvenir_id: string;
+    name: string;
+    description: string;
+    pictures: string[];
+    price: number;
+}
+
+export interface Transaction {
+    transaction_id: string;
+    customer_id: string;
+    status: string;
+    souvenir_name: string;
+    quantity: number;
+    time: string;
+    payment: string;
+}
+
+export interface Income {
+    type: string;
+    total: number;
+    consumption: number;
+    marketing: number;
+    operational: number;
+}

@@ -71,7 +71,11 @@ export default function ViewAllMenu(restaurant: { restaurant: Restaurant }) {
                 <ScrollArea className="w-full max-h-96 p-2 pr-4 relative">
                     <div className="grid grid-cols-2 gap-4">
                         {filteredMenus.map((menu) => (
-                            <MenuCard key={menu.menu_id} menu={menu} />
+                            <MenuCard
+                                key={menu.menu_id}
+                                menu={menu}
+                                status={restaurant.restaurant.status}
+                            />
                         ))}
                     </div>
                 </ScrollArea>

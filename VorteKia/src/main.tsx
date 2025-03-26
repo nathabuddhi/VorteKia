@@ -30,6 +30,8 @@ import ManageJobPage from "./pages/maintenance/manage-job";
 import CSManagerPage from "./pages/customerservice/cs-manager";
 import RestaurantDetailPage from "./pages/restaurant/restaurant-detail";
 import ManageRestaurantPage from "./pages/restaurant/manage-restaurant";
+import StoreDetailPage from "./pages/store/store-detail";
+import ManageStorePage from "./pages/store/manage-store";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -112,6 +114,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                     <Route path="store">
                         <Route path="staff" element={<StoreStaffPage />} />
                         <Route path="manager" element={<StoreManagerPage />} />
+                        <Route
+                            path="manage-store/*"
+                            element={<ManageStorePage />}
+                        />
+                        <Route
+                            path="manage-menu/*"
+                            // element={<ManageMenuPage />}
+                        />
                     </Route>
                     <Route path="*" element={<Navigate to="/main/home" />} />
                 </Route>
@@ -125,11 +135,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                 </Route>
                 <Route path={"store"}>
                     <Route index element={<StoreHomePage />} />
-                    {/* <Route path="*" element={<StoreDetailPage />} /> */}
+                    <Route path="*" element={<StoreDetailPage />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/main/home" />} />
             </Route>
         </Routes>
     </BrowserRouter>
 );
-

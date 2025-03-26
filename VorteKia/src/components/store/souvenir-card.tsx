@@ -1,4 +1,4 @@
-import { Menu } from "@/types";
+import { Souvenir } from "@/types";
 import {
     Card,
     CardContent,
@@ -17,34 +17,40 @@ import { InteractiveHoverButton } from "@/components/!magicui/interactive-hover-
 import Autoplay from "embla-carousel-autoplay";
 import { Label } from "@/components/ui/label";
 import { toast, Toaster } from "sonner";
-import { orderMenuPromise } from "@/controllers/restaurant-controller";
-import { getUserSession } from "@/controllers/user-controller";
+import { createTransactionPromise } from "@/controllers/store-controller";
+import { getUserRole, getUserSession } from "@/controllers/user-controller";
 import { ShineBorder } from "@/components/!magicui/shine-border";
 import { useNavigate } from "react-router";
 
-export default function MenuCard({ menu, status }: { menu: Menu, status: String }) {
-    async function orderMenu() {
+export default function SouvenirCard({
+    souvenir,
+    status,
+}: {
+    souvenir: Souvenir;
+    status: string;
+}) {
+    async function buySouvenir() {
         const user = getUserSession();
         if (!user) {
             toast.error("You are not logged in!", {
-                description: "Please login to order a menu.",
+                description: "Please login to buy a souvenir.",
             });
             return;
         }
 
         if (status !== "Open.") {
-            toast.error("Restaurant is not operational!", {
-                description: "Please wait for the restaurant to be operational.",
+            toast.error("Store is not open!", {
+                description: "Please wait for the store to open.",
             });
             return;
         }
 
-        const response = orderMenuPromise(menu.menu_id);
+        const response = createTransactionPromise(souvenir.souvenir_id);
         toast.promise(response, {
-            loading: "Ordering Menu...",
+            loading: "Buying souvenir...",
             success:
-                "Menu Ordered! Your order will be processed by a waiter soon.",
-            error: "Failed to Order Menu: " + (await response).message,
+                "Souvenir bought! Your balance has been deducted accordingly.",
+            error: "Failed to Order Souvenir: " + (await response).message,
         });
     }
 
@@ -55,15 +61,15 @@ export default function MenuCard({ menu, status }: { menu: Menu, status: String 
                 gradientColor={"#D9D9D955"}
                 className="h-full flex flex-col justify-between">
                 <CardHeader className="pb-0 text-center">
-                    <CardTitle className="text-2xl">{menu.name}</CardTitle>
+                    <CardTitle className="text-2xl">{souvenir.name}</CardTitle>
                     <CardDescription className="min-h-[48px] text-sm text-gray-600">
-                        {menu.description}
+                        {souvenir.description}
                     </CardDescription>
                 </CardHeader>
 
                 <CardContent className="pb-2 flex flex-col gap-y-2">
                     <Label className="font-semibold">
-                        Menu Price: ${menu.price}
+                        Souvenir Price: ${souvenir.price}
                     </Label>
 
                     <Carousel
@@ -78,7 +84,7 @@ export default function MenuCard({ menu, status }: { menu: Menu, status: String 
                             loop: true,
                         }}>
                         <CarouselContent>
-                            {menu.pictures?.map((link) => (
+                            {souvenir.pictures?.map((link) => (
                                 <CarouselItem key={link}>
                                     <img
                                         className="w-full h-36 bg-cover bg-no-repeat rounded-lg object-cover"
@@ -97,8 +103,8 @@ export default function MenuCard({ menu, status }: { menu: Menu, status: String 
                 <CardFooter className="mt-auto">
                     <InteractiveHoverButton
                         className="w-full"
-                        onClick={() => orderMenu()}>
-                        Order
+                        onClick={() => buySouvenir()}>
+                        Buy
                     </InteractiveHoverButton>
                 </CardFooter>
             </MagicCard>
@@ -106,7 +112,7 @@ export default function MenuCard({ menu, status }: { menu: Menu, status: String 
     );
 }
 
-export function ManageMenuCard({ menu }: { menu: Menu }) {
+export function ManageSouvenirCard({ souvenir }: { souvenir: Souvenir }) {
     const navigate = useNavigate();
 
     return (
@@ -117,24 +123,26 @@ export function ManageMenuCard({ menu }: { menu: Menu }) {
             />
             <CardHeader className="pb-0">
                 <CardTitle className="text-2xl pl-1 text-center">
-                    {menu.name}
+                    {souvenir.name}
                 </CardTitle>
                 <CardDescription className="min-h-[48px] text-sm text-gray-600">
-                    {menu.description}
+                    {souvenir.description}
                 </CardDescription>
             </CardHeader>
             <CardContent className="pb-2 flex flex-col gap-y-2">
-                <Label>Menu Price: ${menu.price}</Label>
+                <Label>Souvenir Price: ${souvenir.price}</Label>
             </CardContent>
             <CardFooter>
                 <InteractiveHoverButton
                     className="w-full"
+                    disabled={getUserRole() === "staff"}
                     onClick={() =>
                         navigate(
-                            "/staff/restaurant/manage-menu/" + menu.menu_id
+                            "/staff/store/manage-souvenir/" +
+                                souvenir.souvenir_id
                         )
                     }>
-                    Manage Menu
+                    Manage Souvenir
                 </InteractiveHoverButton>
             </CardFooter>
         </Card>

@@ -8,25 +8,42 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
 import { Store } from "@/types";
-import { getAssignedStore } from "@/controllers/store-controller";
-import { Toaster } from "sonner";
+import { getStoreById } from "@/controllers/store-controller";
+import { useNavigate } from "react-router";
+import { toast, Toaster } from "sonner";
+import { getUserRole } from "@/controllers/user-controller";
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
 import ViewAllSouvenir from "@/components/store/view-all-souvenir";
-import { ViewAllTransactions } from "@/components/store/view-transaction-history";
+import ViewTransactionHistory from "@/components/store/view-transaction-history";
 
-export default function StoreStaffPage() {
+export default function StoreDetailPage() {
     const [store, setStore] = useState<Store | null>(null);
-
-    const fetchAssignedStore = async () => {
-        const response = await getAssignedStore();
-        if (response.success) {
-            setStore(response.data);
-        }
-    };
+    const [isLoggedIn, setLoggedIn] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchAssignedStore();
+        const url = new URL(window.location.href);
+        const pathParts = url.pathname.split("/");
+        const storeId = pathParts[pathParts.length - 1];
+
+        const fetchStoreDetails = async () => {
+            const response = await getStoreById(storeId);
+            if (response.data === null) {
+                toast.error("Store Not Found!", {
+                    description:
+                        "This store does not exist. Redirecting in half a second.",
+                });
+                console.log(response);
+                setTimeout(() => {
+                    navigate("/store");
+                }, 500);
+            }
+            setLoggedIn(getUserRole() !== "");
+            setStore(response.data);
+        };
+
+        fetchStoreDetails();
     }, [store]);
 
     return (
@@ -38,12 +55,12 @@ export default function StoreStaffPage() {
                             Information
                         </TabsTrigger>
                         <TabsTrigger value="souvenir">Souvenir</TabsTrigger>
-                        <TabsTrigger value="history">
+                        <TabsTrigger value="history" disabled={!isLoggedIn}>
                             Transaction History
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value="information">
-                        <Toaster position="bottom-right" richColors expand />
+                        <Toaster position="bottom-right" richColors />
                         <MagicCard
                             className="max-w-3xl bg-white p-6 rounded-lg shadow-md"
                             gradientColor={"#D9D9D955"}>
@@ -58,7 +75,6 @@ export default function StoreStaffPage() {
                                 <Label>
                                     Operational Status: {store?.status}
                                 </Label>
-                                <Label>Store Income: ${store?.income}</Label>
                             </div>
 
                             <Carousel
@@ -69,7 +85,7 @@ export default function StoreStaffPage() {
                                     {store?.pictures.map((link) => (
                                         <CarouselItem key={link}>
                                             <img
-                                                className="w-full h-80 bg-cover bg-no-repeat rounded-lg object-cover"
+                                                className="w-full h-96 bg-cover bg-no-repeat rounded-lg object-cover"
                                                 src={link}
                                                 onError={(e) => {
                                                     e.currentTarget.src =
@@ -86,7 +102,9 @@ export default function StoreStaffPage() {
                         {store && <ViewAllSouvenir store={store} />}
                     </TabsContent>
                     <TabsContent value="history">
-                        {store && <ViewAllTransactions store={store} />}
+                        {store && (
+                            <ViewTransactionHistory store={store} />
+                        )}
                     </TabsContent>
                 </Tabs>
             </NeonGradientCard>

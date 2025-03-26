@@ -1,4 +1,4 @@
-import { Restaurant } from "@/types";
+import { Store } from "@/types";
 import {
     Card,
     CardContent,
@@ -20,33 +20,29 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
-export default function RestaurantCard({
-    restaurant,
-}: {
-    restaurant: Restaurant;
-}) {
+export default function StoreCard({ store }: { store: Store }) {
     return (
         <Card className="max-w-[29rem]">
             <MagicCard gradientColor={"#D9D9D955"}>
                 <CardHeader className="pb-0">
                     <CardTitle className="text-2xl pl-1 text-center">
-                        {restaurant.name}
+                        {store.name}
                     </CardTitle>
-                    <CardDescription className="pl-1 text-justify line-clamp-3">
-                        {restaurant.description}
+                    <CardDescription className="pl-1 text-justify line-clamp-3 min-h-[48px]">
+                        {store.description}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-2">
-                    <Label className="font-semibold">
-                        Restaurant Cuisine: {restaurant.cuisine}
-                    </Label>
-                    <br />
                     <Label
                         className={
-                            restaurant.status !== "Open." ? "text-red-500" : ""
+                            store.status !== "Operational."
+                                ? "text-red-500"
+                                : ""
                         }>
-                        Current Status: {restaurant.status}
+                        Current Status: {store.status}
                     </Label>
+                    <br />
+                    <Label>Income: {store.income}</Label>
                     <Carousel
                         className="w-full"
                         plugins={[
@@ -59,7 +55,7 @@ export default function RestaurantCard({
                             loop: true,
                         }}>
                         <CarouselContent className="">
-                            {restaurant.pictures?.map((link) => (
+                            {store.pictures?.map((link) => (
                                 <CarouselItem key={link}>
                                     <img
                                         className="w-full h-56 bg-cover bg-no-repeat rounded-lg object-cover"
@@ -79,10 +75,10 @@ export default function RestaurantCard({
                         className="w-full"
                         onClick={() =>
                             toast.info(
-                                "Head to each restaurant to view full details, menu, order, etc!"
+                                "Head to each store to view full details, menu, order, etc!"
                             )
                         }>
-                        View Restaurant
+                        View Store
                     </InteractiveHoverButton>
                 </CardFooter>
             </MagicCard>
@@ -90,11 +86,7 @@ export default function RestaurantCard({
     );
 }
 
-export function ManageRestaurantCard({
-    restaurant,
-}: {
-    restaurant: Restaurant;
-}) {
+export function ManageStoreCard({ store }: { store: Store }) {
     const navigate = useNavigate();
 
     return (
@@ -105,33 +97,30 @@ export function ManageRestaurantCard({
             />
             <CardHeader className="pb-0">
                 <CardTitle className="text-2xl pl-1 text-center">
-                    {restaurant.name}
+                    {store.name}
                 </CardTitle>
-                <CardDescription className="pl-1 text-justify line-clamp-3">
-                    {restaurant.description}
+                <CardDescription className="pl-1 text-justify line-clamp-3 min-h-[48px]">
+                    {store.description}
                 </CardDescription>
             </CardHeader>
             <CardContent className="pb-2 flex flex-col gap-y-2">
                 <Label
                     className={`${
-                        restaurant.status !== "Open."
+                        store.status !== "Open."
                             ? "text-red-500"
                             : "text-green-500"
                     }`}>
-                    Restaurant Status: {restaurant.status}
+                    Store Status: {store.status}
                 </Label>
-                <Label>Restaurant Income: ${restaurant.income}</Label>
+                <Label>Store Income: ${store.income}</Label>
             </CardContent>
             <CardFooter>
                 <InteractiveHoverButton
                     className="w-full"
                     onClick={() =>
-                        navigate(
-                            "/staff/restaurant/manage-restaurant/" +
-                                restaurant.id
-                        )
+                        navigate("/staff/store/manage-store/" + store.id)
                     }>
-                    Manage Restaurant
+                    Manage Store
                 </InteractiveHoverButton>
             </CardFooter>
         </Card>

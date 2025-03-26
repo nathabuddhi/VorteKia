@@ -1,8 +1,9 @@
+use chrono::Utc;
 use entity::order::{ActiveModel as OrderActiveModel, Entity as OrderEntities};
 use entity::order_detail::{ActiveModel as DetailActiveModel, Entity as DetailEntities};
 use entity::restaurant::Entity as RestaurantEntities;
 use entity::menu::Entity as MenuEntities;
-use sea_orm::{IntoActiveModel, Set};
+use sea_orm::{IntoActiveModel, QueryOrder, Set};
 use sea_orm::{EntityTrait, QueryFilter, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use tauri::{command, State};
@@ -59,6 +60,7 @@ pub async fn order_menu(
         customer_id: Set(payload.user_id.clone()),
         status: Set("pending".to_string()),
         restaurant_id: Set(restaurant.restaurant_id.clone()),
+        timestamp: Set(Utc::now().naive_utc()),
     };
 
     let new_detail = DetailActiveModel {
@@ -144,6 +146,7 @@ pub struct OrderReturn {
     pub status: String,
     pub menu_name: String,
     pub quantity: i32,
+    pub timestamp: String,
 }
 
 #[command]
@@ -180,6 +183,7 @@ pub async fn get_orders_chef(
             status: o.status.clone(),
             menu_name: menu_name.clone(),
             quantity: details.quantity.clone(),
+            timestamp: o.timestamp.clone().to_string(),
         };
 
         orders_return.push(order);
@@ -222,6 +226,7 @@ pub async fn get_orders_waiter(
             status: o.status.clone(),
             menu_name: menu_name.clone(),
             quantity: details.quantity.clone(),
+            timestamp: o.timestamp.clone().to_string(),
         };
 
         orders_return.push(order);
@@ -246,6 +251,7 @@ pub async fn get_orders_customer(
     let orders = OrderEntities::find()
         .filter(<OrderEntities as EntityTrait>::Column::RestaurantId.eq(payload.restaurant_id))
         .filter(<OrderEntities as EntityTrait>::Column::CustomerId.eq(payload.user_id))
+        .order_by_desc(<OrderEntities as EntityTrait>::Column::Timestamp)
         .all(&db)
         .await
         .map_err(|e| e.to_string())?;
@@ -270,6 +276,7 @@ pub async fn get_orders_customer(
             status: o.status.clone(),
             menu_name: menu_name.clone(),
             quantity: details.quantity.clone(),
+            timestamp: o.timestamp.clone().to_string(),
         };
 
         orders_return.push(order);
@@ -287,6 +294,7 @@ pub async fn get_orders_restaurant(
 
     let orders = OrderEntities::find()
         .filter(<OrderEntities as EntityTrait>::Column::RestaurantId.eq(payload.id))
+        .order_by_desc(<OrderEntities as EntityTrait>::Column::Timestamp)
         .all(&db)
         .await
         .map_err(|e| e.to_string())?;
@@ -311,6 +319,7 @@ pub async fn get_orders_restaurant(
             status: o.status.clone(),
             menu_name: menu_name.clone(),
             quantity: details.quantity.clone(),
+            timestamp: o.timestamp.clone().to_string(),
         };
 
         orders_return.push(order);

@@ -21,57 +21,45 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "../ui/textarea";
-import { Restaurant } from "@/types";
+import { Store } from "@/types";
 import { useNavigate } from "react-router";
 import { ScrollArea } from "../ui/scroll-area";
 import {
-    editRestaurantPromise,
-    UpdateRestaurantSchema,
-} from "@/controllers/restaurant-controller";
+    editStorePromise,
+    UpdateStoreSchema,
+} from "@/controllers/store-controller";
 
-export default function EditRestaurant({
-    restaurant,
-}: {
-    restaurant: Restaurant;
-}) {
+export default function EditStore({ store }: { store: Store }) {
     const navigate = useNavigate();
 
-    const form = useForm<z.infer<typeof UpdateRestaurantSchema>>({
-        resolver: zodResolver(UpdateRestaurantSchema),
+    const form = useForm<z.infer<typeof UpdateStoreSchema>>({
+        resolver: zodResolver(UpdateStoreSchema),
         defaultValues: {
-            id: restaurant.id,
-            name: restaurant.name,
-            description: restaurant.description,
-            cuisine: restaurant.cuisine,
-            opening: restaurant.opening,
-            closing: restaurant.closing,
+            id: store.id,
+            name: store.name,
+            description: store.description,
+            opening: store.opening,
+            closing: store.closing,
         },
         mode: "onChange",
     });
 
-    async function editRestaurant(data: z.infer<typeof UpdateRestaurantSchema>) {
+    async function editStore(data: z.infer<typeof UpdateStoreSchema>) {
         try {
-            const response = editRestaurantPromise(data);
+            const response = editStorePromise(data);
             toast.promise(response, {
-                loading: "Editting restaurant...",
+                loading: "Editting store...",
                 success: () => {
                     setTimeout(() => {
-                        navigate("/staff/restaurant/supervisor");
+                        navigate("/staff/store/manager");
                     }, 150);
-                    return "Successfully updated restaurant!";
+                    return "Successfully updated store!";
                 },
                 error: (error) => `${error.message || error}`,
             });
         } catch (error) {
-            toast.error("Failed editting restaurant!", {
+            toast.error("Failed editting store!", {
                 description: "An error occured: " + error,
                 action: {
                     label: "Close",
@@ -86,16 +74,16 @@ export default function EditRestaurant({
             <Dialog>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
-                    <Button variant="outline">Edit Restaurant Details</Button>
+                    <Button variant="outline">Edit Store Details</Button>
                 </DialogTrigger>
                 <DialogContent className="w-[27.8rem]">
                     <ScrollArea className="max-h-96">
                         <Form {...form}>
                             <form
-                                onSubmit={form.handleSubmit(editRestaurant)}
+                                onSubmit={form.handleSubmit(editStore)}
                                 className="space-y-6">
                                 <DialogHeader>
-                                    <DialogTitle>Edit Restaurant</DialogTitle>
+                                    <DialogTitle>Edit Store</DialogTitle>
                                     <DialogDescription>
                                         Make sure you don't scuff out the
                                         details.
@@ -106,12 +94,12 @@ export default function EditRestaurant({
                                     name="id"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Restaurant ID</FormLabel>
+                                            <FormLabel>Store ID</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     disabled
                                                     {...field}
-                                                    value={restaurant.id}
+                                                    value={store.id}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -123,15 +111,11 @@ export default function EditRestaurant({
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Restaurant Name
-                                            </FormLabel>
+                                            <FormLabel>Store Name</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Restaurant Name"
-                                                    defaultValue={
-                                                        restaurant.name
-                                                    }
+                                                    placeholder="Store Name"
+                                                    defaultValue={store.name}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -147,53 +131,12 @@ export default function EditRestaurant({
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Restaurant Description"
+                                                    placeholder="Store Description"
                                                     defaultValue={
-                                                        restaurant.description
+                                                        store.description
                                                     }
                                                     {...field}
                                                 />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="cuisine"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                Restaurant Cuisine
-                                            </FormLabel>
-                                            <FormControl>
-                                                <FormControl>
-                                                    <Select
-                                                        onValueChange={
-                                                            field.onChange
-                                                        }
-                                                        defaultValue={
-                                                            field.value
-                                                        }>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select Cuisine" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="asian">
-                                                                Asian
-                                                            </SelectItem>
-                                                            <SelectItem value="italian">
-                                                                Italian
-                                                            </SelectItem>
-                                                            <SelectItem value="western">
-                                                                Western
-                                                            </SelectItem>
-                                                            <SelectItem value="fusion">
-                                                                Fusion
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -209,9 +152,7 @@ export default function EditRestaurant({
                                                 <Input
                                                     type="time"
                                                     {...field}
-                                                    defaultValue={
-                                                        restaurant.opening
-                                                    }
+                                                    defaultValue={store.opening}
                                                     onChange={(e) =>
                                                         field.onChange(
                                                             e.target.value +
@@ -234,9 +175,7 @@ export default function EditRestaurant({
                                                 <Input
                                                     type="time"
                                                     {...field}
-                                                    defaultValue={
-                                                        restaurant.closing
-                                                    }
+                                                    defaultValue={store.closing}
                                                     onChange={(e) =>
                                                         field.onChange(
                                                             e.target.value +
@@ -251,7 +190,7 @@ export default function EditRestaurant({
                                 />
                                 <DialogFooter className="flex flex-col w-full">
                                     <Button type="submit">
-                                        Save Restaurant Details
+                                        Save Store Details
                                     </Button>
                                 </DialogFooter>
                             </form>
