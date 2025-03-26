@@ -25,6 +25,8 @@ import CreateProposal from "../generalstaff/create-proposal";
 import CreateJob from "../maintenance/create-job";
 import CreateItemDialog from "../customerservice/create-item";
 import DeleteRideDialog from "../executive/delete-ride";
+import DeleteRestaurantDialog from "../executive/delete-restaurant";
+import DeleteStoreDialog from "../executive/delete-store";
 
 export function getCurrentApp() {
     const location = useLocation();
@@ -382,7 +384,7 @@ export function ExecutiveHeader() {
                 <ViewProposals />
                 {role === "ceo" && <DeleteStoreDialog />}
                 {(role === "coo" || role === "ceo") && <DeleteRideDialog />}
-                {(role === "coo" || role === "ceo") && <DeleteStoreDialog />}
+                {(role === "coo" || role === "ceo") && <DeleteRestaurantDialog />}
                 {(role === "coo" || role === "ceo") && <CreateStaff />}
                 <Button
                     onClick={() => {
