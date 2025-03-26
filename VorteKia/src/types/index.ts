@@ -150,7 +150,7 @@ export interface Transaction {
 }
 
 export interface Income {
-    type: string;
+    income_type: string;
     total: number;
     consumption: number;
     marketing: number;

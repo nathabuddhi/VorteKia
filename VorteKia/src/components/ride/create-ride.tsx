@@ -61,7 +61,7 @@ export default function CreateRideDialog() {
             <Dialog>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
-                    <Button variant="ghost">Create Ride</Button>
+                    <Button variant="default">Create Ride</Button>
                 </DialogTrigger>
                 <DialogContent className="w-[27.8rem]">
                     <Form {...form}>

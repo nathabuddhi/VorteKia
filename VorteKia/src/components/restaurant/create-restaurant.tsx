@@ -71,7 +71,7 @@ export default function CreateRestaurantDialog() {
             <Dialog>
                 <Toaster position="bottom-right" richColors={true} />
                 <DialogTrigger asChild>
-                    <Button variant="ghost">Create Restaurant</Button>
+                    <Button variant="default">Create Restaurant</Button>
                 </DialogTrigger>
                 <DialogContent className="w-[27.8rem]">
                     <ScrollArea className="max-h-96">

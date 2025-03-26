@@ -1,6 +1,6 @@
 import { ManageRestaurantCard } from "@/components/restaurant/restaurant-card";
 import { getAllRestaurants } from "@/controllers/restaurant-controller";
-import { Restaurant } from "@/types";
+import { ApiResponse, Income, Restaurant } from "@/types";
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 import {
@@ -10,6 +10,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { invoke } from "@tauri-apps/api/core";
+import { Label } from "@/components/ui/label";
 
 export default function RestaurantSupervisorPage() {
     const [restaurants, setRestaurants] = useState<Restaurant[] | null>(null);
@@ -20,9 +22,14 @@ export default function RestaurantSupervisorPage() {
         Restaurant[] | null
     >(null);
     const [filter, setFilter] = useState("all");
+    const [totalIncome, setTotalIncome] = useState(0);
 
     const fetchRestaurants = async () => {
         const response = await getAllRestaurants();
+
+        const response2 = await invoke<ApiResponse<Income>>("get_cfo_income", {
+            payload: "all",
+        });
 
         if (response.success) {
             const allRestaurants = response.data;
@@ -46,6 +53,9 @@ export default function RestaurantSupervisorPage() {
             }
 
             setOriginalRestaurants(allRestaurants);
+            if (response2 && response2.data) {
+                setTotalIncome(response2.data.consumption);
+            }
         } else {
             toast.error("Failed fetching restaurants!", {
                 description: "An error occurred: " + response.message,
@@ -116,6 +126,11 @@ export default function RestaurantSupervisorPage() {
                         <SelectItem value="Closed.">Closed</SelectItem>
                     </SelectContent>
                 </Select>
+            </div>
+            <div className="w-full flex justify-center items-center my-5">
+                <Label className="text-xl">
+                    All Restaurant Income Today: ${totalIncome}
+                </Label>
             </div>
             <div
                 className={`justify-center grid gap-6 ${
