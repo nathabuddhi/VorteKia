@@ -12,7 +12,6 @@ import { Message } from "@/types";
 import { useEffect, useState } from "react";
 import { SendHorizonal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
-import { Toaster } from "sonner";
 
 export default function ChatComponent({
     room_id,
@@ -54,7 +53,6 @@ export default function ChatComponent({
     return (
         <>
             <Dialog>
-                <Toaster richColors />
                 <DialogTrigger>
                     <Button
                         size={"sm"}

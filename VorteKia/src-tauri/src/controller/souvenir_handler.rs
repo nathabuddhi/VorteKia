@@ -102,6 +102,38 @@ pub async fn create_souvenir(
 }
 
 #[command]
+pub async fn get_souvenir_by_id(
+    state: State<'_, AppState>,
+    payload: SingleUidRequest
+) -> Result<ApiResponse<SouvenirReturn>, String> {
+    let db: DatabaseConnection = state.get_db().await.map_err(|e| e.to_string())?;
+
+    let souvenir = SouvenirEntities::find()
+        .filter(<SouvenirEntities as EntityTrait>::Column::SouvenirId.eq(payload.id))
+        .one(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let souvenir = match souvenir {
+        Some(souvenir) => souvenir,
+        None => {
+            return Ok(ApiResponse::error(None, "Souvenir not found".to_string()));
+        }
+    };
+
+    let souvenir_return = SouvenirReturn {
+        souvenir_id: souvenir.souvenir_id.clone(),
+        name: souvenir.name.clone(),
+        description: souvenir.description.unwrap().clone(),
+        price: souvenir.price,
+        pictures: souvenir.pictures.clone(),
+    };
+
+    Ok(ApiResponse::success(souvenir_return, "Souvenir fetched successfully".to_string()))
+}
+
+
+#[command]
 pub async fn edit_souvenir(
     state: State<'_, AppState>,
     payload: SouvenirReturn

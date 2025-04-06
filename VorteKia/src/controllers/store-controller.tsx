@@ -80,6 +80,24 @@ export const CreateSouvenirSchema = z.object({
     // }),
 });
 
+export const UpdateSouvenirSchema = z.object({
+    id: z.string().length(36, {
+        message: "Invalid souvenir ID",
+    }),
+    name: z.string().min(3, {
+        message: "At least 3 characters.",
+    }),
+    description: z.string().min(10, {
+        message: "At least 10 characters.",
+    }),
+    // pictures: z.array(z.string()).min(1, {
+    //     message: "At least 1 picture.",
+    // }),
+    price: z.number().min(1, {
+        message: "Must be positive and at least $1.",
+    }),
+});
+
 export async function createSouvenirPromise(
     data: z.infer<typeof CreateSouvenirSchema>
 ) {
@@ -214,6 +232,44 @@ export async function deleteStorePromise(
     id: string
 ): Promise<ApiResponse<boolean>> {
     return await invoke<ApiResponse<boolean>>("delete_store", {
+        payload: {
+            id: id,
+        },
+    });
+}
+
+export async function getSouvenirById(
+    id: string
+): Promise<ApiResponse<Souvenir>> {
+    return await invoke<ApiResponse<Souvenir>>("get_souvenir_by_id", {
+        payload: {
+            id: id,
+        },
+    });
+}
+
+export async function editSouvenirPromise(
+    data: z.infer<typeof UpdateSouvenirSchema>
+): Promise<ApiResponse<String>> {
+    try {
+        return await invoke<ApiResponse<String>>("edit_souvenir", {
+            payload: {
+                souvenir_id: data.id,
+                name: data.name,
+                description: data.description,
+                price: data.price,
+                pictures: [""],
+            },
+        });
+    } catch (error) {
+        return { success: false, data: null, message: String(error) };
+    }
+}
+
+export async function deleteSouvenirPromise(
+    id: string
+): Promise<ApiResponse<boolean>> {
+    return await invoke<ApiResponse<boolean>>("delete_souvenir", {
         payload: {
             id: id,
         },

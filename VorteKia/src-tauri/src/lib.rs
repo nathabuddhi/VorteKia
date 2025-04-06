@@ -194,6 +194,7 @@ pub fn run() {
             controller::souvenir_handler::get_store_souvenir,
             controller::souvenir_handler::edit_souvenir,
             controller::souvenir_handler::delete_souvenir,
+            controller::souvenir_handler::get_souvenir_by_id,
             controller::income_handler::get_cfo_income,
             controller::income_handler::get_store_income_day,
             ])

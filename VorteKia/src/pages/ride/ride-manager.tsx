@@ -2,7 +2,7 @@ import { ManageRideCard } from "@/components/ride/ride-card";
 import { getRides } from "@/controllers/ride-controller";
 import { Ride } from "@/types";
 import { useEffect, useState } from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export default function RideManagerPage() {
     const [rides, setRides] = useState<Ride[] | null>(null);
@@ -42,7 +42,6 @@ export default function RideManagerPage() {
 
     return (
         <div className="p-4">
-            <Toaster position="bottom-right" richColors />
             <h1 className="text-4xl font-bold mb-4 text-center">
                 Ride Manager Page
             </h1>

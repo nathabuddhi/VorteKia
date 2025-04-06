@@ -32,6 +32,7 @@ import RestaurantDetailPage from "./pages/restaurant/restaurant-detail";
 import ManageRestaurantPage from "./pages/restaurant/manage-restaurant";
 import StoreDetailPage from "./pages/store/store-detail";
 import ManageStorePage from "./pages/store/manage-store";
+import ManageSouvenirPage from "./pages/store/manage-souvenir";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
@@ -76,10 +77,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                             path="manage-restaurant/*"
                             element={<ManageRestaurantPage />}
                         />
-                        <Route
+                        {/* <Route
                             path="manage-menu/*"
-                            // element={<ManageMenuPage />}
-                        />
+                            element={<ManageMenuPage />}
+                        /> */}
                     </Route>
                     <Route path="ceo" element={<CEOPage />} />
                     <Route path="coo" element={<COOPage />} />
@@ -119,8 +120,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                             element={<ManageStorePage />}
                         />
                         <Route
-                            path="manage-menu/*"
-                            // element={<ManageMenuPage />}
+                            path="manage-souvenir/*"
+                            element={<ManageSouvenirPage />}
                         />
                     </Route>
                     <Route path="*" element={<Navigate to="/main/home" />} />

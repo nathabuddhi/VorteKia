@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { Ride } from "@/types";
 import { getRideById } from "@/controllers/ride-controller";
 import { useNavigate } from "react-router";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 import { NeonGradientCard } from "@/components/!magicui/neon-gradient-card";
 import { MagicCard } from "@/components/!magicui/magic-card";
@@ -47,7 +47,6 @@ export default function ManageRidePage() {
     return (
         <div className="flex items-center justify-center text-center h-[calc(100vh-3.5rem)] w-screen">
             <NeonGradientCard className="h-[calc(100vh-10rem)] w-[calc(100vh-10rem)]">
-                <Toaster position="bottom-right" richColors expand />
                 <MagicCard
                     className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md"
                     gradientColor={"#D9D9D955"}>
